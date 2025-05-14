@@ -14,6 +14,10 @@ body {
   line-height: 1.6;
 }
 
+p {
+  font-size: $size-xl;
+}
+
 /* Container */
 .minimalist-container {
   max-width: 1400px;
@@ -55,8 +59,8 @@ body {
   }
 
   h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: $size-xl;
+    font-weight: $weight-bold;
     margin: 0;
     letter-spacing: 0.1em;
   }
@@ -114,15 +118,15 @@ body {
   padding-right: 2rem;
 
   h2 {
-    font-size: 3.5rem;
-    font-weight: 700;
+    font-size: $size-4xl;
+    font-weight: $weight-bold;
     margin: 0 0 1rem;
     line-height: 1.2;
     color: $color-brand-primary;
   }
 
   p {
-    font-size: 1.5rem;
+    font-size: $size-xl;
     color: $color-text-primary;
     margin: 0;
   }
@@ -222,13 +226,13 @@ body {
   }
 
   .card-icon {
-    font-size: 2.5rem;
+    font-size: $size-xl;
     margin-bottom: 1rem;
   }
 
   h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
+    font-size: $size-xl;
+    font-weight: $weight-semibold;
     margin: 0;
   }
 }
@@ -248,13 +252,12 @@ body {
 
 .about-text {
   h2 {
-    font-size: 2.5rem;
+    font-size: $size-2xl;
     color: $color-brand-primary;
     margin-bottom: 1.5rem;
   }
 
   p {
-    font-size: 1.1rem;
     line-height: 1.8;
     color: $color-text-primary;
   }
@@ -275,7 +278,6 @@ body {
   transform: translateY(-50%);
   width: 300px;
   height: 300px;
-  opacity: 0.1;
   color: $color-brand-primary;
 }
 
@@ -285,24 +287,21 @@ body {
   text-align: center;
   position: relative;
   z-index: 1;
-}
 
-.newsletter-header {
-  margin-bottom: 2rem;
-}
-
-.newsletter-content {
   h2 {
-    font-size: 2.5rem;
+    font-size: $size-2xl;
     color: $color-brand-primary;
     margin-bottom: 1rem;
   }
 
   p {
-    font-size: 1.1rem;
     color: $color-text-primary;
     margin-bottom: 2rem;
   }
+}
+
+.newsletter-header {
+  margin-bottom: 2rem;
 }
 
 .newsletter-form {
@@ -321,7 +320,7 @@ body {
   padding: 1rem;
   border: 2px solid rgba($color-brand-primary, 0.2);
   border-radius: 4px;
-  font-size: 1rem;
+  font-size: $size-base;
   transition: border-color $transition-default;
 
   &:focus {
@@ -336,8 +335,8 @@ body {
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: $size-base;
+  font-weight: $weight-semibold;
   cursor: pointer;
   transition: background-color $transition-default;
 
@@ -348,11 +347,27 @@ body {
 
 .newsletter-message {
   margin-top: 1rem;
-  font-size: 0.9rem;
+  font-size: $size-sm;
   color: $color-text-primary;
 }
 
 /* Responsive Design */
+@media (max-width: $breakpoint-lg) {
+  .hero-text h2 {
+    font-size: $size-2xl;
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .logo h1 {
+    font-size: $size-lg;
+  }
+
+  .hero-text h2 {
+    font-size: $size-xl;
+  }
+}
+
 @media (max-width: 1024px) {
   .hero-grid {
     grid-template-columns: 1fr;
