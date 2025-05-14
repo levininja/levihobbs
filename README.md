@@ -137,7 +137,7 @@ If you encounter any issues:
 
 MIT License
 
-Copyright (c) 2024 Levi Hobbs
+Copyright (c) 2025 Levi Hobbs
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
