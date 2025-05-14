@@ -1,0 +1,120 @@
+@model List<levihobbs.Models.Story>
+@{
+    ViewData["Title"] = $"{ViewData["Category"]} - Reader";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/reader.css?v=@DateTime.Now.Ticks" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+}
+
+<div class="reader-container">
+    <div class="reader-header">
+        <h1>@ViewData["Category"]</h1>
+    </div>
+    
+    <div class="story-cards">
+        @foreach (var story in Model)
+        {
+            <div class="card story-card">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <div class="thumbnail-container">
+                            <div class="story-icon">
+                                @if (story.Title == "The Last Starship")
+                                {
+                                    <!-- Starship icon -->
+                                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="custom-icon">
+                                        <path d="M50,25 C70,15 80,30 85,40 C87,45 90,45 94,43" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M50,25 C30,15 20,30 15,40 C13,45 10,45 6,43" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M30,40 L70,40 C75,45 80,60 80,75 L50,65 L20,75 C20,60 25,45 30,40 Z" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                        <circle cx="50" cy="48" r="5" stroke-width="5" fill="none" />
+                                        <path d="M40,60 L60,60" stroke-width="4" fill="none" stroke-linecap="round" />
+                                        <path d="M43,70 L57,70" stroke-width="4" fill="none" stroke-linecap="round" />
+                                        <path d="M20,75 L15,85" stroke-width="5" fill="none" stroke-linecap="round" />
+                                        <path d="M80,75 L85,85" stroke-width="5" fill="none" stroke-linecap="round" />
+                                    </svg>
+                                }
+                                else if (story.Title == "Dragon's Breath")
+                                {
+                                    <!-- Dragon icon -->
+                                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="custom-icon">
+                                        <path d="M20,60 C25,50 35,45 40,48 C45,40 55,35 60,40 C65,30 75,30 80,35 C84,32 88,35 85,40" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M80,40 C90,45 85,55 75,55 C73,60 65,65 60,60 C55,70 45,65 40,60 C30,65 15,55 20,45" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M75,55 L85,58 L90,65 L88,75 L80,80 L70,75" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                        <circle cx="83" cy="65" r="2" stroke-width="2" fill="#ffffff" />
+                                        <path d="M70,60 C75,58 80,62 75,65 C70,68 65,64 70,60Z" stroke-width="4" fill="none" />
+                                        <path d="M85,58 C90,50 95,55 90,65" stroke-width="4" fill="none" stroke-linecap="round" />
+                                        <path d="M60,60 C65,55 68,65 65,70 C60,75 55,70 60,60Z" stroke-width="4" fill="none" />
+                                        <path d="M40,60 C45,55 48,65 45,70 C40,75 35,70 40,60Z" stroke-width="4" fill="none" />
+                                        <path d="M40,48 L30,40 L25,25 L35,35 L45,30" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                }
+                                else if (story.Title == "City Lights")
+                                {
+                                    <!-- City Lights icon -->
+                                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="custom-icon">
+                                        <path d="M15,80 L15,60 L25,60 L25,80" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M30,80 L30,50 L40,50 L40,80" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M45,80 L45,55 L55,45 L65,55 L65,80" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M70,80 L70,40 L85,40 L85,80" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M10,80 L90,80" stroke-width="5" fill="none" stroke-linecap="round" />
+                                        <path d="M75,50 L80,50" stroke-width="3" fill="none" stroke-linecap="round" />
+                                        <path d="M75,60 L80,60" stroke-width="3" fill="none" stroke-linecap="round" />
+                                        <path d="M75,70 L80,70" stroke-width="3" fill="none" stroke-linecap="round" />
+                                        <path d="M20,70 L20,65" stroke-width="3" fill="none" stroke-linecap="round" />
+                                        <path d="M35,60 L35,65" stroke-width="3" fill="none" stroke-linecap="round" />
+                                        <path d="M50,65 L55,65" stroke-width="3" fill="none" stroke-linecap="round" />
+                                        <circle cx="20" cy="40" r="8" stroke-width="5" fill="none" />
+                                        <path d="M15,25 L25,25" stroke-width="3" fill="none" stroke-linecap="round" />
+                                        <path d="M20,20 L20,30" stroke-width="3" fill="none" stroke-linecap="round" />
+                                        <path d="M45,30 L70,20 L75,25 L65,35" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                }
+                                else if (story.Title == "The Silent Patient")
+                                {
+                                    <!-- Silent Patient icon -->
+                                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="custom-icon">
+                                        <circle cx="50" cy="40" r="25" stroke-width="5" fill="none" />
+                                        <path d="M35,40 C35,35 45,30 50,35 C55,40 65,35 65,40" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M40,30 C40,25 45,25 45,30" stroke-width="4" fill="none" stroke-linecap="round" />
+                                        <path d="M55,30 C55,25 60,25 60,30" stroke-width="4" fill="none" stroke-linecap="round" />
+                                        <path d="M30,70 L70,70" stroke-width="5" fill="none" stroke-linecap="round" />
+                                        <path d="M40,70 L40,85" stroke-width="5" fill="none" stroke-linecap="round" />
+                                        <path d="M60,70 L60,85" stroke-width="5" fill="none" stroke-linecap="round" />
+                                        <path d="M25,50 L25,55 L20,60" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M75,50 L75,55 L80,60" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M50,65 L50,70" stroke-width="4" fill="none" stroke-linecap="round" />
+                                    </svg>
+                                }
+                                else
+                                {
+                                    <!-- Default book icon -->
+                                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="custom-icon">
+                                        <path d="M25,20 L25,80 L75,80 L75,20 L25,20 Z" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M35,20 L35,80" stroke-width="5" fill="none" stroke-linecap="round" />
+                                        <path d="M75,20 C65,30 65,70 75,80" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M35,35 L65,35" stroke-width="4" fill="none" stroke-linecap="round" />
+                                        <path d="M35,50 L65,50" stroke-width="4" fill="none" stroke-linecap="round" />
+                                        <path d="M35,65 L65,65" stroke-width="4" fill="none" stroke-linecap="round" />
+                                    </svg>
+                                }
+                            </div>
+                            <div class="thumbnail @ViewData["Category"].ToString().Replace(" ", "-").ToLowerInvariant()" style="margin-bottom: 0 !important; margin: 0 !important;"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h2 class="card-title">@story.Title</h2>
+                            <h5 class="card-subtitle mb-2 text-muted">@story.Subtitle</h5>
+                            <p class="story-preview">@story.PreviewText.Substring(0, Math.Min(400, story.PreviewText.Length))@(story.PreviewText.Length > 400 ? "..." : "")</p>
+                            <a href="/Reader/StoryDetail?id=@story.Id" class="btn btn-primary">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
