@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using levihobbs.Data;
+using levihobbs.Controllers;
 
 namespace levihobbs
 {
@@ -22,7 +23,11 @@ namespace levihobbs
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
+            // Add HttpClient
+            services.AddHttpClient();
+            
             services.AddControllersWithViews();
+            services.AddScoped<ReaderController>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,11 +50,16 @@ namespace levihobbs
 
             app.UseEndpoints(endpoints =>
             {
+                // Custom routes for reader categories
+                endpoints.MapControllerRoute(
+                    name: "read",
+                    pattern: "read/{category}",
+                    defaults: new { controller = "Reader", action = "Index" });
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}",
-                    defaults: new { controller = "Home", action = "Index" },
-                    constraints: new { controller = new Microsoft.AspNetCore.Routing.Constraints.RegexRouteConstraint("^(?i)home$") });
+                    defaults: new { controller = "Home", action = "Index" });
             });
         }
     }

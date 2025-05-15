@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
+using levihobbs.Controllers;
 
 namespace levihobbs
 {
@@ -29,6 +30,12 @@ namespace levihobbs
             // Add PostgreSQL
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            // Add HttpClient
+            builder.Services.AddHttpClient();
+
+            // Add ReaderController
+            builder.Services.AddScoped<ReaderController>();
 
             // Configure Kestrel
             builder.WebHost.ConfigureKestrel(serverOptions =>
@@ -69,11 +76,16 @@ namespace levihobbs
 
             app.UseAuthorization();
 
+            // Custom routes for reader categories
+            app.MapControllerRoute(
+                name: "read",
+                pattern: "read/{category}",
+                defaults: new { controller = "Reader", action = "Index" });
+
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}",
-                defaults: new { controller = "Home", action = "Index" },
-                constraints: new { controller = new RegexRouteConstraint("^(?i)home$") });
+                defaults: new { controller = "Home", action = "Index" });
 
             app.Run();
         }

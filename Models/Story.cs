@@ -1,6 +1,6 @@
 namespace levihobbs.Models
 {
-    public class Story
+    public class Story : IWrittenContent
     {
         public int Id { get; set; }
         public required string Title { get; set; }

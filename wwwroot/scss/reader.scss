@@ -1,0 +1,137 @@
+.reader-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.reader-header {
+    margin-bottom: 2rem;
+    text-align: center;
+
+    h1 {
+        font-size: 2.5rem;
+        color: #333;
+        margin-bottom: 1rem;
+    }
+}
+
+.story-cards {
+    display: grid;
+    gap: 2rem;
+}
+
+.story-card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+
+    &:hover {
+        transform: translateY(-5px);
+    }
+
+    .row {
+        margin: 0;
+    }
+
+    .thumbnail-container {
+        height: 100%;
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        padding: 1rem;
+    }
+
+    .thumbnail {
+        width: 200px;
+        height: 300px;
+        position: relative;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .story-icon {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+
+            svg {
+                width: 64px;
+                height: 64px;
+                stroke: #6c757d;
+                fill: none;
+                stroke-width: 2;
+            }
+        }
+    }
+
+    .card-body {
+        padding: 1.5rem;
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .card-subtitle {
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+
+        .story-preview {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .book-review-meta {
+            margin-bottom: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+
+            .rating {
+                margin-right: 1rem;
+                color: #f8c146;
+            }
+
+            .date-read {
+                color: #6c757d;
+            }
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease-in-out;
+
+            &:hover {
+                background-color: #0056b3;
+            }
+        }
+    }
+}
+
+// Category-specific styles
+.thumbnail {
+    &.book-reviews {
+        background: #f8f9fa;
+    }
+
+    &.stories {
+        background: #e9ecef;
+    }
+} 

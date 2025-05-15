@@ -1,0 +1,75 @@
+@model IEnumerable<levihobbs.Models.BookReview>
+@{
+    ViewData["Title"] = "Book Reviews";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/book-reviews.css?v=@Guid.NewGuid()" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+}
+<div class="reader-container">
+    <div class="reader-header">
+        <h1>Book Reviews</h1>
+    </div>
+    
+    <div class="story-cards">
+        @foreach (var review in Model)
+        {
+            <div class="card story-card">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <div class="thumbnail-container">
+                            @if (string.IsNullOrEmpty(review.ImageUrl))
+                            {
+                                <div class="thumbnail book-reviews">
+                                    <div class="story-icon">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="thumbnail">
+                                    <img src="@review.ImageUrl" alt="@review.Title" />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <div class="book-info">
+                                <h3 class="book-title">@review.Title</h3>
+                                <p class="book-author">by @review.Author</p>
+                                <p class="book-published">Published: @review.DatePublished.Year</p>
+                                <div class="book-tags">
+                                    @foreach (var tag in review.Shelves)
+                                    {
+                                        <span class="book-tag">@tag</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="book-review-meta">
+                                <span class="rating">@review.StarRating / 5 stars</span>
+                                <span class="date-read">Read on @review.DateRead.ToString("MMMM d, yyyy")</span>
+                            </div>
+                            <div class="story-preview">
+                                <p>@(review.PreviewText.Length > 200 ? review.PreviewText.Substring(0, 200) + "..." : review.PreviewText)</p>
+                            </div>
+                            <div class="story-footer">
+                                <div class="story-meta">
+                                    <span class="story-date">@review.DateRead.ToString("MMMM d, yyyy")</span>
+                                    <span class="story-rating">@review.StarRating stars</span>
+                                </div>
+                                <a href="@review.ViewLink" class="btn btn-primary" target="_blank">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div> 

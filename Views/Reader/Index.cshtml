@@ -1,0 +1,96 @@
+@model IEnumerable<levihobbs.Models.IWrittenContent>
+@{
+    ViewData["Title"] = ViewData["Category"] ?? "All Stories";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/reader.css?v=@DateTime.Now.Ticks" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+}
+
+<div class="reader-container">
+    <div class="reader-header">
+        <h1>@ViewData["Category"]</h1>
+    </div>
+    
+    <div class="story-cards">
+        @foreach (var item in Model)
+        {
+            <div class="card story-card">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <div class="thumbnail-container">
+                            @if (string.IsNullOrEmpty(item.ImageUrl))
+                            {
+                                <div class="thumbnail @item.Category.ToLower().Replace(" ", "-")">
+                                    <div class="story-icon">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="thumbnail">
+                                    <img src="@item.ImageUrl" alt="@item.Title" />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h2 class="card-title">@item.Title</h2>
+                            @if (item is Story)
+                            {
+                                <h3 class="card-subtitle">@((item as Story).Subtitle)</h3>
+                            }
+                            <p class="story-preview">@item.PreviewText</p>
+                            @if (item is Story)
+                            {
+                                <a href="@Url.Action("StoryDetail", new { id = item.Id })" class="btn btn-primary">Read More</a>
+                            }
+                            else if (item is BookReview)
+                            {
+                                var review = item as BookReview;
+                                <a href="@review.ViewLink" class="btn btn-primary" target="_blank">View on Goodreads</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .star-rating {
+        margin: 5px 0;
+    }
+    
+    .star {
+        font-size: 1.2rem;
+    }
+    
+    .star.filled {
+        color: gold;
+    }
+    
+    .star.empty {
+        color: #ccc;
+    }
+    
+    .book-details {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+    }
+    
+    .shelves, .date-read {
+        margin-top: 5px;
+        color: #6c757d;
+    }
+</style>

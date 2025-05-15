@@ -2,17 +2,28 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using HtmlAgilityPack;
 using levihobbs.Models;
+using System.Web;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.UI;
+using System.Threading;
+using System.IO;
 
 namespace levihobbs.Controllers;
 
 public class ReaderController : Controller
 {
     private readonly ILogger<ReaderController> _logger;
+    private readonly HttpClient _httpClient;
 
-    public ReaderController(ILogger<ReaderController> logger)
+    public ReaderController(ILogger<ReaderController> logger, HttpClient httpClient)
     {
         _logger = logger;
+        _httpClient = httpClient;
     }
 
     // Helper method to get all stories
@@ -96,29 +107,178 @@ public class ReaderController : Controller
         };
     }
 
-    public IActionResult ReaderPage(string category)
+    private string DecodeHtmlEntities(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+        return HttpUtility.HtmlDecode(text);
+    }
+
+    // Helper method to scrape book reviews from Goodreads
+    private async Task<List<BookReview>> GetBookReviewsAsync()
+    {
+        var bookReviews = new List<BookReview>();
+        try
+        {
+            var url = "https://www.goodreads.com/review/list/96423614-levi-hobbs?order=d&sort=review&view=reviews";
+            _logger.LogInformation($"Fetching reviews from Goodreads...");
+            
+            // Get response as a stream to handle compression
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            
+            string content;
+            using (var stream = await response.Content.ReadAsStreamAsync())
+            using (var reader = new StreamReader(stream))
+            {
+                content = await reader.ReadToEndAsync();
+            }
+            
+            _logger.LogInformation($"Response length: {content.Length}");
+            
+            // Log a sample of the response to verify content
+            var sampleLength = Math.Min(1000, content.Length);
+            _logger.LogInformation($"First {sampleLength} characters of response: {content.Substring(0, sampleLength)}");
+            
+            var htmlDocument = new HtmlDocument();
+            htmlDocument.LoadHtml(content);
+            
+            // Select all review items
+            var reviewNodes = htmlDocument.DocumentNode.SelectNodes("//tr[@class='bookalike review']");
+            _logger.LogInformation($"Found {reviewNodes?.Count ?? 0} reviews to process");
+            
+            if (reviewNodes != null)
+            {
+                int id = 1;
+                foreach (var reviewNode in reviewNodes)
+                {
+                    var coverNode = reviewNode.SelectSingleNode(".//td[@class='field cover']//img");
+                    var titleNode = reviewNode.SelectSingleNode(".//td[@class='field title']//a");
+                    var authorNode = reviewNode.SelectSingleNode(".//td[@class='field author']//a");
+                    var datePublishedNode = reviewNode.SelectSingleNode(".//td[@class='field date_pub']//div[@class='value']");
+                    var ratingNode = reviewNode.SelectSingleNode(".//div[@class='value']/div[@class='stars']");
+                    var shelvesNode = reviewNode.SelectSingleNode(".//td[@class='field shelves']//div[@class='value']");
+                    var dateReadNode = reviewNode.SelectSingleNode(".//td[@class='field date_read']//div[@class='value']");
+                    
+                    // Get the review text from either the visible container or the hidden full text
+                    var reviewTextNode = reviewNode.SelectSingleNode(".//span[starts-with(@id, 'freeTextContainer')]") ??
+                                       reviewNode.SelectSingleNode(".//span[starts-with(@id, 'freeText')]");
+                    
+                    // Extract the view link
+                    var viewLinkNode = reviewNode.SelectSingleNode(".//td[@class='field review']//a[contains(@href, '/review/show/')]");
+                    
+                    if (titleNode != null && reviewTextNode != null)
+                    {
+                        var imageUrl = coverNode?.GetAttributeValue("src", "");
+                        var title = DecodeHtmlEntities(titleNode.InnerText.Trim());
+                        var author = DecodeHtmlEntities(authorNode?.InnerText.Trim() ?? "Unknown Author");
+                        var datePublishedText = datePublishedNode?.InnerText.Trim() ?? "";
+                        DateTime.TryParse(datePublishedText, out DateTime datePublished);
+                        
+                        // Parse star rating
+                        var ratingText = ratingNode?.GetAttributeValue("data-rating", "0") ?? "0";                        
+                        int starRating = 0;
+                        
+                        // Parse shelves - exclude rating options and "add to shelves"
+                        var shelves = new List<string>();
+                        var shelfNodes = shelvesNode?.SelectNodes(".//a[not(contains(@class, 'actionLinkLite'))]");
+                        if (shelfNodes != null)
+                        {
+                            foreach (var shelfNode in shelfNodes)
+                            {
+                                var shelfText = DecodeHtmlEntities(shelfNode.InnerText.Trim());
+                                if (!shelfText.Contains("stars") && !shelfText.Contains("add to shelves"))
+                                {
+                                    shelves.Add(shelfText);
+                                }
+                            }
+                        }
+                        
+                        // Parse date read - clean up the text first
+                        var dateReadText = dateReadNode?.InnerText.Trim() ?? "";
+                        dateReadText = dateReadText.Replace("date read", "").Trim();
+                        DateTime.TryParse(dateReadText, out DateTime dateRead);
+                        
+                        // Get review text
+                        var reviewText = DecodeHtmlEntities(reviewTextNode.InnerText.Trim());
+                        
+                        // Get view link
+                        var viewLink = viewLinkNode?.GetAttributeValue("href", "") ?? "";
+                        if (!string.IsNullOrEmpty(viewLink) && !viewLink.StartsWith("http"))
+                        {
+                            viewLink = "https://www.goodreads.com" + viewLink;
+                        }
+                        
+                        bookReviews.Add(new BookReview
+                        {
+                            Id = id++,
+                            Title = title,
+                            Subtitle = $"By {author}, {datePublished.Year}",
+                            PreviewText = reviewText,
+                            ImageUrl = imageUrl,
+                            Category = "Book Reviews",
+                            Author = author,
+                            DatePublished = datePublished,
+                            StarRating = starRating,
+                            Shelves = shelves,
+                            DateRead = dateRead,
+                            ViewLink = viewLink
+                        });
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error scraping book reviews from Goodreads");
+        }
+        
+        _logger.LogInformation($"Successfully processed {bookReviews.Count} book reviews");
+        return bookReviews;
+    }
+
+    public async Task<IActionResult> Index(string category)
     {
         // Log the category being accessed
         _logger.LogInformation($"Accessing reader page with category: {category}");
         
+        // Convert URL-friendly category to display category
+        var displayCategory = category?.Replace("-", " ");
+        if (string.IsNullOrEmpty(displayCategory))
+        {
+            displayCategory = "All Stories";
+        }
+        else
+        {
+            // Capitalize each word in the category
+            displayCategory = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(displayCategory);
+        }
+        
+        // Handle book reviews separately
+        if (displayCategory.Equals("Book Reviews", StringComparison.OrdinalIgnoreCase))
+        {
+            var bookReviews = await GetBookReviewsAsync();
+            ViewData["Category"] = displayCategory;
+            return View("BookReviews", bookReviews);
+        }
+        
+        // Handle regular stories
         var allStories = GetAllStories();
-
+        
         // Filter stories by category if a category is provided
         List<Story> filteredStories;
-        if (!string.IsNullOrEmpty(category))
+        if (!string.IsNullOrEmpty(displayCategory) && !displayCategory.Equals("All Stories", StringComparison.OrdinalIgnoreCase))
         {
-            filteredStories = allStories.Where(s => s.Category.Equals(category, StringComparison.OrdinalIgnoreCase)).ToList();
+            filteredStories = allStories.Where(s => s.Category.Equals(displayCategory, StringComparison.OrdinalIgnoreCase)).ToList();
         }
         else
         {
             // If no category is provided, show all stories
             filteredStories = allStories;
-            category = "All Stories"; // Default category name
         }
-
+        
         // Pass the category and filtered stories to the view
-        ViewData["Category"] = category;
-        return View(filteredStories);
+        ViewData["Category"] = displayCategory;
+        return View("Stories", filteredStories);
     }
 
     public IActionResult StoryDetail(int id)
