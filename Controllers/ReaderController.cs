@@ -12,6 +12,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using System.Threading;
 using System.IO;
+using levihobbs.Services;
 
 namespace levihobbs.Controllers;
 
@@ -19,11 +20,13 @@ public class ReaderController : Controller
 {
     private readonly ILogger<ReaderController> _logger;
     private readonly HttpClient _httpClient;
+    private readonly SubstackApiClient _substackApiClient;
 
-    public ReaderController(ILogger<ReaderController> logger, HttpClient httpClient)
+    public ReaderController(ILogger<ReaderController> logger, HttpClient httpClient, SubstackApiClient substackApiClient)
     {
         _logger = logger;
         _httpClient = httpClient;
+        _substackApiClient = substackApiClient;
     }
 
     // Helper method to get all stories
@@ -261,19 +264,29 @@ public class ReaderController : Controller
             return View("BookReviews", bookReviews);
         }
         
-        // Handle regular stories
-        var allStories = GetAllStories();
-        
-        // Filter stories by category if a category is provided
         List<Story> filteredStories;
-        if (!string.IsNullOrEmpty(displayCategory) && !displayCategory.Equals("All Stories", StringComparison.OrdinalIgnoreCase))
+        var relevantCategories = new[] { "Fantasy", "Science Fiction", "Modern Fiction" };
+        if (relevantCategories.Any(c => c.Equals(displayCategory, StringComparison.OrdinalIgnoreCase)))
         {
-            filteredStories = allStories.Where(s => s.Category.Equals(displayCategory, StringComparison.OrdinalIgnoreCase)).ToList();
+            // Fetch stories from Substack API for specific categories
+            _logger.LogInformation($"Fetching posts from Substack API for category: {displayCategory}");
+            filteredStories = await _substackApiClient.SearchPostsAsync(displayCategory);
         }
         else
         {
-            // If no category is provided, show all stories
-            filteredStories = allStories;
+            // Handle regular stories
+            var allStories = GetAllStories();
+            
+            // Filter stories by category if a category is provided
+            if (!string.IsNullOrEmpty(displayCategory) && !displayCategory.Equals("All Stories", StringComparison.OrdinalIgnoreCase))
+            {
+                filteredStories = allStories.Where(s => s.Category.Equals(displayCategory, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            else
+            {
+                // If no category is provided, show all stories
+                filteredStories = allStories;
+            }
         }
         
         // Pass the category and filtered stories to the view

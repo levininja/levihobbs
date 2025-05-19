@@ -14,6 +14,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 using levihobbs.Controllers;
+using levihobbs.Services;
 
 namespace levihobbs
 {
@@ -36,12 +37,14 @@ namespace levihobbs
 
             // Add ReaderController
             builder.Services.AddScoped<ReaderController>();
+            
+            builder.Services.AddSingleton<SubstackApiClient>();
 
             // Configure Kestrel
             builder.WebHost.ConfigureKestrel(serverOptions =>
             {
-                serverOptions.ListenLocalhost(5000); // HTTP
-                serverOptions.ListenLocalhost(5001, listenOptions =>
+                serverOptions.ListenLocalhost(5002); // HTTP
+                serverOptions.ListenLocalhost(5003, listenOptions =>
                 {
                     listenOptions.UseHttps();
                 }); // HTTPS

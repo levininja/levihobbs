@@ -8,5 +8,7 @@ namespace levihobbs.Models
         public required string PreviewText { get; set; }
         public required string ImageUrl { get; set; }
         public required string Category { get; set; }
+        public string CanonicalUrl { get; set; } = string.Empty;
+        public DateTime PostDate { get; set; }
     }
 }
