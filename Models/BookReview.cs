@@ -15,6 +15,6 @@ namespace levihobbs.Models
         public required int StarRating { get; set; } // 1-5
         public required List<string> Shelves { get; set; }
         public required DateTime DateRead { get; set; }
-        public required string ViewLink { get; set; }
+        public required string ReadMoreUrl { get; set; }
     }
 }

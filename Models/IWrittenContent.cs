@@ -7,5 +7,6 @@ namespace levihobbs.Models
         string PreviewText { get; set; }
         string ImageUrl { get; set; }
         string Category { get; set; }
+        string ReadMoreUrl { get; set; }
     }
 }

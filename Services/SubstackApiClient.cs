@@ -39,13 +39,16 @@ namespace levihobbs.Services
 
             foreach (JsonElement item in jsonDoc.RootElement.EnumerateArray())
             {
+                string? canonicalUrl = item.GetProperty("canonical_url").GetString();
                 StoryDTO story = new StoryDTO
                 {
-                    Title = item.GetProperty("title").GetString(),
-                    Subtitle = item.GetProperty("subtitle").GetString(),
-                    Description = item.GetProperty("description").GetString(),
-                    CoverImage = item.GetProperty("cover_image").GetString(),
-                    CanonicalUrl = item.GetProperty("canonical_url").GetString()
+                    Title = item.GetProperty("title").GetString() ?? string.Empty,
+                    Subtitle = item.GetProperty("subtitle").GetString() ?? string.Empty,
+                    Description = item.GetProperty("description").GetString() ?? string.Empty,
+                    CoverImage = item.GetProperty("cover_image").GetString() ?? string.Empty,
+                    CanonicalUrl = canonicalUrl ?? string.Empty,
+                    Id = Math.Abs((canonicalUrl ?? string.Empty).GetHashCode()).ToString(),
+                    PostDate = DateTime.UtcNow
                 };
                 stories.Add(story);
             }
@@ -72,22 +75,22 @@ namespace levihobbs.Services
             List<JsonElement> postData = await FetchPaginatedPostsAsync(paramsDict, limit);
             return postData.Select(item =>
             {
+                string? canonicalUrl = item.GetProperty("canonical_url").GetString();
                 StoryDTO story = new StoryDTO
                 {
-                    Title = item.GetProperty("title").GetString(),
-                    Subtitle = item.GetProperty("subtitle").GetString(),
-                    Description = item.GetProperty("description").GetString(),
-                    CoverImage = item.GetProperty("cover_image").GetString(),
-                    CanonicalUrl = item.GetProperty("canonical_url").GetString()
+                    Title = item.GetProperty("title").GetString() ?? string.Empty,
+                    Subtitle = item.GetProperty("subtitle").GetString() ?? string.Empty,
+                    Description = item.GetProperty("description").GetString() ?? string.Empty,
+                    CoverImage = item.GetProperty("cover_image").GetString() ?? string.Empty,
+                    CanonicalUrl = canonicalUrl ?? string.Empty,
+                    Id = Math.Abs((canonicalUrl ?? string.Empty).GetHashCode()).ToString(),
+                    PostDate = DateTime.UtcNow
                 };
 
                 if (item.TryGetProperty("post_date", out JsonElement postDate))
                 {
                     story.PostDate = postDate.GetDateTime();
                 }
-
-                // Generate a unique ID based on the URL hash since Substack doesn't provide one
-                story.Id = Math.Abs(story.CanonicalUrl.GetHashCode()).ToString();
 
                 return story;
             }).ToList();
@@ -111,9 +114,11 @@ namespace levihobbs.Services
 
             while (moreItems)
             {
-                Dictionary<string, string> currentParams = new Dictionary<string, string>(paramsDict);
-                currentParams.Add("offset", offset.ToString());
-                currentParams.Add("limit", batchSize.ToString());
+                Dictionary<string, string> currentParams = new Dictionary<string, string>(paramsDict)
+                {
+                    { "offset", offset.ToString() },
+                    { "limit", batchSize.ToString() }
+                };
 
                 string queryString = string.Join("&", currentParams.Select(kv => $"{kv.Key}={kv.Value}"));
                 string endpoint = $"{_url}/api/v1/archive?{queryString}";
@@ -125,7 +130,7 @@ namespace levihobbs.Services
                 }
 
                 string jsonString = await response.Content.ReadAsStringAsync();
-                List<JsonElement> items = JsonSerializer.Deserialize<List<JsonElement>>(jsonString);
+                List<JsonElement>? items = JsonSerializer.Deserialize<List<JsonElement>>(jsonString);
 
                 if (items == null || items.Count == 0)
                 {
