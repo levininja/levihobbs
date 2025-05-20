@@ -120,19 +120,19 @@ public class ReaderController : Controller
     // Helper method to scrape book reviews from Goodreads
     private async Task<List<BookReview>> GetBookReviewsAsync()
     {
-        var bookReviews = new List<BookReview>();
+        List<BookReview> bookReviews = new List<BookReview>();
         try
         {
-            var url = "https://www.goodreads.com/review/list/96423614-levi-hobbs?order=d&sort=review&view=reviews";
+            string url = "https://www.goodreads.com/review/list/96423614-levi-hobbs?order=d&sort=review&view=reviews";
             _logger.LogInformation($"Fetching reviews from Goodreads...");
             
             // Get response as a stream to handle compression
-            var response = await _httpClient.GetAsync(url);
+            HttpResponseMessage response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
             
             string content;
-            using (var stream = await response.Content.ReadAsStreamAsync())
-            using (var reader = new StreamReader(stream))
+            using (Stream stream = await response.Content.ReadAsStreamAsync())
+            using (StreamReader reader = new StreamReader(stream))
             {
                 content = await reader.ReadToEndAsync();
             }
@@ -140,56 +140,56 @@ public class ReaderController : Controller
             _logger.LogInformation($"Response length: {content.Length}");
             
             // Log a sample of the response to verify content
-            var sampleLength = Math.Min(1000, content.Length);
+            int sampleLength = Math.Min(1000, content.Length);
             _logger.LogInformation($"First {sampleLength} characters of response: {content.Substring(0, sampleLength)}");
             
-            var htmlDocument = new HtmlDocument();
+            HtmlDocument htmlDocument = new HtmlDocument();
             htmlDocument.LoadHtml(content);
             
             // Select all review items
-            var reviewNodes = htmlDocument.DocumentNode.SelectNodes("//tr[@class='bookalike review']");
+            HtmlNodeCollection reviewNodes = htmlDocument.DocumentNode.SelectNodes("//tr[@class='bookalike review']");
             _logger.LogInformation($"Found {reviewNodes?.Count ?? 0} reviews to process");
             
             if (reviewNodes != null)
             {
                 int id = 1;
-                foreach (var reviewNode in reviewNodes)
+                foreach (HtmlNode reviewNode in reviewNodes)
                 {
-                    var coverNode = reviewNode.SelectSingleNode(".//td[@class='field cover']//img");
-                    var titleNode = reviewNode.SelectSingleNode(".//td[@class='field title']//a");
-                    var authorNode = reviewNode.SelectSingleNode(".//td[@class='field author']//a");
-                    var datePublishedNode = reviewNode.SelectSingleNode(".//td[@class='field date_pub']//div[@class='value']");
-                    var ratingNode = reviewNode.SelectSingleNode(".//div[@class='value']/div[@class='stars']");
-                    var shelvesNode = reviewNode.SelectSingleNode(".//td[@class='field shelves']//div[@class='value']");
-                    var dateReadNode = reviewNode.SelectSingleNode(".//td[@class='field date_read']//div[@class='value']");
+                    HtmlNode coverNode = reviewNode.SelectSingleNode(".//td[@class='field cover']//img");
+                    HtmlNode titleNode = reviewNode.SelectSingleNode(".//td[@class='field title']//a");
+                    HtmlNode authorNode = reviewNode.SelectSingleNode(".//td[@class='field author']//a");
+                    HtmlNode datePublishedNode = reviewNode.SelectSingleNode(".//td[@class='field date_pub']//div[@class='value']");
+                    HtmlNode ratingNode = reviewNode.SelectSingleNode(".//div[@class='value']/div[@class='stars']");
+                    HtmlNode shelvesNode = reviewNode.SelectSingleNode(".//td[@class='field shelves']//div[@class='value']");
+                    HtmlNode dateReadNode = reviewNode.SelectSingleNode(".//td[@class='field date_read']//div[@class='value']");
                     
                     // Get the review text from either the visible container or the hidden full text
-                    var reviewTextNode = reviewNode.SelectSingleNode(".//span[starts-with(@id, 'freeTextContainer')]") ??
-                                       reviewNode.SelectSingleNode(".//span[starts-with(@id, 'freeText')]");
+                    HtmlNode reviewTextNode = reviewNode.SelectSingleNode(".//span[starts-with(@id, 'freeTextContainer')]") ??
+                                           reviewNode.SelectSingleNode(".//span[starts-with(@id, 'freeText')]");
                     
                     // Extract the view link
-                    var viewLinkNode = reviewNode.SelectSingleNode(".//td[@class='field review']//a[contains(@href, '/review/show/')]");
+                    HtmlNode viewLinkNode = reviewNode.SelectSingleNode(".//td[@class='field review']//a[contains(@href, '/review/show/')]");
                     
                     if (titleNode != null && reviewTextNode != null)
                     {
-                        var imageUrl = coverNode?.GetAttributeValue("src", "");
-                        var title = DecodeHtmlEntities(titleNode.InnerText.Trim());
-                        var author = DecodeHtmlEntities(authorNode?.InnerText.Trim() ?? "Unknown Author");
-                        var datePublishedText = datePublishedNode?.InnerText.Trim() ?? "";
+                        string imageUrl = coverNode?.GetAttributeValue("src", "");
+                        string title = DecodeHtmlEntities(titleNode.InnerText.Trim());
+                        string author = DecodeHtmlEntities(authorNode?.InnerText.Trim() ?? "Unknown Author");
+                        string datePublishedText = datePublishedNode?.InnerText.Trim() ?? "";
                         DateTime.TryParse(datePublishedText, out DateTime datePublished);
                         
                         // Parse star rating
-                        var ratingText = ratingNode?.GetAttributeValue("data-rating", "0") ?? "0";                        
+                        string ratingText = ratingNode?.GetAttributeValue("data-rating", "0") ?? "0";                        
                         int starRating = 0;
                         
                         // Parse shelves - exclude rating options and "add to shelves"
-                        var shelves = new List<string>();
-                        var shelfNodes = shelvesNode?.SelectNodes(".//a[not(contains(@class, 'actionLinkLite'))]");
+                        List<string> shelves = new List<string>();
+                        HtmlNodeCollection shelfNodes = shelvesNode?.SelectNodes(".//a[not(contains(@class, 'actionLinkLite'))]");
                         if (shelfNodes != null)
                         {
-                            foreach (var shelfNode in shelfNodes)
+                            foreach (HtmlNode shelfNode in shelfNodes)
                             {
-                                var shelfText = DecodeHtmlEntities(shelfNode.InnerText.Trim());
+                                string shelfText = DecodeHtmlEntities(shelfNode.InnerText.Trim());
                                 if (!shelfText.Contains("stars") && !shelfText.Contains("add to shelves"))
                                 {
                                     shelves.Add(shelfText);
@@ -198,15 +198,15 @@ public class ReaderController : Controller
                         }
                         
                         // Parse date read - clean up the text first
-                        var dateReadText = dateReadNode?.InnerText.Trim() ?? "";
+                        string dateReadText = dateReadNode?.InnerText.Trim() ?? "";
                         dateReadText = dateReadText.Replace("date read", "").Trim();
                         DateTime.TryParse(dateReadText, out DateTime dateRead);
                         
                         // Get review text
-                        var reviewText = DecodeHtmlEntities(reviewTextNode.InnerText.Trim());
+                        string reviewText = DecodeHtmlEntities(reviewTextNode.InnerText.Trim());
                         
                         // Get view link
-                        var viewLink = viewLinkNode?.GetAttributeValue("href", "") ?? "";
+                        string viewLink = viewLinkNode?.GetAttributeValue("href", "") ?? "";
                         if (!string.IsNullOrEmpty(viewLink) && !viewLink.StartsWith("http"))
                         {
                             viewLink = "https://www.goodreads.com" + viewLink;
@@ -246,7 +246,7 @@ public class ReaderController : Controller
         _logger.LogInformation($"Accessing reader page with category: {category}");
         
         // Convert URL-friendly category to display category
-        var displayCategory = category?.Replace("-", " ");
+        string displayCategory = category?.Replace("-", " ");
         if (string.IsNullOrEmpty(displayCategory))
         {
             displayCategory = "All Stories";
@@ -260,18 +260,18 @@ public class ReaderController : Controller
         // Handle book reviews separately
         if (displayCategory.Equals("Book Reviews", StringComparison.OrdinalIgnoreCase))
         {
-            var bookReviews = await GetBookReviewsAsync();
+            List<BookReview> bookReviews = await GetBookReviewsAsync();
             ViewData["Category"] = displayCategory;
             return View("BookReviews", bookReviews);
         }
         
         List<Story> filteredStories;
-        var relevantCategories = new[] { "Fantasy", "Science Fiction", "Modern Fiction" };
+        string[] relevantCategories = new[] { "Fantasy", "Science Fiction", "Modern Fiction" };
         if (relevantCategories.Any(c => c.Equals(displayCategory, StringComparison.OrdinalIgnoreCase)))
         {
             // Fetch stories from Substack API for specific categories
             _logger.LogInformation($"Fetching posts from Substack API for category: {displayCategory}");
-            var storyDtos = await _substackApiClient.GetStories(displayCategory);
+            List<StoryDTO> storyDtos = await _substackApiClient.GetStories(displayCategory);
             filteredStories = storyDtos.Select(dto => new Story
             {
                 Title = dto.Title,
@@ -285,7 +285,7 @@ public class ReaderController : Controller
         else
         {
             // Handle regular stories
-            var allStories = GetAllStories();
+            List<Story> allStories = GetAllStories();
             
             // Filter stories by category if a category is provided
             if (!string.IsNullOrEmpty(displayCategory) && !displayCategory.Equals("All Stories", StringComparison.OrdinalIgnoreCase))
@@ -306,8 +306,8 @@ public class ReaderController : Controller
 
     public IActionResult StoryDetail(int id)
     {
-        var allStories = GetAllStories();
-        var story = allStories.FirstOrDefault(s => s.Id == id);
+        List<Story> allStories = GetAllStories();
+        Story story = allStories.FirstOrDefault(s => s.Id == id);
         
         if (story == null)
         {
