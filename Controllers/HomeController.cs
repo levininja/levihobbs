@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using levihobbs.Models;
 using levihobbs.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace levihobbs.Controllers
 {
@@ -45,25 +46,20 @@ namespace levihobbs.Controllers
         {
             try
             {
-                _logger.LogInformation($"Attempting to subscribe email: {email}");
-
                 if (string.IsNullOrEmpty(email))
                 {
-                    _logger.LogWarning("Empty email provided");
                     return BadRequest(new { message = "Email is required" });
                 }
 
                 // Basic email format validation
                 if (!email.Contains("@") || !email.Contains("."))
                 {
-                    _logger.LogWarning($"Invalid email format: {email}");
                     return BadRequest(new { message = "Please enter a valid email address" });
                 }
 
                 // Check for existing subscription
                 if (await _context.NewsletterSubscriptions.AnyAsync(s => s.Email == email))
                 {
-                    _logger.LogInformation($"Duplicate subscription attempt: {email}");
                     return BadRequest(new { message = "That email address is already subscribed" });
                 }
 
@@ -75,12 +71,10 @@ namespace levihobbs.Controllers
 
                 _context.NewsletterSubscriptions.Add(subscription);
                 await _context.SaveChangesAsync();
-                _logger.LogInformation($"Successfully subscribed: {email}");
                 return Ok(new { message = "Successfully subscribed to newsletter!" });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error processing subscription for email: {email}");
                 return StatusCode(500, new { message = "An error occurred while processing your subscription" });
             }
         }

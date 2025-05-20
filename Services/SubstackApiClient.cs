@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using levihobbs.Models;
+using Microsoft.Extensions.Logging;
 
 namespace levihobbs.Services
 {
@@ -17,83 +18,53 @@ namespace levihobbs.Services
     {
         private readonly string _url = "https://levihobbs.substack.com";
         private readonly HttpClient _httpClient;
+        private readonly ILogger<SubstackApiClient> _logger;
 
-        public SubstackApiClient(HttpClient httpClient)
+        public SubstackApiClient(HttpClient httpClient, ILogger<SubstackApiClient> logger)
         {
             _httpClient = httpClient;
+            _logger = logger;
         }
 
-        /// <summary>
-        /// Retrieves stories from Substack based on a search query.
-        /// </summary>
-        /// <param name="query">The search term to filter stories by.</param>
-        /// <returns>A list of StoryDTO objects containing the story data from Substack.</returns>
-        public async Task<List<StoryDTO>> GetStories(string query)
-        {
-            HttpResponseMessage response = await _httpClient.GetAsync($"https://levihobbs.substack.com/api/v1/archive?sort=new&search={query}&limit=10");
-            response.EnsureSuccessStatusCode();
-            
-            string content = await response.Content.ReadAsStringAsync();
-            JsonDocument jsonDoc = JsonDocument.Parse(content);
-            List<StoryDTO> stories = new List<StoryDTO>();
-
-            foreach (JsonElement item in jsonDoc.RootElement.EnumerateArray())
-            {
-                string? canonicalUrl = item.GetProperty("canonical_url").GetString();
-                StoryDTO story = new StoryDTO
-                {
-                    Title = item.GetProperty("title").GetString() ?? string.Empty,
-                    Subtitle = item.GetProperty("subtitle").GetString() ?? string.Empty,
-                    Description = item.GetProperty("description").GetString() ?? string.Empty,
-                    CoverImage = item.GetProperty("cover_image").GetString() ?? string.Empty,
-                    CanonicalUrl = canonicalUrl ?? string.Empty,
-                    Id = Math.Abs((canonicalUrl ?? string.Empty).GetHashCode()).ToString(),
-                    PostDate = DateTime.UtcNow
-                };
-                stories.Add(story);
-            }
-
-            return stories;
-        }
 
         /// <summary>
         /// Searches for posts on Substack with pagination support.
-        /// This method allows for more control over the number of results and implements
-        /// pagination to handle large result sets efficiently.
         /// </summary>
-        /// <param name="query">The search term to filter posts by.</param>
+        /// <param name="searchTerm">The search term to filter posts by.</param>
         /// <param name="limit">Maximum number of posts to return (default: 20).</param>
-        /// <returns>A list of StoryDTO objects containing the post data from Substack.</returns>
-        public async Task<List<StoryDTO>> SearchPostsAsync(string query, int limit = 20)
+        /// <returns>A list of StoryDTO objects containing the story data from Substack.</returns>
+        public async Task<List<StoryDTO>> GetStories(string searchTerm, int? limit = 20)
         {
             Dictionary<string, string> paramsDict = new Dictionary<string, string>
             {
-                { "sort", "new" },
-                { "search", query }
+                { "sort", "new" }
             };
 
             List<JsonElement> postData = await FetchPaginatedPostsAsync(paramsDict, limit);
-            return postData.Select(item =>
+            List<StoryDTO> stories = new List<StoryDTO>();
+
+            foreach (JsonElement item in postData)
             {
-                string? canonicalUrl = item.GetProperty("canonical_url").GetString();
-                StoryDTO story = new StoryDTO
+                string? seoDescription = item.GetProperty("search_engine_description").GetString();
+                if(seoDescription != null && seoDescription.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                 {
-                    Title = item.GetProperty("title").GetString() ?? string.Empty,
-                    Subtitle = item.GetProperty("subtitle").GetString() ?? string.Empty,
-                    Description = item.GetProperty("description").GetString() ?? string.Empty,
-                    CoverImage = item.GetProperty("cover_image").GetString() ?? string.Empty,
-                    CanonicalUrl = canonicalUrl ?? string.Empty,
-                    Id = Math.Abs((canonicalUrl ?? string.Empty).GetHashCode()).ToString(),
-                    PostDate = DateTime.UtcNow
-                };
-
-                if (item.TryGetProperty("post_date", out JsonElement postDate))
-                {
-                    story.PostDate = postDate.GetDateTime();
+                    string? canonicalUrl = item.GetProperty("canonical_url").GetString();
+                    StoryDTO story = new StoryDTO
+                    {
+                        Title = item.GetProperty("title").GetString() ?? string.Empty,
+                        Subtitle = item.GetProperty("subtitle").GetString() ?? string.Empty,
+                        SearchEngineDescription = item.GetProperty("search_engine_description").GetString() ?? string.Empty,
+                        Description = item.GetProperty("description").GetString() ?? string.Empty,
+                        CoverImage = item.GetProperty("cover_image").GetString() ?? string.Empty,
+                        CanonicalUrl = canonicalUrl ?? string.Empty,
+                        Id = Math.Abs((canonicalUrl ?? string.Empty).GetHashCode()).ToString(),
+                        PostDate = DateTime.UtcNow
+                    };
+                    stories.Add(story);
                 }
+            }
 
-                return story;
-            }).ToList();
+            return stories;
         }
 
         /// <summary>

@@ -39,6 +39,7 @@ namespace levihobbs
             builder.Services.AddScoped<ReaderController>();
             
             builder.Services.AddSingleton<SubstackApiClient>();
+            builder.Services.AddSingleton<MockDataService>();
 
             // Configure Kestrel
             builder.WebHost.ConfigureKestrel(serverOptions =>
