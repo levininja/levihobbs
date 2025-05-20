@@ -120,7 +120,7 @@
                             <h2 class="card-title">@story.Title</h2>
                             <h3 class="card-subtitle">@story.Subtitle</h3>
                             <p class="story-preview">@story.PreviewText</p>
-                            <a href="@Url.Action("StoryDetail", new { id = story.Id })" class="btn btn-primary">Read More</a>
+                            <a href="@story.CanonicalUrl" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Read More</a>
                         </div>
                     </div>
                 </div>
