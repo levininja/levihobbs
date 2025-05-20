@@ -86,18 +86,4 @@ public class ReaderController : Controller
         ViewData["Category"] = displayCategory;
         return View("Stories", filteredStories);
     }
-
-    public IActionResult StoryDetail(int id)
-    {
-        List<Story> allStories = _mockDataService.GetStories();
-        Story? story = allStories.FirstOrDefault(s => s.Id == id);
-        
-        if (story == null)
-        {
-            return NotFound();
-        }
-
-        ViewData["Title"] = story.Title;
-        return View(story);
-    }
 }
