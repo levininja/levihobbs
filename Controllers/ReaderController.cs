@@ -13,6 +13,7 @@ using OpenQA.Selenium.Support.UI;
 using System.Threading;
 using System.IO;
 using levihobbs.Services;
+using Microsoft.Extensions.Logging;
 
 namespace levihobbs.Controllers;
 
@@ -270,7 +271,16 @@ public class ReaderController : Controller
         {
             // Fetch stories from Substack API for specific categories
             _logger.LogInformation($"Fetching posts from Substack API for category: {displayCategory}");
-            filteredStories = await _substackApiClient.SearchPostsAsync(displayCategory);
+            var storyDtos = await _substackApiClient.GetStories(displayCategory);
+            filteredStories = storyDtos.Select(dto => new Story
+            {
+                Title = dto.Title,
+                Subtitle = dto.Subtitle,
+                PreviewText = dto.Description,
+                ImageUrl = dto.CoverImage,
+                Category = displayCategory,
+                CanonicalUrl = dto.CanonicalUrl
+            }).ToList();
         }
         else
         {

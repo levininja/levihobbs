@@ -18,7 +18,32 @@ namespace levihobbs.Services
             _httpClient = httpClient;
         }
 
-        public async Task<List<Story>> SearchPostsAsync(string query, int limit = 20)
+        public async Task<List<StoryDTO>> GetStories(string query)
+        {
+            var response = await _httpClient.GetAsync($"https://levihobbs.substack.com/api/v1/archive?sort=new&search={query}&limit=10");
+            response.EnsureSuccessStatusCode();
+            
+            var content = await response.Content.ReadAsStringAsync();
+            var jsonDoc = JsonDocument.Parse(content);
+            var stories = new List<StoryDTO>();
+
+            foreach (var item in jsonDoc.RootElement.EnumerateArray())
+            {
+                var story = new StoryDTO
+                {
+                    Title = item.GetProperty("title").GetString(),
+                    Subtitle = item.GetProperty("subtitle").GetString(),
+                    Description = item.GetProperty("description").GetString(),
+                    CoverImage = item.GetProperty("cover_image").GetString(),
+                    CanonicalUrl = item.GetProperty("canonical_url").GetString()
+                };
+                stories.Add(story);
+            }
+
+            return stories;
+        }
+
+        public async Task<List<StoryDTO>> SearchPostsAsync(string query, int limit = 20)
         {
             var paramsDict = new Dictionary<string, string>
             {
@@ -29,13 +54,12 @@ namespace levihobbs.Services
             var postData = await FetchPaginatedPostsAsync(paramsDict, limit);
             return postData.Select(item =>
             {
-                var story = new Story
+                var story = new StoryDTO
                 {
                     Title = item.GetProperty("title").GetString(),
                     Subtitle = item.GetProperty("subtitle").GetString(),
-                    PreviewText = item.GetProperty("description").GetString(),
-                    ImageUrl = item.GetProperty("cover_image").GetString(),
-                    Category = query,
+                    Description = item.GetProperty("description").GetString(),
+                    CoverImage = item.GetProperty("cover_image").GetString(),
                     CanonicalUrl = item.GetProperty("canonical_url").GetString()
                 };
 
@@ -45,7 +69,7 @@ namespace levihobbs.Services
                 }
 
                 // Assuming Id is not provided by API, we'll generate a unique one based on URL hash
-                story.Id = Math.Abs(story.CanonicalUrl.GetHashCode());
+                story.Id = Math.Abs(story.CanonicalUrl.GetHashCode()).ToString();
 
                 return story;
             }).ToList();
