@@ -51,8 +51,8 @@ public class ReaderController : Controller
         }
         
         List<Story> filteredStories;
-        string[] relevantCategories = new[] { "Fantasy", "Science Fiction", "Modern Fiction" };
-        if (relevantCategories.Any(c => c.Equals(displayCategory, StringComparison.OrdinalIgnoreCase)))
+        string[] storyCategories = new[] { "Fantasy", "Science Fiction", "Modern Fiction" };
+        if (storyCategories.Any(c => c.Equals(displayCategory, StringComparison.OrdinalIgnoreCase)))
         {
             List<StoryDTO> storyDtos = await _substackApiClient.GetStories(displayCategory);
             filteredStories = storyDtos.Select(dto => new Story
@@ -67,19 +67,8 @@ public class ReaderController : Controller
         }
         else
         {
-            // Handle regular stories
-            List<Story> allStories = _mockDataService.GetStories();
-            
-            // Filter stories by category if a category is provided
-            if (!string.IsNullOrEmpty(displayCategory) && !displayCategory.Equals("All Stories", StringComparison.OrdinalIgnoreCase))
-            {
-                filteredStories = allStories.Where(s => s.Category.Equals(displayCategory, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-            else
-            {
-                // If no category is provided, show all stories
-                filteredStories = allStories;
-            }
+            filteredStories = new List<Story>();
+            ViewData["NoStoriesMessage"] = $"No stories found in the category '{displayCategory}'.";
         }
         
         // Pass the category and filtered stories to the view

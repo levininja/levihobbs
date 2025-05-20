@@ -15,6 +15,13 @@
         <h1>@ViewData["Category"]</h1>
     </div>
     
+    @if (ViewData["NoStoriesMessage"] != null)
+    {
+        <div class="alert alert-info" role="alert">
+            @ViewData["NoStoriesMessage"]
+        </div>
+    }
+    
     <div class="story-cards">
         @foreach (var story in Model)
         {
