@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using levihobbs.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace levihobbs.Services
 {
@@ -19,13 +20,15 @@ namespace levihobbs.Services
         private readonly string _url = "https://levihobbs.substack.com";
         private readonly HttpClient _httpClient;
         private readonly ILogger<SubstackApiClient> _logger;
+        private readonly IMemoryCache _cache;
+        private static readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(5);
 
-        public SubstackApiClient(HttpClient httpClient, ILogger<SubstackApiClient> logger)
+        public SubstackApiClient(HttpClient httpClient, ILogger<SubstackApiClient> logger, IMemoryCache cache)
         {
             _httpClient = httpClient;
             _logger = logger;
+            _cache = cache;
         }
-
 
         /// <summary>
         /// Searches for posts on Substack with pagination support.
@@ -35,6 +38,16 @@ namespace levihobbs.Services
         /// <returns>A list of StoryDTO objects containing the story data from Substack.</returns>
         public async Task<List<StoryDTO>> GetStories(string searchTerm, int? limit = 20)
         {
+            string cacheKey = $"stories_{searchTerm}_{limit}";
+            
+            if (_cache.TryGetValue(cacheKey, out List<StoryDTO>? cachedStories))
+            {
+                _logger.LogInformation("Cache HIT for key: {CacheKey} with {Count} stories", cacheKey, cachedStories?.Count ?? 0);
+                return cachedStories;
+            }
+
+            _logger.LogInformation("Cache MISS for key: {CacheKey}, fetching from Substack API", cacheKey);
+
             Dictionary<string, string> paramsDict = new Dictionary<string, string>
             {
                 { "sort", "new" }
@@ -64,6 +77,10 @@ namespace levihobbs.Services
                 }
             }
 
+            _cache.Set(cacheKey, stories, _cacheDuration);
+            _logger.LogInformation("Cached {Count} stories for key: {CacheKey} with duration: {Duration} minutes", 
+                stories.Count, cacheKey, _cacheDuration.TotalMinutes);
+            
             return stories;
         }
 

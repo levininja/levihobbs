@@ -7,6 +7,7 @@ using HtmlAgilityPack;
 using levihobbs.Models;
 using System.Web;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace levihobbs.Services;
 
@@ -14,11 +15,17 @@ public class GoodreadsScraperService
 {
     private readonly ILogger<GoodreadsScraperService> _logger;
     private readonly HttpClient _httpClient;
+    private readonly IMemoryCache _cache;
+    private static readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(5);
 
-    public GoodreadsScraperService(ILogger<GoodreadsScraperService> logger, HttpClient httpClient)
+    public GoodreadsScraperService(
+        ILogger<GoodreadsScraperService> logger, 
+        HttpClient httpClient,
+        IMemoryCache cache)
     {
         _logger = logger;
         _httpClient = httpClient;
+        _cache = cache;
     }
 
     private string DecodeHtmlEntities(string? text)
@@ -29,6 +36,16 @@ public class GoodreadsScraperService
 
     public async Task<List<BookReview>> GetBookReviewsAsync()
     {
+        const string cacheKey = "goodreads_book_reviews";
+        
+        if (_cache.TryGetValue(cacheKey, out List<BookReview>? cachedReviews))
+        {
+            _logger.LogInformation("Cache HIT for key: {CacheKey} with {Count} reviews", cacheKey, cachedReviews?.Count ?? 0);
+            return cachedReviews;
+        }
+
+        _logger.LogInformation("Cache MISS for key: {CacheKey}, fetching from Goodreads", cacheKey);
+
         List<BookReview> bookReviews = new List<BookReview>();
         try
         {
@@ -137,6 +154,10 @@ public class GoodreadsScraperService
         {
             _logger.LogError(ex, "Error scraping book reviews from Goodreads");
         }
+
+        _cache.Set(cacheKey, bookReviews, _cacheDuration);
+        _logger.LogInformation("Cached {Count} book reviews for key: {CacheKey} with duration: {Duration} minutes", 
+            bookReviews.Count, cacheKey, _cacheDuration.TotalMinutes);
         
         return bookReviews;
     }

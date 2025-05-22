@@ -1,6 +1,6 @@
 @model IEnumerable<levihobbs.Models.BookReview>
 @{
-    ViewData["Title"] = "Book Reviews";
+    ViewData["Title"] = "Levi's Book Reviews";
 }
 
 @section Styles {
@@ -12,6 +12,9 @@
 <div class="reader-container">
     <div class="reader-header">
         <h1>Book Reviews</h1>
+        <a href="https://www.goodreads.com/user/show/96423614-levi-hobbs" target="_blank" class="goodreads-icon-link" title="View my Goodreads profile">
+            <i class="fab fa-goodreads"></i>
+        </a>
     </div>
     
     <div class="story-cards">
@@ -71,5 +74,13 @@
                 </div>
             </div>
         }
+    </div>
+    
+    <div class="goodreads-follow">
+        <h2>Looking for more book recommendations?</h2>
+        <a href="https://www.goodreads.com/user/show/96423614-levi-hobbs" target="_blank" class="goodreads-button">
+            <i class="fab fa-goodreads"></i>
+            Follow Levi on Goodreads
+        </a>
     </div>
 </div> 

@@ -28,6 +28,9 @@ namespace levihobbs
             builder.Services.AddControllersWithViews()
                 .AddRazorRuntimeCompilation();
 
+            // Add Memory Cache
+            builder.Services.AddMemoryCache();
+
             // Add PostgreSQL
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
