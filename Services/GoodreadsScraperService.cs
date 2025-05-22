@@ -16,7 +16,7 @@ public class GoodreadsScraperService
     private readonly ILogger<GoodreadsScraperService> _logger;
     private readonly HttpClient _httpClient;
     private readonly IMemoryCache _cache;
-    private static readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(5);
+    private static readonly TimeSpan _cacheDuration = TimeSpan.FromDays(1);
 
     public GoodreadsScraperService(
         ILogger<GoodreadsScraperService> logger, 
