@@ -1,5 +1,5 @@
 {
-  "name": "levihobbs_claude_sonnet",
+  "name": "levihobbs",
   "version": "1.0.0",
   "description": "This is a personal website built using ASP.NET Core MVC with PostgreSQL as the database.",
   "main": "index.js",
