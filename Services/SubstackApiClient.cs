@@ -182,20 +182,17 @@ namespace levihobbs.Services
                 return await retryPolicy.ExecuteAsync(async () =>
                 {
                     // Prepare the subscription data
-                    var subscriptionData = new
+                    var subscriptionData = new Dictionary<string, string>
                     {
-                        email = email,
-                        redirect_to = "", // Empty to prevent redirect
-                        captcha_response = "" // This will be handled client-side with reCAPTCHA
+                        { "email", email },
+                        { "source", "subscribe_page" }
                     };
 
-                    var content = new StringContent(
-                        JsonSerializer.Serialize(subscriptionData),
-                        Encoding.UTF8,
-                        "application/json");
+                    var content = new FormUrlEncodedContent(subscriptionData);
+                    _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
 
                     // Make the API call to Substack
-                    var response = await _httpClient.PostAsync($"{_url}/api/v1/free_subscriber/subscribe", content);
+                    var response = await _httpClient.PostAsync($"{_url}/api/v1/free?nojs=true", content);
                     
                     // Check if the request was successful
                     if (response.IsSuccessStatusCode)
