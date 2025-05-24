@@ -68,14 +68,14 @@ Before you begin, ensure you have the following installed:
 - `Views/` - Contains the Razor views
 - `Data/` - Contains database context and configurations
 - `wwwroot/` - Contains static files (CSS, JavaScript, images)
-  - `wwwroot/css/scss/` - Contains SCSS source files
+  - `wwwroot/scss/` - Contains SCSS source files
   - `wwwroot/css/` - Contains compiled CSS files
 - `Migrations/` - Contains database migration files
 
 ## SCSS Compilation
 
 ### Directory Structure
-- Source files: `wwwroot/css/scss/`
+- Source files: `wwwroot/scss/`
 - Compiled files: `wwwroot/css/` (don't edit these directly)
 
 ### Available Commands
@@ -83,7 +83,7 @@ Before you begin, ensure you have the following installed:
 - **Watch mode:** `npm start` (automatically recompiles when files change)
 
 ### Working with SCSS
-- Add new SCSS files to the `wwwroot/css/scss/` directory
+- Add new SCSS files to the `wwwroot/scss/` directory
 - Use `variables.scss` for design tokens and consistent styling
 - Keep styles modular and follow existing naming conventions
 - Use nesting appropriately to maintain readability

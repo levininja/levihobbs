@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using levihobbs.Data;
 using levihobbs.Controllers;
+using levihobbs.Services;
 
 namespace levihobbs
 {
@@ -28,6 +29,8 @@ namespace levihobbs
             
             services.AddControllersWithViews();
             services.AddScoped<ReaderController>();
+            services.AddHttpClient<SubstackApiClient>();
+            services.AddScoped<SubstackApiClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

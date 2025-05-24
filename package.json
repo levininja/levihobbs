@@ -4,7 +4,7 @@
   "description": "This is a personal website built using ASP.NET Core MVC with PostgreSQL as the database.",
   "main": "index.js",
   "scripts": {
-    "scss": "node-sass --output-style compressed --source-map true wwwroot/scss/stories.scss -o wwwroot/css && node-sass --output-style compressed --source-map true wwwroot/scss/book-reviews.scss -o wwwroot/css",
+    "scss": "node-sass --output-style compressed --source-map true wwwroot/scss/stories.scss -o wwwroot/css && node-sass --output-style compressed --source-map true wwwroot/scss/book-reviews.scss -o wwwroot/css && node-sass --output-style compressed --source-map true wwwroot/scss/home.scss -o wwwroot/css",
     "scss:watch": "nodemon --watch wwwroot/scss --ext scss --exec \"npm run scss\"",
     "start": "npm-run-all --parallel scss:watch",
     "build": "npm run scss",

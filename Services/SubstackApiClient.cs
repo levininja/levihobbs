@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 using levihobbs.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
+using System.Text;
+using levihobbs.Data;
+using Polly;
+using Polly.Retry;
 
 namespace levihobbs.Services
 {
@@ -21,13 +25,15 @@ namespace levihobbs.Services
         private readonly HttpClient _httpClient;
         private readonly ILogger<SubstackApiClient> _logger;
         private readonly IMemoryCache _cache;
+        private readonly ApplicationDbContext _context;
         private static readonly TimeSpan _cacheDuration = TimeSpan.FromDays(1);
 
-        public SubstackApiClient(HttpClient httpClient, ILogger<SubstackApiClient> logger, IMemoryCache cache)
+        public SubstackApiClient(HttpClient httpClient, ILogger<SubstackApiClient> logger, IMemoryCache cache, ApplicationDbContext context)
         {
             _httpClient = httpClient;
             _logger = logger;
             _cache = cache;
+            _context = context;
         }
 
         /// <summary>
@@ -146,6 +152,87 @@ namespace levihobbs.Services
             }
 
             return results;
+        }
+
+        /// <summary>
+        /// Subscribes a user to the Substack newsletter with retry logic
+        /// </summary>
+        /// <param name="email">The email address to subscribe</param>
+        /// <returns>True if subscription was successful, false otherwise</returns>
+        public async Task<bool> SubscribeToNewsletterAsync(string email)
+        {
+            // Create retry policy with exponential backoff
+            var retryPolicy = Policy
+                .Handle<HttpRequestException>()
+                .Or<TaskCanceledException>()
+                .Or<JsonException>()
+                .WaitAndRetryAsync(
+                    3, // Retry 3 times
+                    retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), // Exponential backoff: 2, 4, 8 seconds
+                    (exception, timeSpan, retryCount, context) =>
+                    {
+                        _logger.LogWarning(
+                            "Attempt {RetryCount} to subscribe {Email} failed with {ExceptionType}: {ExceptionMessage}. Retrying in {TimeSpan}s",
+                            retryCount, email, exception.GetType().Name, exception.Message, timeSpan.TotalSeconds);
+                    }
+                );
+
+            try
+            {
+                return await retryPolicy.ExecuteAsync(async () =>
+                {
+                    // Prepare the subscription data
+                    var subscriptionData = new
+                    {
+                        email = email,
+                        redirect_to = "", // Empty to prevent redirect
+                        captcha_response = "" // This will be handled client-side with reCAPTCHA
+                    };
+
+                    var content = new StringContent(
+                        JsonSerializer.Serialize(subscriptionData),
+                        Encoding.UTF8,
+                        "application/json");
+
+                    // Make the API call to Substack
+                    var response = await _httpClient.PostAsync($"{_url}/api/v1/free_subscriber/subscribe", content);
+                    
+                    // Check if the request was successful
+                    if (response.IsSuccessStatusCode)
+                    {
+                        _logger.LogInformation("Successfully subscribed {Email} to Substack newsletter", email);
+                        return true;
+                    }
+                    
+                    // Log the error response
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Failed to subscribe {Email} to Substack. Status: {StatusCode}, Response: {Response}", 
+                        email, response.StatusCode, errorContent);
+                    
+                    // If we get here, the request failed but didn't throw an exception
+                    // We'll still retry based on status code
+                    response.EnsureSuccessStatusCode(); // This will throw and trigger retry
+                    return false; // This line won't be reached if EnsureSuccessStatusCode throws
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the error to the database
+                var errorLog = new ErrorLog
+                {
+                    LogLevel = "Error",
+                    Message = $"Failed to subscribe {email} to Substack newsletter after 3 attempts: {ex.Message}",
+                    Source = "SubstackApiClient.SubscribeToNewsletterAsync",
+                    StackTrace = ex.StackTrace?.Substring(0, Math.Min(ex.StackTrace.Length, 1024)) ?? string.Empty,
+                    LogDate = DateTime.UtcNow
+                };
+                
+                _context.ErrorLogs.Add(errorLog);
+                await _context.SaveChangesAsync();
+                
+                _logger.LogError(ex, "Failed to subscribe {Email} to Substack newsletter after 3 attempts", email);
+                return false;
+            }
         }
     }
 }
