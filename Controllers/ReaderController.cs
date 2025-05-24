@@ -13,13 +13,13 @@ namespace levihobbs.Controllers;
 public class ReaderController : Controller
 {
     private readonly ILogger<ReaderController> _logger;
-    private readonly SubstackApiClient _substackApiClient;
+    private readonly ISubstackApiClient _substackApiClient;
     private readonly MockDataService _mockDataService;
     private readonly GoodreadsScraperService _goodreadsScraperService;
 
     public ReaderController(
         ILogger<ReaderController> logger,
-        SubstackApiClient substackApiClient,
+        ISubstackApiClient substackApiClient,
         MockDataService mockDataService,
         GoodreadsScraperService goodreadsScraperService)
     {

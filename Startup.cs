@@ -29,8 +29,8 @@ namespace levihobbs
             
             services.AddControllersWithViews();
             services.AddScoped<ReaderController>();
-            services.AddHttpClient<SubstackApiClient>();
-            services.AddScoped<SubstackApiClient>();
+            services.AddHttpClient<ISubstackApiClient, SubstackApiClient>();
+            services.AddScoped<ISubstackApiClient, SubstackApiClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

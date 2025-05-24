@@ -10,15 +10,17 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             e.stopPropagation();
             
-            const email = document.querySelector('.newsletter-input').value;
-            // const recaptchaResponse = grecaptcha.getResponse();
+            const emailInput = document.querySelector('.newsletter-input');
+            const email = emailInput.value;
             
-            // // Validate reCAPTCHA
-            // if (!recaptchaResponse) {
-            //     messageContainer.textContent = 'Please complete the reCAPTCHA verification';
-            //     messageContainer.className = 'newsletter-message newsletter-message-error';
-            //     return false;
-            // }
+            const recaptchaResponse = grecaptcha.getResponse();
+            
+            // Validate reCAPTCHA
+            if (!recaptchaResponse) {
+                messageContainer.textContent = 'Please complete the reCAPTCHA verification';
+                messageContainer.className = 'newsletter-message newsletter-message-error';
+                return false;
+            }
             
             // Show loading overlay
             messageContainer.textContent = '';
@@ -26,13 +28,18 @@ document.addEventListener('DOMContentLoaded', function() {
             loadingOverlay.style.display = 'flex';
             
             try {
+                const verificationToken = document.querySelector('input[name="__RequestVerificationToken"]');
+                const tokenValue = verificationToken.value;
+                
+                const requestBody = `email=${encodeURIComponent(email)}&recaptchaResponse=${encodeURIComponent(recaptchaResponse)}`;
+                
                 const response = await fetch('/Home/Subscribe', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
-                        // 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        'RequestVerificationToken': tokenValue
                     },
-                    body: `email=${encodeURIComponent(email)}`
+                    body: requestBody
                 });
                 
                 let result;
@@ -45,22 +52,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         messageContainer.className = result.warning 
                             ? 'newsletter-message newsletter-message-warning'
                             : 'newsletter-message newsletter-message-success';
-                        document.querySelector('.newsletter-input').value = '';
+                            
+                        const emailInputReset = document.querySelector('.newsletter-input');
+                        emailInputReset.value = '';
                         
-                        // // Reset reCAPTCHA
-                        // grecaptcha.reset();
+                        // Reset reCAPTCHA
+                        grecaptcha.reset();
                     } else {
                         // Show error message from server
                         messageContainer.textContent = result.message || 'An error occurred';
                         messageContainer.className = 'newsletter-message newsletter-message-error';
                     }
                 } catch (e) {
-                    console.error('Error parsing response:', e);
                     messageContainer.textContent = 'An error occurred while processing your request: ' + e.message;
                     messageContainer.className = 'newsletter-message newsletter-message-error';
                 }
             } catch (error) {
-                console.error('Error:', error);
                 messageContainer.textContent = 'An error occurred while processing your request: ' + error.message;
                 messageContainer.className = 'newsletter-message newsletter-message-error';
             } finally {

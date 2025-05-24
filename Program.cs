@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 using levihobbs.Controllers;
 using levihobbs.Services;
+using levihobbs.Models;
 
 namespace levihobbs
 {
@@ -35,13 +36,21 @@ namespace levihobbs
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            // Add reCAPTCHA service
+            builder.Services.AddScoped<IReCaptchaService, ReCaptchaService>();
+            builder.Services.Configure<ReCaptchaSettings>(
+                builder.Configuration.GetSection("ReCaptcha"));
+
             // Add HttpClient
             builder.Services.AddHttpClient();
+
+
+            // Add SubstackApiClient
+            builder.Services.AddScoped<ISubstackApiClient, SubstackApiClient>();
 
             // Add ReaderController
             builder.Services.AddScoped<ReaderController>();
             
-            builder.Services.AddScoped<SubstackApiClient>();
             builder.Services.AddScoped<MockDataService>();
             builder.Services.AddScoped<GoodreadsScraperService>();
 

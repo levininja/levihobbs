@@ -19,7 +19,7 @@ namespace levihobbs.Services
     /// This service handles the communication with Substack's API endpoints and
     /// transforms the response into our application's data models.
     /// </summary>
-    public class SubstackApiClient
+    public class SubstackApiClient : ISubstackApiClient
     {
         private readonly string _url = "https://levihobbs.substack.com";
         private readonly HttpClient _httpClient;

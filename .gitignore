@@ -65,4 +65,8 @@ bld/
 *.DotSettings.user
 
 # Compiled CSS
-*.css.map 
+*.css.map
+
+# User secrets
+appsettings.Production.json
+Directory.Build.props 

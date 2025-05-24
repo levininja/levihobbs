@@ -120,9 +120,10 @@
                 </div>
                 <p>Get an essay or short story in the realms of science fiction and fantasy delivered each week</p>
                 <form class="newsletter-form" novalidate>
+                    @Html.AntiForgeryToken()
                     <div class="form-group">
                         <input type="email" placeholder="email@example.com" class="newsletter-input" required>
-                        <div class="g-recaptcha" data-sitekey="YOUR_RECAPTCHA_SITE_KEY"></div>
+                        <div class="g-recaptcha" data-sitekey="@ViewBag.ReCaptchaSiteKey"></div>
                         <button type="submit" class="newsletter-button">Subscribe</button>
                     </div>
                     <div class="newsletter-message"></div>
