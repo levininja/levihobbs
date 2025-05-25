@@ -67,7 +67,15 @@ namespace levihobbs.Services
             // If not in database, fetch from Google
             try
             {
-                string url = $"https://www.googleapis.com/customsearch/v1?key={_settings.ApiKey}&cx={_settings.SearchEngineId}&q={Uri.EscapeDataString(cleanedSearchTerm)}&searchType=image&imgSize=medium&num=1";
+                // Build Google Custom Search API URL
+                // See docs: https://developers.google.com/custom-search/v1/using_rest
+                string url = $"https://www.googleapis.com/customsearch/v1" +
+                    $"?key={_settings.ApiKey}" + // API key for authentication
+                    $"&cx={_settings.SearchEngineId}" + // Custom Search Engine ID
+                    $"&q={Uri.EscapeDataString(cleanedSearchTerm)}" + // Search query, URL encoded
+                    "&searchType=image" + // Restrict to image search results only
+                    "&imgSize=medium" + // Return medium-sized images (~400x400px)
+                    "&num=1"; // Return only 1 result to minimize API usage
                 
                 var response = await _httpClient.GetAsync(url);
                 
