@@ -36,19 +36,16 @@
             }
             
             // Get all books that need better covers
-            const books = document.querySelectorAll('.book-cover-container[data-needs-better-cover="true"]');
+            const books = document.querySelectorAll('.book-cover-container');
+            const booksNeedingBetterCovers = Array.from(books).filter(book => book.getAttribute('data-needs-better-cover') === 'true');
             
             // Fetch better covers for each book
-            //books.forEach(book => {
-            for(let x = 0; x < 5; x++){
-                let book = books[x]; // temporarily only fetch one book while testing
+            booksNeedingBetterCovers.forEach(book => {
                 const bookId = book.dataset.bookId;
                 const title = book.dataset.title;
-                const author = book.dataset.author;
-                
+                const author = book.dataset.author;                
                 fetchBookCover(bookId, title, author);
-            }
-            //});
+            });
         });
     </script>
 }

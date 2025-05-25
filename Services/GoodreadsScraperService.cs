@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using levihobbs.Models;
+using levihobbs.Utils;
 using System.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
@@ -47,6 +48,19 @@ public class GoodreadsScraperService
 
         // Replace newlines and multiple spaces with a single space
         return Regex.Replace(text, @"\s+", " ").Trim();
+    }
+
+    private string CleanSearchTerm(string title, string author)
+    {
+        // Clean up the search term by removing newlines and extra spaces
+        string cleanTitle = title.Replace("\n", " ").Replace("\r", "").Trim();
+        string cleanAuthor = author.Replace("\n", " ").Replace("\r", "").Trim();
+        
+        // Remove special characters that might interfere with the search
+        cleanTitle = Regex.Replace(cleanTitle, @"[^\w\s\-\(\)\.]", "");
+        cleanAuthor = Regex.Replace(cleanAuthor, @"[^\w\s\-\(\)\.]", "");
+        
+        return $"{cleanTitle} by {cleanAuthor}";
     }
 
     public async Task<List<BookReview>> GetBookReviewsAsync()
@@ -164,7 +178,7 @@ public class GoodreadsScraperService
             // After creating all book reviews, check for stored images
             foreach (var review in bookReviews)
             {
-                string searchTerm = $"{review.Title} by {review.Author}";
+                string searchTerm = Utilities.CleanSearchTerm(review.Title, review.Author);
                 var storedImage = await _dbContext.BookCoverImages
                     .FirstOrDefaultAsync(i => i.SearchTerm == searchTerm);
                     
@@ -181,8 +195,6 @@ public class GoodreadsScraperService
         }
 
         _cache.Set(cacheKey, bookReviews, _cacheDuration);
-        _logger.LogInformation("Cached {Count} book reviews for key: {CacheKey} with duration: {Duration} minutes", 
-            bookReviews.Count, cacheKey, _cacheDuration.TotalMinutes);
         
         return bookReviews;
     }

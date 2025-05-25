@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using levihobbs.Data;
 using levihobbs.Models;
+using levihobbs.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -46,26 +47,13 @@ namespace levihobbs.Services
 
         public async Task<byte[]?> GetBookCoverImageAsync(string title, string author)
         {
-            // Clean up the search term by removing newlines and extra spaces
-            string cleanTitle = title.Replace("\n", " ").Replace("\r", "").Trim();
-            string cleanAuthor = author.Replace("\n", " ").Replace("\r", "").Trim();
+            string searchTerm = Utilities.CleanSearchTerm(title, author);
             
-            // Remove special characters that might interfere with the search
-            cleanTitle = Regex.Replace(cleanTitle, @"[^\w\s\-\(\)\.]", "");
-            cleanAuthor = Regex.Replace(cleanAuthor, @"[^\w\s\-\(\)\.]", "");
-            
-            string searchTerm = $"{cleanTitle} by {cleanAuthor}";
-            
-            _logger.LogInformation("Searching for book cover: {SearchTerm}", searchTerm);
-            
-            // Check if we already have this image in the database
             var existingImage = await _dbContext.BookCoverImages
                 .FirstOrDefaultAsync(i => i.SearchTerm == searchTerm);
                 
             if (existingImage != null)
             {
-                _logger.LogInformation("Found existing book cover for {SearchTerm}", searchTerm);
-                // Update the last accessed date
                 existingImage.DateAccessed = DateTime.UtcNow;
                 await _dbContext.SaveChangesAsync();
                 return existingImage.ImageData;
@@ -76,13 +64,11 @@ namespace levihobbs.Services
             {
                 string url = $"https://www.googleapis.com/customsearch/v1?key={_settings.ApiKey}&cx={_settings.SearchEngineId}&q={Uri.EscapeDataString(searchTerm)}&searchType=image&imgSize=medium&num=1";
                 
-                _logger.LogInformation("Making request to Google API with URL: {Url}", url);
                 var response = await _httpClient.GetAsync(url);
                 
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    _logger.LogError("Google API returned error {StatusCode}: {ErrorContent}", response.StatusCode, errorContent);
                     
                     // Log API error to database
                     var apiError = new ErrorLog
@@ -100,13 +86,11 @@ namespace levihobbs.Services
                 }
                 
                 var content = await response.Content.ReadAsStringAsync();
-                _logger.LogInformation("Received response from Google API: {Content}", content);
                 
                 var searchResult = JsonSerializer.Deserialize<GoogleSearchResult>(content);
                 if (searchResult?.Items?.Count > 0)
                 {
                     var imageItem = searchResult.Items[0];
-                    _logger.LogInformation("Processing search result item: {Item}", 
                         JsonSerializer.Serialize(imageItem, new JsonSerializerOptions { WriteIndented = true }));
                     
                     string imageUrl;
@@ -115,42 +99,28 @@ namespace levihobbs.Services
                     if (!string.IsNullOrEmpty(imageItem.Link))
                     {
                         imageUrl = imageItem.Link;
-                        _logger.LogInformation("Found image URL in Link property: {ImageUrl}", imageUrl);
                     }
                     // Fall back to the original format
                     else if (imageItem.PageMap?.CseImage?.Count > 0)
                     {
                         imageUrl = imageItem.PageMap.CseImage[0].Src;
-                        _logger.LogInformation("Found image URL in PageMap.CseImage[0].Src: {ImageUrl}", imageUrl);
                     }
                     else
                     {
-                        _logger.LogWarning("No image URL found in search result. Full item structure: {ItemStructure}", 
-                            JsonSerializer.Serialize(imageItem, new JsonSerializerOptions { WriteIndented = true }));
                         return null;
                     }
-
-                    _logger.LogInformation("Found image URL: {ImageUrl}", imageUrl);
                     
                     // Download the image
                     var imageResponse = await _httpClient.GetAsync(imageUrl);
                     if (imageResponse.IsSuccessStatusCode)
                     {
                         var imageData = await imageResponse.Content.ReadAsByteArrayAsync();
-                        _logger.LogInformation("Successfully downloaded image, size: {Size} bytes", imageData.Length);
                         
                         // Get image dimensions and type
                         using var image = Image.Load(imageData);
                         int width = imageItem.Image?.Width ?? image.Width;
                         int height = imageItem.Image?.Height ?? image.Height;
                         string fileType = Path.GetExtension(imageUrl).TrimStart('.');
-                        
-                        _logger.LogInformation("Image details - Width: {Width}, Height: {Height}, Type: {FileType}", width, height, fileType);
-                        _logger.LogInformation("Image metadata from API - Width: {ApiWidth}, Height: {ApiHeight}, ByteSize: {ByteSize}, ThumbnailLink: {ThumbnailLink}", 
-                            imageItem.Image?.Width, 
-                            imageItem.Image?.Height, 
-                            imageItem.Image?.ByteSize, 
-                            imageItem.Image?.ThumbnailLink);
                         
                         // Store in database
                         var bookCoverImage = new BookCoverImage
@@ -166,14 +136,11 @@ namespace levihobbs.Services
                         _dbContext.BookCoverImages.Add(bookCoverImage);
                         await _dbContext.SaveChangesAsync();
                         
-                        _logger.LogInformation("Successfully saved book cover to database for {SearchTerm}", searchTerm);
                         return imageData;
                     }
                     else
                     {
                         var errorContent = await imageResponse.Content.ReadAsStringAsync();
-                        _logger.LogError("Failed to download image from {ImageUrl}. Status: {StatusCode}, Error: {ErrorContent}", 
-                            imageUrl, imageResponse.StatusCode, errorContent);
                             
                         // Log download error to database
                         var downloadError = new ErrorLog
@@ -188,13 +155,6 @@ namespace levihobbs.Services
                         await _dbContext.SaveChangesAsync();
                     }
                 }
-                else
-                {
-                    _logger.LogWarning("No items found in search result. Full response: {Response}", 
-                        JsonSerializer.Serialize(searchResult, new JsonSerializerOptions { WriteIndented = true }));
-                }
-                
-                _logger.LogWarning("No image found for {SearchTerm}", searchTerm);
                 return null;
             }
             catch (Exception ex)
