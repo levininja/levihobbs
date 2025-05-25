@@ -9,6 +9,50 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 }
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to fetch better book cover images
+            async function fetchBookCover(bookId, title, author) {
+                try {
+                    const response = await fetch(`/api/BookCover?title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}`);
+                    
+                    if (response.ok) {
+                        // Convert the response to a blob
+                        const imageBlob = await response.blob();
+                        const imageUrl = URL.createObjectURL(imageBlob);
+                        
+                        // Find the image element and update it
+                        const imgElement = document.querySelector(`#book-cover-${bookId}`);
+                        if (imgElement) {
+                            imgElement.src = imageUrl;
+                            imgElement.classList.add('high-quality');
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error fetching book cover for ${title}:`, error);
+                }
+            }
+            
+            // Get all books that need better covers
+            const books = document.querySelectorAll('.book-cover-container[data-needs-better-cover="true"]');
+            
+            // Fetch better covers for each book
+            //books.forEach(book => {
+            for(let x = 0; x < 5; x++){
+                let book = books[x]; // temporarily only fetch one book while testing
+                const bookId = book.dataset.bookId;
+                const title = book.dataset.title;
+                const author = book.dataset.author;
+                
+                fetchBookCover(bookId, title, author);
+            }
+            //});
+        });
+    </script>
+}
+
 <div class="reader-container">
     <div class="reader-header">
         <h1>Book Reviews</h1>
@@ -24,7 +68,7 @@
                 <div class="row g-0">
                     <div class="col-md-4">
                         <div class="thumbnail-container">
-                            @if (string.IsNullOrEmpty(review.ImageUrl))
+                            @if (string.IsNullOrEmpty(review.ImageUrl) && review.ImageRawData == null)
                             {
                                 <div class="thumbnail book-reviews">
                                     <div class="story-icon">
@@ -36,8 +80,19 @@
                             }
                             else
                             {
-                                <div class="thumbnail">
-                                    <img src="@review.ImageUrl" alt="@review.Title" />
+                                <div class="thumbnail book-cover-container" 
+                                     data-needs-better-cover="@(review.ImageRawData == null ? "true" : "false")"
+                                     data-book-id="@review.Id"
+                                     data-title="@review.Title"
+                                     data-author="@review.Author">
+                                    @if (review.ImageRawData != null)
+                                    {
+                                        <img id="book-cover-@review.Id" src="data:image/jpeg;base64,@Convert.ToBase64String(review.ImageRawData)" alt="@review.Title" class="high-quality" />
+                                    }
+                                    else
+                                    {
+                                        <img id="book-cover-@review.Id" src="@review.ImageUrl" alt="@review.Title" />
+                                    }
                                 </div>
                             }
                         </div>
@@ -83,4 +138,4 @@
             Follow Levi on Goodreads
         </a>
     </div>
-</div> 
+</div>

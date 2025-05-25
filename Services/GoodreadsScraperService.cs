@@ -8,6 +8,9 @@ using levihobbs.Models;
 using System.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
+using levihobbs.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace levihobbs.Services;
 
@@ -16,22 +19,34 @@ public class GoodreadsScraperService
     private readonly ILogger<GoodreadsScraperService> _logger;
     private readonly HttpClient _httpClient;
     private readonly IMemoryCache _cache;
+    private readonly ApplicationDbContext _dbContext;
     private static readonly TimeSpan _cacheDuration = TimeSpan.FromDays(1);
 
     public GoodreadsScraperService(
         ILogger<GoodreadsScraperService> logger, 
         HttpClient httpClient,
-        IMemoryCache cache)
+        IMemoryCache cache,
+        ApplicationDbContext dbContext)
     {
         _logger = logger;
         _httpClient = httpClient;
         _cache = cache;
+        _dbContext = dbContext;
     }
 
     private string DecodeHtmlEntities(string? text)
     {
         if (string.IsNullOrEmpty(text)) return string.Empty;
         return HttpUtility.HtmlDecode(text);
+    }
+
+    private string CleanText(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return string.Empty;
+
+        // Replace newlines and multiple spaces with a single space
+        return Regex.Replace(text, @"\s+", " ").Trim();
     }
 
     public async Task<List<BookReview>> GetBookReviewsAsync()
@@ -62,9 +77,6 @@ public class GoodreadsScraperService
                 content = await reader.ReadToEndAsync();
             }
                         
-            // Log a sample of the response to verify content
-            int sampleLength = Math.Min(1000, content.Length);
-            
             HtmlDocument htmlDocument = new HtmlDocument();
             htmlDocument.LoadHtml(content);
             
@@ -94,8 +106,8 @@ public class GoodreadsScraperService
                     if (titleNode != null && reviewTextNode != null)
                     {
                         string imageUrl = coverNode?.GetAttributeValue("src", "") ?? string.Empty;
-                        string title = DecodeHtmlEntities(titleNode.InnerText.Trim());
-                        string author = DecodeHtmlEntities(authorNode?.InnerText.Trim() ?? "Unknown Author");
+                        string title = CleanText(DecodeHtmlEntities(titleNode.InnerText));
+                        string author = CleanText(DecodeHtmlEntities(authorNode?.InnerText ?? "Unknown Author"));
                         string datePublishedText = datePublishedNode?.InnerText.Trim() ?? string.Empty;
                         DateTime datePublished = DateTime.TryParse(datePublishedText, out DateTime parsedDate) ? parsedDate : DateTime.UtcNow;
                         
@@ -110,7 +122,7 @@ public class GoodreadsScraperService
                         {
                             foreach (HtmlNode shelfNode in shelfNodes)
                             {
-                                string shelfText = DecodeHtmlEntities(shelfNode.InnerText.Trim());
+                                string shelfText = CleanText(DecodeHtmlEntities(shelfNode.InnerText));
                                 if (!string.IsNullOrEmpty(shelfText))
                                 {
                                     shelves.Add(shelfText);
@@ -123,7 +135,7 @@ public class GoodreadsScraperService
                         DateTime dateRead = DateTime.TryParse(dateReadText, out DateTime readDate) ? readDate : DateTime.UtcNow;
                         
                         // Get review text and view link
-                        string reviewText = DecodeHtmlEntities(reviewTextNode.InnerText.Trim());
+                        string reviewText = CleanText(DecodeHtmlEntities(reviewTextNode.InnerText));
                         string viewLink = viewLinkNode?.GetAttributeValue("href", "") ?? string.Empty;
                         if (!string.IsNullOrEmpty(viewLink) && !viewLink.StartsWith("http"))
                         {
@@ -149,6 +161,19 @@ public class GoodreadsScraperService
                     }
                 }
             }
+            // After creating all book reviews, check for stored images
+            foreach (var review in bookReviews)
+            {
+                string searchTerm = $"{review.Title} by {review.Author}";
+                var storedImage = await _dbContext.BookCoverImages
+                    .FirstOrDefaultAsync(i => i.SearchTerm == searchTerm);
+                    
+                if (storedImage != null)
+                {
+                    review.ImageRawData = storedImage.ImageData;
+                }
+            }
+            
         }
         catch (Exception ex)
         {

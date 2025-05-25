@@ -25,6 +25,12 @@ namespace levihobbs
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Log environment and configuration
+            var logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
+            logger.LogInformation("Current environment: {Environment}", builder.Environment.EnvironmentName);
+            logger.LogInformation("Google Custom Search settings: {Settings}", 
+                builder.Configuration.GetSection("GoogleCustomSearch").Get<GoogleCustomSearchSettings>());
+
             // Add services to the container.
             builder.Services.AddControllersWithViews()
                 .AddRazorRuntimeCompilation();
@@ -41,6 +47,10 @@ namespace levihobbs
             builder.Services.Configure<ReCaptchaSettings>(
                 builder.Configuration.GetSection("ReCaptcha"));
 
+            // Configure Google Custom Search settings
+            builder.Services.Configure<GoogleCustomSearchSettings>(
+                builder.Configuration.GetSection("GoogleCustomSearch"));
+
             // Add HttpClient
             builder.Services.AddHttpClient();
 
@@ -54,11 +64,14 @@ namespace levihobbs
             builder.Services.AddScoped<MockDataService>();
             builder.Services.AddScoped<GoodreadsScraperService>();
 
+            // Add BookCoverService
+            builder.Services.AddScoped<IBookCoverService, BookCoverService>();
+
             // Configure Kestrel
             builder.WebHost.ConfigureKestrel(serverOptions =>
             {
-                serverOptions.ListenLocalhost(5000); // HTTP
-                serverOptions.ListenLocalhost(5001, listenOptions =>
+                serverOptions.ListenLocalhost(5004); // HTTP
+                serverOptions.ListenLocalhost(5005, listenOptions =>
                 {
                     listenOptions.UseHttps();
                 }); // HTTPS

@@ -5,7 +5,7 @@ This is a personal website built using ASP.NET Core MVC with PostgreSQL as the d
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 - [PostgreSQL](https://www.postgresql.org/download/)
 - [Node.js and npm](https://nodejs.org/) (for SCSS compilation)
 - An IDE (like Visual Studio, VS Code, or Rider)
@@ -28,27 +28,34 @@ Before you begin, ensure you have the following installed:
      ```
      Replace `your_postgres_password` with the password you set during PostgreSQL installation. If you're using a different username than 'postgres', update that as well.
 
-3. **Install .NET Dependencies**
+3. **Development Credentials**
+   - Copy `appsettings.Development.template.json` to `appsettings.Development.json`
+   - Contact another developer to get the necessary credentials for:
+     - Google Custom Search API key and Search Engine ID
+     - ReCaptcha site key
+   - These credentials are required for features like book cover image search and form validation
+
+4. **Install .NET Dependencies**
    ```bash
    dotnet restore
    ```
 
-4. **Install Node.js Dependencies** (for SCSS compilation)
+5. **Install Node.js Dependencies** (for SCSS compilation)
    ```bash
    npm install
    ```
 
-5. **Apply Database Migrations**
+6. **Apply Database Migrations**
    ```bash
    dotnet ef database update
    ```
 
-6. **Compile SCSS to CSS**
+7. **Compile SCSS to CSS**
    ```bash
    npm run build
    ```
 
-7. **Run the Application**
+8. **Run the Application**
    ```bash
    dotnet run
    ```
@@ -91,11 +98,10 @@ Before you begin, ensure you have the following installed:
 ## Troubleshooting
 
 If you encounter any issues:
-
 1. **.NET SDK Version**
-   - Make sure you have .NET 9.0 SDK installed
+   - Make sure you have .NET 8.0 SDK installed
    - You can check your version by running `dotnet --version`
-   - If you have an older version, you'll need to upgrade to .NET 9.0
+   - If you have an older version, you'll need to upgrade to .NET 8.0
 
 2. **Entity Framework Core Tools**
    - If you get errors about `dotnet-ef` not being found, install the EF Core tools:

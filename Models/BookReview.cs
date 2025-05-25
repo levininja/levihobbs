@@ -16,5 +16,8 @@ namespace levihobbs.Models
         public required List<string> Shelves { get; set; }
         public required DateTime DateRead { get; set; }
         public required string ReadMoreUrl { get; set; }
+
+        // New field for storing raw image data
+        public byte[]? ImageRawData { get; set; }        
     }
 }

@@ -12,6 +12,7 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<NewsletterSubscription> NewsletterSubscriptions { get; set; } = null!;
     public DbSet<ErrorLog> ErrorLogs { get; set; } = null!;
+    public DbSet<BookCoverImage> BookCoverImages { get; set; } = null!;
 
     // Add your DbSet properties here
     // Example: public DbSet<Newsletter> Newsletters { get; set; }
@@ -25,5 +26,9 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<ErrorLog>()
             .Property(e => e.StackTrace)
             .HasMaxLength(1024);
+            
+        modelBuilder.Entity<BookCoverImage>()
+            .HasIndex(b => b.SearchTerm)
+            .IsUnique();
     }
 } 
