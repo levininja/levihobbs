@@ -16,7 +16,7 @@
             // Function to fetch better book cover images
             async function fetchBookCover(bookId, title, author) {
                 try {
-                    const response = await fetch(`/api/BookCover?title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}`);
+                    const response = await fetch(`/api/BookCover?searchTerm=${encodeURIComponent(`${title} by ${author}`)}`);
                     
                     if (response.ok) {
                         // Convert the response to a blob

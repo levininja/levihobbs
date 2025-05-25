@@ -45,13 +45,16 @@ namespace levihobbs.Services
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (compatible; LeviHobbsBookCoverBot/1.0; +https://levihobbs.com)");
         }
 
-        public async Task<byte[]?> GetBookCoverImageAsync(string title, string author)
+        public async Task<byte[]?> GetBookCoverImageAsync(string searchTerm)
         {
-            string searchTerm = Utilities.CleanSearchTerm(title, author);
+            if (string.IsNullOrEmpty(searchTerm))
+                return null;
+
+            var cleanedSearchTerm = CleanSearchTerm(new[] { searchTerm });
             
             // Check if we already have this image in the database
             var existingImage = await _dbContext.BookCoverImages
-                .FirstOrDefaultAsync(i => i.Name == searchTerm);
+                .FirstOrDefaultAsync(i => i.Name == cleanedSearchTerm);
                 
             if (existingImage != null)
             {
@@ -64,7 +67,7 @@ namespace levihobbs.Services
             // If not in database, fetch from Google
             try
             {
-                string url = $"https://www.googleapis.com/customsearch/v1?key={_settings.ApiKey}&cx={_settings.SearchEngineId}&q={Uri.EscapeDataString(searchTerm)}&searchType=image&imgSize=medium&num=1";
+                string url = $"https://www.googleapis.com/customsearch/v1?key={_settings.ApiKey}&cx={_settings.SearchEngineId}&q={Uri.EscapeDataString(cleanedSearchTerm)}&searchType=image&imgSize=medium&num=1";
                 
                 var response = await _httpClient.GetAsync(url);
                 
@@ -77,7 +80,7 @@ namespace levihobbs.Services
                     var apiError = new ErrorLog
                     {
                         LogLevel = "Error",
-                        Message = $"Book Cover API Error for '{searchTerm}': Status {response.StatusCode}",
+                        Message = $"Book Cover API Error for '{cleanedSearchTerm}': Status {response.StatusCode}",
                         Source = "BookCoverService",
                         StackTrace = errorContent,
                         LogDate = DateTime.UtcNow
@@ -125,7 +128,7 @@ namespace levihobbs.Services
                         // Store in database
                         var bookCoverImage = new BookCoverImage
                         {
-                            Name = searchTerm,
+                            Name = cleanedSearchTerm,
                             ImageData = imageData,
                             Width = width,
                             Height = height,
@@ -148,7 +151,7 @@ namespace levihobbs.Services
                         var downloadError = new ErrorLog
                         {
                             LogLevel = "Error",
-                            Message = $"Book Cover Download Error for '{searchTerm}' from {imageUrl}",
+                            Message = $"Book Cover Download Error for '{cleanedSearchTerm}' from {imageUrl}",
                             Source = "BookCoverService",
                             StackTrace = $"Status: {imageResponse.StatusCode}, Content: {errorContent}",
                             LogDate = DateTime.UtcNow
@@ -162,7 +165,7 @@ namespace levihobbs.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching book cover for {SearchTerm}", searchTerm);
+                _logger.LogError(ex, "Error fetching book cover for {SearchTerm}", cleanedSearchTerm);
                 return null;
             }
         }
@@ -213,6 +216,22 @@ namespace levihobbs.Services
         {
             [JsonPropertyName("src")]
             public string Src { get; set; } = string.Empty;
+        }
+
+        private string CleanSearchTerm(string[] searchTerms)
+        {
+            return string.Join(" ", searchTerms.Select(CleanSearchTerm));
+        }
+
+        private string CleanSearchTerm(string searchTerm)
+        {
+            if (string.IsNullOrEmpty(searchTerm))
+                return string.Empty;
+
+            // Remove special characters and extra spaces
+            var cleaned = Regex.Replace(searchTerm, @"[^\w\s]", " ");
+            cleaned = Regex.Replace(cleaned, @"\s+", " ");
+            return cleaned.Trim();
         }
     }
 }
