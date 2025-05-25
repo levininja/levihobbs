@@ -28,7 +28,7 @@ public class ApplicationDbContext : DbContext
             .HasMaxLength(1024);
             
         modelBuilder.Entity<BookCoverImage>()
-            .HasIndex(b => b.SearchTerm)
+            .HasIndex(b => b.Name)
             .IsUnique();
     }
 } 

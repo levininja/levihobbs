@@ -49,11 +49,13 @@ namespace levihobbs.Services
         {
             string searchTerm = Utilities.CleanSearchTerm(title, author);
             
+            // Check if we already have this image in the database
             var existingImage = await _dbContext.BookCoverImages
-                .FirstOrDefaultAsync(i => i.SearchTerm == searchTerm);
+                .FirstOrDefaultAsync(i => i.Name == searchTerm);
                 
             if (existingImage != null)
             {
+                // Update the last accessed date
                 existingImage.DateAccessed = DateTime.UtcNow;
                 await _dbContext.SaveChangesAsync();
                 return existingImage.ImageData;
@@ -69,6 +71,7 @@ namespace levihobbs.Services
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Google API returned error {StatusCode}: {ErrorContent}", response.StatusCode, errorContent);
                     
                     // Log API error to database
                     var apiError = new ErrorLog
@@ -86,13 +89,10 @@ namespace levihobbs.Services
                 }
                 
                 var content = await response.Content.ReadAsStringAsync();
-                
                 var searchResult = JsonSerializer.Deserialize<GoogleSearchResult>(content);
                 if (searchResult?.Items?.Count > 0)
                 {
                     var imageItem = searchResult.Items[0];
-                        JsonSerializer.Serialize(imageItem, new JsonSerializerOptions { WriteIndented = true }));
-                    
                     string imageUrl;
 
                     // Try to get image URL from the new format first
@@ -125,7 +125,7 @@ namespace levihobbs.Services
                         // Store in database
                         var bookCoverImage = new BookCoverImage
                         {
-                            SearchTerm = searchTerm,
+                            Name = searchTerm,
                             ImageData = imageData,
                             Width = width,
                             Height = height,
@@ -141,6 +141,8 @@ namespace levihobbs.Services
                     else
                     {
                         var errorContent = await imageResponse.Content.ReadAsStringAsync();
+                        _logger.LogError("Failed to download image from {ImageUrl}. Status: {StatusCode}, Error: {ErrorContent}", 
+                            imageUrl, imageResponse.StatusCode, errorContent);
                             
                         // Log download error to database
                         var downloadError = new ErrorLog
@@ -155,6 +157,7 @@ namespace levihobbs.Services
                         await _dbContext.SaveChangesAsync();
                     }
                 }
+                
                 return null;
             }
             catch (Exception ex)
