@@ -179,7 +179,6 @@ public class GoodreadsScraperService
             foreach (var review in bookReviews)
             {
                 string searchTerm = Utilities.CleanSearchTerm(review.Title, review.Author);
-                _logger.LogInformation($"Checking for stored image for: {searchTerm}");
                 var storedImage = await _dbContext.BookCoverImages
                     .FirstOrDefaultAsync(i => i.Name == searchTerm);
                     

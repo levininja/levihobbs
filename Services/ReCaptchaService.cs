@@ -35,19 +35,14 @@ public class ReCaptchaService : IReCaptchaService
             return false;
         }
 
-        _logger.LogInformation("Verifying reCAPTCHA response. Response length: {Length}, Response: {Response}", response.Length, response);
-
         var content = new FormUrlEncodedContent(new[]
         {
             new KeyValuePair<string, string>("secret", _settings.SecretKey),
             new KeyValuePair<string, string>("response", response)
         });
 
-        _logger.LogInformation("Sending verification request to Google with secret key length: {Length}", _settings.SecretKey.Length);
-
         var verifyResponse = await _httpClient.PostAsync(VerifyUrl, content);
         var responseString = await verifyResponse.Content.ReadAsStringAsync();
-        _logger.LogInformation("reCAPTCHA verification response: {Response}", responseString);
 
         var responseData = JsonSerializer.Deserialize<ReCaptchaVerifyResponse>(responseString);
         
@@ -59,11 +54,9 @@ public class ReCaptchaService : IReCaptchaService
         }
         else if (responseData?.Success == true)
         {
-            _logger.LogInformation("reCAPTCHA verification succeeded");
             return true;
         }
 
-        _logger.LogWarning("reCAPTCHA verification failed - no success flag in response");
         return false;
     }
 }

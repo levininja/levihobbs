@@ -84,8 +84,6 @@ namespace levihobbs.Services
             }
 
             _cache.Set(cacheKey, stories, _cacheDuration);
-            _logger.LogInformation("Cached {Count} stories for key: {CacheKey} with duration: {Duration} minutes", 
-                stories.Count, cacheKey, _cacheDuration.TotalMinutes);
             
             return stories;
         }
@@ -197,7 +195,6 @@ namespace levihobbs.Services
                     // Check if the request was successful
                     if (response.IsSuccessStatusCode)
                     {
-                        _logger.LogInformation("Successfully subscribed {Email} to Substack newsletter", email);
                         return true;
                     }
                     
