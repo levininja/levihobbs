@@ -1,0 +1,128 @@
+@model levihobbs.Models.StoriesViewModel
+@{
+    ViewData["Title"] = Model.Category ?? "All Stories";
+}
+
+@section Styles {
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <link rel="stylesheet" href="~/css/stories.css?v=@DateTime.Now.Ticks" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+}
+
+@section Scripts {
+    <script src="~/js/stories.js?v=@DateTime.Now.Ticks"></script>
+}
+
+<div class="reader-container">
+    <div class="reader-header">
+        <h1>@Model.Category</h1>
+    </div>
+    
+    @if (Model.NoStoriesMessage != null)
+    {
+        <div class="alert alert-info" role="alert">
+            @Model.NoStoriesMessage
+        </div>
+    }
+    
+    <div class="story-cards">
+        @foreach (var storyGroup in Model.StoryGroups)
+        {
+            <div class="card story-card story-group-card" data-group-id="@storyGroup.GetHashCode()">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <div class="thumbnail-container">
+                            <div class="thumbnail story-group-thumbnail">
+                                @if (!string.IsNullOrEmpty(storyGroup.Stories.FirstOrDefault()?.ImageUrl))
+                                {
+                                    <img src="@storyGroup.Stories.FirstOrDefault()?.ImageUrl" alt="@storyGroup.Title" />
+                                }
+                                else
+                                {
+                                    <div class="story-icon">
+                                        <svg class="custom-icon" viewBox="0 0 24 24">
+                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                                        </svg>
+                                    </div>
+                                }
+                                <div class="story-count">@storyGroup.Stories.Count chapters</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <div>
+                                <div class="series-icons">
+                                    @for (int i = 0; i < storyGroup.Stories.Count; i++)
+                                    {
+                                        <i class="fas fa-book-open series-icon"></i>
+                                    }
+                                </div>
+                                <h2 class="card-title">@storyGroup.Title</h2>
+                                <h3 class="card-subtitle">Series</h3>
+                                <p class="story-preview">This is a series of related stories. Click to expand and read individual parts.</p>
+                            </div>
+                            <button class="btn btn-primary expand-group-btn" data-group-id="@storyGroup.GetHashCode()">
+                                <i class="fas fa-chevron-down"></i>
+                                <span>Expand Series</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="story-group-content" id="group-@storyGroup.GetHashCode()">
+                    @foreach (var story in storyGroup.Stories)
+                    {
+                        <div class="card story-card story-segment-card">
+                            <div class="row g-0">
+                                <div class="col-md-4">
+                                    <div class="thumbnail-container">
+                                        <div class="thumbnail">
+                                            <img src="@story.ImageUrl" alt="@story.Title" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h2 class="card-title">@story.Title</h2>
+                                        <h3 class="card-subtitle">@story.Subtitle</h3>
+                                        <p class="story-preview">@story.PreviewText</p>
+                                        <a href="@story.ReadMoreUrl" class="btn btn-primary" target="_blank">Read More</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        
+        @foreach (var story in Model.Stories)
+        {
+            <div class="card story-card">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <div class="thumbnail-container">
+                            <div class="thumbnail">
+                                <img src="@story.ImageUrl" alt="@story.Title" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h2 class="card-title">@story.Title</h2>
+                            <h3 class="card-subtitle">@story.Subtitle</h3>
+                            <p class="story-preview">@story.PreviewText</p>
+                            <a href="@story.ReadMoreUrl" class="btn btn-primary" target="_blank">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div> 
