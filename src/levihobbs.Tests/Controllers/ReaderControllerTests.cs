@@ -47,7 +47,7 @@ namespace levihobbs.Tests
             Assert.Equal(expected, result);
         }
 
-        // Tests for SortStoriesInGroup
+        #region SortStoriesInGroup Tests
         [Fact]
         public void SortStoriesInGroup_SortsByExtractedNumber_AscendingOrder()
         {
@@ -95,8 +95,9 @@ namespace levihobbs.Tests
             var result = _controller.SortStoriesInGroup(stories);
             Assert.Empty(result);
         }
+        #endregion
 
-        // Tests for GroupSimilarStories
+        #region GroupSimilarStories Tests
         [Fact]
         public void GroupSimilarStories_GroupsPattern1Correctly_AndRemovesFromOriginalList()
         {
@@ -156,7 +157,6 @@ namespace levihobbs.Tests
             Assert.Equal(2, stories.Count);  // Original list unchanged
         }
 
-
         [Fact]
         public void GroupSimilarStories_DoesNotGroupWhenPatternsOnlyPartiallyMatch()
         {
@@ -179,7 +179,7 @@ namespace levihobbs.Tests
             _controller.GroupSimilarStories(stories, viewModel);
 
             Assert.Empty(viewModel.StoryGroups);
-            Assert.Equal(2, stories.Count);  // Original list unchanged
+            Assert.Equal(12, stories.Count);  // Original list unchanged
         }
 
         [Fact]
@@ -207,6 +207,7 @@ namespace levihobbs.Tests
             // Assert internal sorting via SortStoriesInGroup
             Assert.Equal(new[] { "Legend - Chapter 1", "Legend - Chapter 2" }, viewModel.StoryGroups[0].Stories.Select(s => s.Title));
         }
+        #endregion
 
         // Helper method to create mock Story objects
         private static Story CreateStory(string title)
