@@ -70,8 +70,8 @@ namespace levihobbs
             // Configure Kestrel
             builder.WebHost.ConfigureKestrel(serverOptions =>
             {
-                serverOptions.ListenLocalhost(5002); // HTTP
-                serverOptions.ListenLocalhost(5003, listenOptions =>
+                serverOptions.ListenLocalhost(5000); // HTTP
+                serverOptions.ListenLocalhost(5001, listenOptions =>
                 {
                     listenOptions.UseHttps();
                 }); // HTTPS

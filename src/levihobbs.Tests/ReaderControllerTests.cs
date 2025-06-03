@@ -84,8 +84,8 @@ namespace levihobbs.Tests
                 CreateStory("Chapter 1")
             };
             var result = _controller.SortStoriesInGroup(stories);
-            // Numbers first (1,2), then string
-            Assert.Equal(new[] { "Chapter 1", "Chapter 2", "Apple" }, result.Select(s => s.Title));
+            // String first, then numbers
+            Assert.Equal(new[] { "Apple", "Chapter 1", "Chapter 2" }, result.Select(s => s.Title));
         }
 
         [Fact]
@@ -148,6 +148,32 @@ namespace levihobbs.Tests
             {
                 CreateStory("Single Story"),
                 CreateStory("Another Story")
+            };
+            var viewModel = new StoriesViewModel();
+            _controller.GroupSimilarStories(stories, viewModel);
+
+            Assert.Empty(viewModel.StoryGroups);
+            Assert.Equal(2, stories.Count);  // Original list unchanged
+        }
+
+
+        [Fact]
+        public void GroupSimilarStories_DoesNotGroupWhenPatternsOnlyPartiallyMatch()
+        {
+            var stories = new List<Story>
+            {
+                CreateStory("Wife (1/4)"),
+                CreateStory("Wife (2/3)"),
+                CreateStory("Things (1/A)"),
+                CreateStory("Things (1/A)"),
+                CreateStory("Peoples 1/2"),
+                CreateStory("Peoples 2/2"),
+                CreateStory("Terrorists (1/2"),
+                CreateStory("Terrorists (2/2"),
+                CreateStory("Story Title -NoSpace 1"),
+                CreateStory("Story Title- NoSpace 2"),
+                CreateStory("Humans--What?"),
+                CreateStory("Humans--Dude.")
             };
             var viewModel = new StoriesViewModel();
             _controller.GroupSimilarStories(stories, viewModel);

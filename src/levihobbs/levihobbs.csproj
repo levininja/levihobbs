@@ -25,13 +25,13 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
   </ItemGroup>
   <!-- Custom target to run tests -->
-  <Target Name="RunTestsAfterBuild" AfterTargets="Build">
-    <Message Text="Running tests for $(MSBuildProjectFullPath)" Importance="high" />
-    <Exec Command="dotnet test &quot;$(MSBuildProjectFullPath)&quot; --no-build" />
+  <Target Name="RunTests">
+    <Message Text="Running unit tests..." Importance="high" />
+    <Exec Command="dotnet test &quot;$(MSBuildProjectDirectory)\..\levihobbs.Tests\levihobbs.Tests.csproj&quot;" />
   </Target>
 
   <Target Name="RunUnitTestsAfterBuild" AfterTargets="Build">
     <Message Text="Running unit tests after building main project..." Importance="high" />
-    <Exec Command="dotnet test &quot;$(MSBuildThisFileDirectory)..\levihobbs.Tests\levihobbs.Tests.csproj&quot; --no-build" />
+    <Exec Command="dotnet test &quot;$(MSBuildProjectDirectory)\..\levihobbs.Tests\levihobbs.Tests.csproj&quot; --no-build" />
   </Target>
 </Project>
