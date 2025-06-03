@@ -113,31 +113,11 @@
 
         <!-- Newsletter Section with Dynamic Form -->
         <section id="newsletter" class="newsletter-section">
-            <img src="~/images/bookoflevi.jpg" alt="The Book of Levi" class="newsletter-icon">
-            <div class="newsletter-content">
-                <div class="newsletter-header">
-                    <h2>The Book of Levi</h2>
-                </div>
-                <p>Get an essay or short story in the realms of science fiction and fantasy delivered each week</p>
-                <form class="newsletter-form" novalidate>
-                    @Html.AntiForgeryToken()
-                    <div class="form-group">
-                        <input type="email" placeholder="email@example.com" class="newsletter-input" required>
-                        <div class="g-recaptcha" data-sitekey="@ViewBag.ReCaptchaSiteKey"></div>
-                        <button type="submit" class="newsletter-button">Subscribe</button>
-                    </div>
-                    <div class="newsletter-message"></div>
-                </form>
-            </div>
-            <div class="newsletter-loading" style="display: none;">
-                <div class="spinner"></div>
-                <p>Subscribing...</p>
-            </div>
+            <iframe src="https://levihobbs.substack.com/embed" width="600" height="320" style="border:1px solid #EEE; frameborder="0" scrolling="no"></iframe>
         </section>
     </main>
 </div>
 
 @section Scripts {
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script src="~/js/home.js" asp-append-version="true"></script>
 }
