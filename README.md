@@ -57,7 +57,7 @@ Before you begin, ensure you have the following installed:
 
 8. **Run the Application**
    ```bash
-   dotnet run
+   dotnet run --project src/levihobbs/levihobbs.csproj
    ```
    The application should now be running at `https://localhost:5001` or `http://localhost:5000`
 
