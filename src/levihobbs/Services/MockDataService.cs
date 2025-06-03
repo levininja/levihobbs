@@ -3,7 +3,7 @@ using levihobbs.Models;
 
 namespace levihobbs.Services
 {
-    public class MockDataService
+    public class MockDataService : IMockDataService
     {
         public List<Story> GetStories()
         {

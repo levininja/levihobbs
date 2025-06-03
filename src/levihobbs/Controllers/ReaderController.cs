@@ -14,14 +14,14 @@ public class ReaderController : Controller
 {
     private readonly ILogger<ReaderController> _logger;
     private readonly ISubstackApiClient _substackApiClient;
-    private readonly MockDataService _mockDataService;
-    private readonly GoodreadsScraperService _goodreadsScraperService;
+    private readonly IMockDataService _mockDataService;
+    private readonly IGoodreadsScraperService _goodreadsScraperService;
 
     public ReaderController(
         ILogger<ReaderController> logger,
         ISubstackApiClient substackApiClient,
-        MockDataService mockDataService,
-        GoodreadsScraperService goodreadsScraperService)
+        IMockDataService mockDataService,
+        IGoodreadsScraperService goodreadsScraperService)
     {
         _logger = logger;
         _substackApiClient = substackApiClient;

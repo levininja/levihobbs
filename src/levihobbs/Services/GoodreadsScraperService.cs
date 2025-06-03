@@ -15,7 +15,7 @@ using System.Text.RegularExpressions;
 
 namespace levihobbs.Services;
 
-public class GoodreadsScraperService
+public class GoodreadsScraperService : IGoodreadsScraperService
 {
     private readonly ILogger<GoodreadsScraperService> _logger;
     private readonly HttpClient _httpClient;

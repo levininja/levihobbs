@@ -61,8 +61,8 @@ namespace levihobbs
             // Add ReaderController
             builder.Services.AddScoped<ReaderController>();
             
-            builder.Services.AddScoped<MockDataService>();
-            builder.Services.AddScoped<GoodreadsScraperService>();
+            builder.Services.AddScoped<IMockDataService, MockDataService>();
+            builder.Services.AddScoped<IGoodreadsScraperService, GoodreadsScraperService>();
 
             // Add BookCoverService
             builder.Services.AddScoped<IBookCoverService, BookCoverService>();
@@ -70,8 +70,8 @@ namespace levihobbs
             // Configure Kestrel
             builder.WebHost.ConfigureKestrel(serverOptions =>
             {
-                serverOptions.ListenLocalhost(5000); // HTTP
-                serverOptions.ListenLocalhost(5001, listenOptions =>
+                serverOptions.ListenLocalhost(5002); // HTTP
+                serverOptions.ListenLocalhost(5003, listenOptions =>
                 {
                     listenOptions.UseHttps();
                 }); // HTTPS
