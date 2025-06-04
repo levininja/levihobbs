@@ -1,0 +1,119 @@
+using System;
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Xml.Serialization;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
+using levihobbs.Models;
+
+namespace levihobbs.Services
+{
+    public interface IGoodreadsRssService
+    {
+        Task<RssChannel?> GetRssFeedAsync();
+    }
+
+    public class GoodreadsRssService : IGoodreadsRssService
+    {
+        private readonly HttpClient _httpClient;
+        private readonly ILogger<GoodreadsRssService> _logger;
+        private readonly IMemoryCache _cache;
+        private readonly string _userId;
+        private static readonly TimeSpan _cacheDuration = TimeSpan.FromHours(1);
+
+        public GoodreadsRssService(
+            HttpClient httpClient, 
+            ILogger<GoodreadsRssService> logger, 
+            IMemoryCache cache,
+            IConfiguration configuration)
+        {
+            _httpClient = httpClient;
+            _logger = logger;
+            _cache = cache;
+            _userId = configuration["Goodreads:UserId"] ?? 
+                throw new InvalidOperationException("Goodreads UserId not configured");
+        }
+
+        public async Task<RssChannel?> GetRssFeedAsync()
+        {
+            string cacheKey = $"goodreads_rss_{_userId}";
+            
+            if (_cache.TryGetValue(cacheKey, out RssChannel? cachedFeed))
+            {
+                _logger.LogInformation("Cache HIT for Goodreads RSS feed");
+                return cachedFeed;
+            }
+
+            _logger.LogInformation("Cache MISS for Goodreads RSS feed, fetching from API");
+
+            try
+            {
+                string url = $"https://www.goodreads.com/user/updates_rss/{_userId}";
+                _logger.LogInformation("Fetching RSS feed from URL: {Url}", url);
+                
+                var response = await _httpClient.GetAsync(url);
+                _logger.LogInformation("Received response with status code: {StatusCode}", response.StatusCode);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to fetch Goodreads RSS: {StatusCode}", response.StatusCode);
+                    return null;
+                }
+
+                string xmlContent = await response.Content.ReadAsStringAsync();
+                _logger.LogInformation("Received XML content. Length: {Length} characters", xmlContent.Length);
+                _logger.LogDebug("XML content preview (first 500 chars): {Preview}", 
+                    xmlContent.Length > 500 ? xmlContent.Substring(0, 500) + "..." : xmlContent);
+
+                // Log the XML namespace if present
+                if (xmlContent.Contains("xmlns="))
+                {
+                    int xmlnsIndex = xmlContent.IndexOf("xmlns=");
+                    int endIndex = xmlContent.IndexOf(">", xmlnsIndex);
+                    if (endIndex > xmlnsIndex)
+                    {
+                        string xmlns = xmlContent.Substring(xmlnsIndex, endIndex - xmlnsIndex);
+                        _logger.LogInformation("Found XML namespace declaration: {Xmlns}", xmlns);
+                    }
+                }
+
+                // Parse XML
+                _logger.LogInformation("Attempting to deserialize XML content");
+                var serializer = new XmlSerializer(typeof(RssFeed));
+                using var reader = new StringReader(xmlContent);
+                
+                try
+                {
+                    var feed = (RssFeed?)serializer.Deserialize(reader);
+                    _logger.LogInformation("Successfully deserialized RSS feed");
+                    
+                    if (feed?.Channel != null)
+                    {
+                        _logger.LogInformation("Caching RSS feed for {Duration} hours", _cacheDuration.TotalHours);
+                        _cache.Set(cacheKey, feed.Channel, _cacheDuration);
+                        return feed.Channel;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Deserialized feed or channel is null");
+                        return null;
+                    }
+                }
+                catch (InvalidOperationException ex)
+                {
+                    _logger.LogError(ex, "XML Deserialization failed. Inner exception: {InnerException}", 
+                        ex.InnerException?.Message ?? "No inner exception");
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching or parsing Goodreads RSS feed. Exception type: {ExceptionType}", 
+                    ex.GetType().Name);
+                return null;
+            }
+        }
+    }
+}

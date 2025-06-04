@@ -1,0 +1,82 @@
+.rss-feed-container {
+    margin-bottom: $spacing-lg;
+    padding: $spacing-lg;
+    background-color: $color-background;
+    border-radius: $radius-lg;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    .rss-feed {
+        h3 {
+            font-family: $font-title;
+            font-size: $size-2xl;
+            color: $color-text-primary;
+            margin-bottom: $spacing-md;
+        }
+
+        .rss-image {
+            margin: $spacing-md 0;
+            padding: $spacing-md;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: $radius-md;
+
+            h4 {
+                font-family: $font-title;
+                font-size: $size-xl;
+                color: $color-text-primary;
+                margin-bottom: $spacing-sm;
+            }
+
+            img {
+                max-width: 100%;
+                height: auto;
+                border-radius: $radius-sm;
+                margin-top: $spacing-sm;
+            }
+        }
+
+        .rss-items {
+            margin-top: $spacing-lg;
+
+            h4 {
+                font-family: $font-title;
+                font-size: $size-xl;
+                color: $color-text-primary;
+                margin-bottom: $spacing-md;
+            }
+
+            .rss-item {
+                padding: $spacing-md;
+                margin-bottom: $spacing-md;
+                background-color: rgba(255, 255, 255, 0.5);
+                border-radius: $radius-md;
+                transition: transform $transition-default;
+
+                &:hover {
+                    transform: translateY(-2px);
+                }
+
+                h5 {
+                    font-family: $font-title;
+                    font-size: $size-lg;
+                    color: $color-text-primary;
+                    margin-bottom: $spacing-sm;
+                }
+
+                p {
+                    color: $color-text-secondary;
+                    margin-bottom: $spacing-sm;
+                }
+
+                .rss-description {
+                    margin-top: $spacing-sm;
+                    color: $color-text-secondary;
+                    line-height: 1.6;
+
+                    strong {
+                        color: $color-text-primary;
+                    }
+                }
+            }
+        }
+    }
+} 
