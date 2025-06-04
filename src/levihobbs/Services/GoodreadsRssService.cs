@@ -10,11 +10,11 @@ using levihobbs.Models;
 
 namespace levihobbs.Services
 {
-    public interface IGoodreadsRssService
-    {
-        Task<RssChannel?> GetRssFeedAsync();
-    }
-
+    /// <summary>
+    /// Service implementation for retrieving and caching Goodreads RSS feed data.
+    /// Provides functionality to fetch user's reading updates from Goodreads and cache them
+    /// to minimize API calls.
+    /// </summary>
     public class GoodreadsRssService : IGoodreadsRssService
     {
         private readonly HttpClient _httpClient;
@@ -36,6 +36,11 @@ namespace levihobbs.Services
                 throw new InvalidOperationException("Goodreads UserId not configured");
         }
 
+        /// <summary>
+        /// Retrieves the RSS feed for the configured Goodreads user.
+        /// Implements caching to minimize API calls and improve performance.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the RSS channel data if successful, or null if the operation fails.</returns>
         public async Task<RssChannel?> GetRssFeedAsync()
         {
             string cacheKey = $"goodreads_rss_{_userId}";
