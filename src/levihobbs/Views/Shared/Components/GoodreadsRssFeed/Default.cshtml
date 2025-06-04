@@ -10,6 +10,40 @@
             <p><strong>Title:</strong> @Model.Title</p>
         }
         
+        @if (Model.Meta != null)
+        {
+            <div class="rss-meta">
+                <h4>Meta</h4>
+                @if (!string.IsNullOrEmpty(Model.Meta.Name))
+                {
+                    <p><strong>Name:</strong> @Model.Meta.Name</p>
+                }
+                @if (!string.IsNullOrEmpty(Model.Meta.Content))
+                {
+                    <p><strong>Content:</strong> @Model.Meta.Content</p>
+                }
+            </div>
+        }
+        
+        @if (Model.AtomLink != null)
+        {
+            <div class="rss-atom-link">
+                <h4>Atom Link</h4>
+                @if (!string.IsNullOrEmpty(Model.AtomLink.Href))
+                {
+                    <p><strong>Href:</strong> <a href="@Model.AtomLink.Href">@Model.AtomLink.Href</a></p>
+                }
+                @if (!string.IsNullOrEmpty(Model.AtomLink.Rel))
+                {
+                    <p><strong>Rel:</strong> @Model.AtomLink.Rel</p>
+                }
+                @if (!string.IsNullOrEmpty(Model.AtomLink.Type))
+                {
+                    <p><strong>Type:</strong> @Model.AtomLink.Type</p>
+                }
+            </div>
+        }
+        
         @if (!string.IsNullOrEmpty(Model.Copyright))
         {
             <p><strong>Copyright:</strong> @Model.Copyright</p>
@@ -80,9 +114,9 @@
                             <p><strong>GUID:</strong> @item.Guid.Value</p>
                         }
                         
-                        @if (!string.IsNullOrEmpty(item.PubDate))
+                        @if (item.ParsedPubDate.HasValue)
                         {
-                            <p><strong>Publication Date:</strong> @item.PubDate</p>
+                            <p><strong>Publication Date:</strong> @item.ParsedPubDate.Value.ToString("f")</p>
                         }
                         
                         @if (!string.IsNullOrEmpty(item.Link))

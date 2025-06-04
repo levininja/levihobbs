@@ -33,7 +33,7 @@ namespace levihobbs.Services
             _logger = logger;
             _cache = cache;
             _userId = configuration["Goodreads:UserId"] ?? 
-                throw new InvalidOperationException("Goodreads UserId not configured");
+                throw new InvalidOperationException("Goodreads UserId not found in confugration file.");
         }
 
         /// <summary>
@@ -68,9 +68,6 @@ namespace levihobbs.Services
                 }
 
                 string xmlContent = await response.Content.ReadAsStringAsync();
-                _logger.LogInformation("Received XML content. Length: {Length} characters", xmlContent.Length);
-                _logger.LogDebug("XML content preview (first 500 chars): {Preview}", 
-                    xmlContent.Length > 500 ? xmlContent.Substring(0, 500) + "..." : xmlContent);
 
                 // Log the XML namespace if present
                 if (xmlContent.Contains("xmlns="))
@@ -80,23 +77,19 @@ namespace levihobbs.Services
                     if (endIndex > xmlnsIndex)
                     {
                         string xmlns = xmlContent.Substring(xmlnsIndex, endIndex - xmlnsIndex);
-                        _logger.LogInformation("Found XML namespace declaration: {Xmlns}", xmlns);
                     }
                 }
 
                 // Parse XML
-                _logger.LogInformation("Attempting to deserialize XML content");
                 var serializer = new XmlSerializer(typeof(RssFeed));
                 using var reader = new StringReader(xmlContent);
                 
                 try
                 {
                     var feed = (RssFeed?)serializer.Deserialize(reader);
-                    _logger.LogInformation("Successfully deserialized RSS feed");
                     
                     if (feed?.Channel != null)
                     {
-                        _logger.LogInformation("Caching RSS feed for {Duration} hours", _cacheDuration.TotalHours);
                         _cache.Set(cacheKey, feed.Channel, _cacheDuration);
                         return feed.Channel;
                     }

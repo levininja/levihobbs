@@ -34,6 +34,41 @@
             }
         }
 
+        .rss-meta,
+        .rss-atom-link {
+            margin: $spacing-md 0;
+            padding: $spacing-md;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: $radius-md;
+
+            h4 {
+                font-family: $font-title;
+                font-size: $size-xl;
+                color: $color-text-primary;
+                margin-bottom: $spacing-sm;
+            }
+
+            p {
+                color: $color-text-secondary;
+                margin-bottom: $spacing-sm;
+
+                strong {
+                    color: $color-text-primary;
+                }
+
+                a {
+                    color: $color-link;
+                    text-decoration: none;
+                    transition: color $transition-default;
+
+                    &:hover {
+                        color: $color-link-hover;
+                        text-decoration: underline;
+                    }
+                }
+            }
+        }
+
         .rss-items {
             margin-top: $spacing-lg;
 

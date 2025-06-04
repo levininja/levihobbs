@@ -94,6 +94,9 @@ namespace levihobbs.Models
         [XmlElement("pubDate")]
         public string? PubDate { get; set; }
         
+        public DateTime? ParsedPubDate => !string.IsNullOrEmpty(PubDate) ? 
+            DateTime.TryParse(PubDate, out DateTime result) ? result : null : null;
+        
         [XmlElement("title")]
         public string? Title { get; set; }
         
