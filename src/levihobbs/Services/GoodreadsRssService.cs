@@ -56,10 +56,8 @@ namespace levihobbs.Services
             try
             {
                 string url = $"https://www.goodreads.com/user/updates_rss/{_userId}";
-                _logger.LogInformation("Fetching RSS feed from URL: {Url}", url);
                 
                 var response = await _httpClient.GetAsync(url);
-                _logger.LogInformation("Received response with status code: {StatusCode}", response.StatusCode);
                 
                 if (!response.IsSuccessStatusCode)
                 {
