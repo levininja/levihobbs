@@ -54,9 +54,11 @@ namespace levihobbs
             // Add HttpClient
             builder.Services.AddHttpClient();
 
-
             // Add SubstackApiClient
             builder.Services.AddScoped<ISubstackApiClient, SubstackApiClient>();
+
+            // Add GoodreadsRssService
+            builder.Services.AddScoped<IGoodreadsRssService, GoodreadsRssService>();
 
             // Add ReaderController
             builder.Services.AddScoped<ReaderController>();

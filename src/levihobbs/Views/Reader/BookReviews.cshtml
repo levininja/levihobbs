@@ -51,6 +51,10 @@
 }
 
 <div class="reader-container">
+    <div class="rss-feed-container">
+        @await Component.InvokeAsync("GoodreadsRssFeed")
+    </div>
+    
     <div class="reader-header">
         <h1>Book Reviews</h1>
         <a href="https://www.goodreads.com/user/show/96423614-levi-hobbs" target="_blank" class="goodreads-icon-link" title="View my Goodreads profile">
