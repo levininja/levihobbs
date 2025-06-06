@@ -12,7 +12,7 @@ namespace levihobbs.Tests.UtilitiesTests
         public void CleanSearchTerm_HandlesEmptyOrNull(string searchTerm, string expected)
         {
             // Act
-            string result = Utilities.CleanSearchTerm(searchTerm);
+            string result = Utilities.CleanBookReviewSearchTerm(searchTerm);
 
             // Assert
             result.Should().Be(expected);
@@ -25,7 +25,7 @@ namespace levihobbs.Tests.UtilitiesTests
         public void CleanSearchTerm_NormalizesNewlinesAndSpaces(string searchTerm, string expected)
         {
             // Act
-            string result = Utilities.CleanSearchTerm(searchTerm);
+            string result = Utilities.CleanBookReviewSearchTerm(searchTerm);
 
             // Assert
             result.Should().Be(expected);
@@ -39,7 +39,7 @@ namespace levihobbs.Tests.UtilitiesTests
         public void CleanSearchTerm_HandlesSpecialCharacters(string searchTerm, string expected)
         {
             // Act
-            string result = Utilities.CleanSearchTerm(searchTerm);
+            string result = Utilities.CleanBookReviewSearchTerm(searchTerm);
 
             // Assert
             result.Should().Be(expected);
@@ -50,7 +50,7 @@ namespace levihobbs.Tests.UtilitiesTests
         public void CleanSearchTerm_HandlesExtraSpacesAndTrim(string searchTerm, string expected)
         {
             // Act
-            string result = Utilities.CleanSearchTerm(searchTerm);
+            string result = Utilities.CleanBookReviewSearchTerm(searchTerm);
 
             // Assert
             result.Should().Be(expected);
@@ -71,7 +71,7 @@ namespace levihobbs.Tests.UtilitiesTests
         public void CleanSearchTerm_PreservesAllowedChars(string searchTerm, string expected)
         {
             // Act
-            string result = Utilities.CleanSearchTerm(searchTerm);
+            string result = Utilities.CleanBookReviewSearchTerm(searchTerm);
 
             // Assert
             result.Should().Be(expected);
@@ -84,7 +84,7 @@ namespace levihobbs.Tests.UtilitiesTests
         public void CleanSearchTerm_HandlesEmptyTitlesAndAuthors(string searchTerm, string expected)
         {
             // Act
-            string result = Utilities.CleanSearchTerm(searchTerm);
+            string result = Utilities.CleanBookReviewSearchTerm(searchTerm);
 
             // Assert
             result.Should().Be(expected);

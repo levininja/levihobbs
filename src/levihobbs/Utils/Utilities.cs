@@ -10,7 +10,7 @@ public static class Utilities
     /// </summary>
     /// <param name="searchTerm">The raw search term to be cleaned.</param>
     /// <returns>A cleaned version of the search term with normalized whitespace and removed special characters.</returns>
-    public static string CleanSearchTerm(string searchTerm)
+    public static string CleanBookReviewSearchTerm(string searchTerm)
     {
         if (string.IsNullOrEmpty(searchTerm))
             return string.Empty;

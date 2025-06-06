@@ -157,7 +157,7 @@ public class GoodreadsScraperService : IGoodreadsScraperService
                             ImageUrl = imageUrl,
                             Category = "Book Reviews",
                             ReadMoreUrl = viewLink,
-                            SearchTerm = Utilities.CleanSearchTerm($"{title} by {author}")
+                            SearchTerm = Utilities.CleanBookReviewSearchTerm($"{title} by {author}")
                         };
                         bookReviews.Add(review);
                     }
