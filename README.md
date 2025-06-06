@@ -56,6 +56,8 @@ Before you begin, ensure you have the following installed:
    ```
 
 8. **Run the Application**
+   > **Note:** When running `dotnet run` from the root directory, you need to specify the project path: `dotnet run --project src/levihobbs/levihobbs.csproj`. Alternatively, you can `cd` into the `src/levihobbs` directory first and then run the commands.
+   
    ```bash
    dotnet run --project src/levihobbs/levihobbs.csproj
    ```
