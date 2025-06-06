@@ -11,43 +11,42 @@
 }
 
 @section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Function to fetch better book cover images
-            async function fetchBookCover(bookId, title, author) {
-                try {
-                    const response = await fetch(`/api/BookCover?searchTerm=${encodeURIComponent(`${title} by ${author}`)}`);
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to fetch better book cover images
+        async function fetchBookCover(bookId, searchTerm) {
+            try {
+                const response = await fetch(`/api/BookCover?searchTerm=${encodeURIComponent(searchTerm)}`);
+                
+                if (response.ok) {
+                    // Convert the response to a blob
+                    const imageBlob = await response.blob();
+                    const imageUrl = URL.createObjectURL(imageBlob);
                     
-                    if (response.ok) {
-                        // Convert the response to a blob
-                        const imageBlob = await response.blob();
-                        const imageUrl = URL.createObjectURL(imageBlob);
-                        
-                        // Find the image element and update it
-                        const imgElement = document.querySelector(`#book-cover-${bookId}`);
-                        if (imgElement) {
-                            imgElement.src = imageUrl;
-                            imgElement.classList.add('high-quality');
-                        }
+                    // Find the image element and update it
+                    const imgElement = document.querySelector(`#book-cover-${bookId}`);
+                    if (imgElement) {
+                        imgElement.src = imageUrl;
+                        imgElement.classList.add('high-quality');
                     }
-                } catch (error) {
-                    console.error(`Error fetching book cover for ${title}:`, error);
                 }
+            } catch (error) {
+                console.error(`Error fetching book cover for ${searchTerm}:`, error);
             }
-            
-            // Get all books that need better covers
-            const books = document.querySelectorAll('.book-cover-container');
-            const booksNeedingBetterCovers = Array.from(books).filter(book => book.getAttribute('data-needs-better-cover') === 'true');
-            
-            // Fetch better covers for each book
-            booksNeedingBetterCovers.forEach(book => {
-                const bookId = book.dataset.bookId;
-                const title = book.dataset.title;
-                const author = book.dataset.author;                
-                fetchBookCover(bookId, title, author);
-            });
+        }
+        
+        // Get all books that need better covers
+        const books = document.querySelectorAll('.book-cover-container');
+        const booksNeedingBetterCovers = Array.from(books).filter(book => book.getAttribute('data-needs-better-cover') === 'true');
+        
+        // Fetch better covers for each book
+        booksNeedingBetterCovers.forEach(book => {
+            const bookId = book.dataset.bookId;
+            const searchTerm = book.dataset.searchTerm;
+            fetchBookCover(bookId, searchTerm);
         });
-    </script>
+    });
+</script>
 }
 
 <div class="reader-container">
@@ -82,10 +81,9 @@
                             else
                             {
                                 <div class="thumbnail book-cover-container" 
-                                     data-needs-better-cover="@(review.ImageRawData == null ? "true" : "false")"
-                                     data-book-id="@review.Id"
-                                     data-title="@review.Title"
-                                     data-author="@review.Author">
+                                    data-needs-better-cover="@(review.ImageRawData == null ? "true" : "false")"
+                                    data-book-id="@review.Id"
+                                    data-search-term="@review.SearchTerm">
                                     @if (review.ImageRawData != null)
                                     {
                                         <img id="book-cover-@review.Id" src="data:image/jpeg;base64,@Convert.ToBase64String(review.ImageRawData)" alt="@review.Title" class="high-quality" />

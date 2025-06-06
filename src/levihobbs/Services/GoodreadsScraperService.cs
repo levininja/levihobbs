@@ -142,7 +142,7 @@ public class GoodreadsScraperService : IGoodreadsScraperService
                         {
                             viewLink = "https://www.goodreads.com" + viewLink;
                         }
-                        
+                                                
                         BookReview review = new BookReview
                         {
                             Id = id++,
@@ -156,7 +156,8 @@ public class GoodreadsScraperService : IGoodreadsScraperService
                             PreviewText = reviewText,
                             ImageUrl = imageUrl,
                             Category = "Book Reviews",
-                            ReadMoreUrl = viewLink
+                            ReadMoreUrl = viewLink,
+                            SearchTerm = Utilities.CleanSearchTerm($"{title} by {author}")
                         };
                         bookReviews.Add(review);
                     }
@@ -165,16 +166,14 @@ public class GoodreadsScraperService : IGoodreadsScraperService
             // After creating all book reviews, check for stored images
             foreach (var review in bookReviews)
             {
-                string searchTerm = Utilities.CleanSearchTerm(review.Title, review.Author);
                 var storedImage = await _dbContext.BookCoverImages
-                    .FirstOrDefaultAsync(i => i.Name == searchTerm);
+                    .FirstOrDefaultAsync(i => i.Name == review.SearchTerm);
                     
                 if (storedImage != null)
                 {
                     review.ImageRawData = storedImage.ImageData;
                 }
-            }
-            
+            }            
         }
         catch (Exception ex)
         {

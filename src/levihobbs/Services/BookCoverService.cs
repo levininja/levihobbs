@@ -8,6 +8,7 @@ using levihobbs.Data;
 using levihobbs.Models;
 using levihobbs.Utils;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -56,12 +57,10 @@ namespace levihobbs.Services
         {
             if (string.IsNullOrEmpty(searchTerm))
                 return null;
-
-            var cleanedSearchTerm = CleanSearchTerm(new[] { searchTerm });
             
             // Check if we already have this image in the database
             var existingImage = await _dbContext.BookCoverImages
-                .FirstOrDefaultAsync(i => i.Name == cleanedSearchTerm);
+                .FirstOrDefaultAsync(i => i.Name == searchTerm);
                 
             if (existingImage != null)
             {
@@ -69,7 +68,7 @@ namespace levihobbs.Services
                 var warningLog = new ErrorLog
                 {
                     LogLevel = "Warning", 
-                    Message = $"GetBookCoverImageAsync called for '{cleanedSearchTerm}' which already exists in database; shouldn't be happening.",
+                    Message = $"GetBookCoverImageAsync called for '{searchTerm}' which already exists in database; shouldn't be happening.",
                     Source = "BookCoverService",
                     LogDate = DateTime.UtcNow
                 };
@@ -86,7 +85,7 @@ namespace levihobbs.Services
                 string url = $"https://www.googleapis.com/customsearch/v1" +
                     $"?key={_settings.ApiKey}" + // API key for authentication
                     $"&cx={_settings.SearchEngineId}" + // Custom Search Engine ID
-                    $"&q={Uri.EscapeDataString(cleanedSearchTerm)}" + // Search query, URL encoded
+                    $"&q={Uri.EscapeDataString(searchTerm)}" + // Search query, URL encoded
                     "&searchType=image" + // Restrict to image search results only
                     "&imgSize=medium" + // Return medium-sized images (~400x400px)
                     "&num=1"; // Return only 1 result to minimize API usage
@@ -102,7 +101,7 @@ namespace levihobbs.Services
                     var apiError = new ErrorLog
                     {
                         LogLevel = "Error",
-                        Message = $"Book Cover API Error for '{cleanedSearchTerm}': Status {response.StatusCode}",
+                        Message = $"Book Cover API Error for '{searchTerm}': Status {response.StatusCode}",
                         Source = "BookCoverService",
                         StackTrace = errorContent,
                         LogDate = DateTime.UtcNow
@@ -150,7 +149,7 @@ namespace levihobbs.Services
                         // Store in database
                         var bookCoverImage = new BookCoverImage
                         {
-                            Name = cleanedSearchTerm,
+                            Name = searchTerm,
                             ImageData = imageData,
                             Width = width,
                             Height = height,
@@ -173,7 +172,7 @@ namespace levihobbs.Services
                         var downloadError = new ErrorLog
                         {
                             LogLevel = "Error",
-                            Message = $"Book Cover Download Error for '{cleanedSearchTerm}' from {imageUrl}",
+                            Message = $"Book Cover Download Error for '{searchTerm}' from {imageUrl}",
                             Source = "BookCoverService",
                             StackTrace = $"Status: {imageResponse.StatusCode}, Content: {errorContent}",
                             LogDate = DateTime.UtcNow
@@ -187,7 +186,7 @@ namespace levihobbs.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching book cover for {SearchTerm}", cleanedSearchTerm);
+                _logger.LogError(ex, "Error fetching book cover for {SearchTerm}", searchTerm);
                 return null;
             }
         }
@@ -238,22 +237,6 @@ namespace levihobbs.Services
         {
             [JsonPropertyName("src")]
             public string Src { get; set; } = string.Empty;
-        }
-
-        private string CleanSearchTerm(string[] searchTerms)
-        {
-            return string.Join(" ", searchTerms.Select(CleanSearchTerm));
-        }
-
-        private string CleanSearchTerm(string searchTerm)
-        {
-            if (string.IsNullOrEmpty(searchTerm))
-                return string.Empty;
-
-            // Remove special characters and extra spaces
-            var cleaned = Regex.Replace(searchTerm, @"[^\w\s]", " ");
-            cleaned = Regex.Replace(cleaned, @"\s+", " ");
-            return cleaned.Trim();
         }
     }
 }
