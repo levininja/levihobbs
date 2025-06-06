@@ -34,8 +34,8 @@ namespace levihobbs.Tests.UtilitiesTests
         [Theory]
         [InlineData("Hello! World?", "Hello! World?")]
         [InlineData("Test@123", "Test123")]
-        [InlineData("Special#Chars$%^", "SpecialChars")]
-        [InlineData("Keep: these; punctuation.", "Keep: these; punctuation.")]
+        [InlineData("SpecialChars$%^", "SpecialChars")]
+        [InlineData("Keep: these; punctuation (#1 book in series).", "Keep: these; punctuation (#1 book in series).")]
         public void CleanSearchTerm_HandlesSpecialCharacters(string searchTerm, string expected)
         {
             // Act
