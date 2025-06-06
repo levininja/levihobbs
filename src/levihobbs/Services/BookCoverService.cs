@@ -45,6 +45,13 @@ namespace levihobbs.Services
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (compatible; LeviHobbsBookCoverBot/1.0; +https://levihobbs.com)");
         }
 
+        /// <summary>
+        /// Called when we don't yet have a high-quality image for a book stored in the db.
+        /// Gets a book cover image from the Google Custom Search API, returns it, and also
+        /// stores it in the db for future use.
+        /// </summary>
+        /// <param name="searchTerm">The title and author of the book to search for</param>
+        /// <returns>The image data for the book cover, or null if no image is found</returns>
         public async Task<byte[]?> GetBookCoverImageAsync(string searchTerm)
         {
             if (string.IsNullOrEmpty(searchTerm))
@@ -58,8 +65,15 @@ namespace levihobbs.Services
                 
             if (existingImage != null)
             {
-                // Update the last accessed date
-                existingImage.DateAccessed = DateTime.UtcNow;
+                // Log warning about duplicate image fetch attempt
+                var warningLog = new ErrorLog
+                {
+                    LogLevel = "Warning", 
+                    Message = $"GetBookCoverImageAsync called for '{cleanedSearchTerm}' which already exists in database; shouldn't be happening.",
+                    Source = "BookCoverService",
+                    LogDate = DateTime.UtcNow
+                };
+                _dbContext.ErrorLogs.Add(warningLog);
                 await _dbContext.SaveChangesAsync();
                 return existingImage.ImageData;
             }
