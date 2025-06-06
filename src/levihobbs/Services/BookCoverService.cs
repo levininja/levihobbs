@@ -154,7 +154,7 @@ namespace levihobbs.Services
                             Width = width,
                             Height = height,
                             FileType = fileType,
-                            DateAccessed = DateTime.UtcNow
+                            DateDownloaded = DateTime.UtcNow
                         };
 
                         _dbContext.BookCoverImages.Add(bookCoverImage);

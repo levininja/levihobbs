@@ -10,6 +10,6 @@ namespace levihobbs.Models
         public int Width { get; set; }
         public int Height { get; set; }
         public string FileType { get; set; } = string.Empty;
-        public DateTime DateAccessed { get; set; } = DateTime.UtcNow;
+        public DateTime DateDownloaded { get; set; } = DateTime.UtcNow;
     }
 }
