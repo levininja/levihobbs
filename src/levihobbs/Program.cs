@@ -23,10 +23,10 @@ namespace levihobbs
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
+            WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
             // Log environment and configuration
-            var logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
+            ILogger<Program> logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
             logger.LogInformation("Current environment: {Environment}", builder.Environment.EnvironmentName);
             logger.LogInformation("Google Custom Search settings: {Settings}", 
                 builder.Configuration.GetSection("GoogleCustomSearch").Get<GoogleCustomSearchSettings>());
@@ -79,7 +79,7 @@ namespace levihobbs
                 }); // HTTPS
             });
 
-            var app = builder.Build();
+            WebApplication app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

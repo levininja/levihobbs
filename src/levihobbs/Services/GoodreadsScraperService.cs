@@ -164,9 +164,9 @@ public class GoodreadsScraperService : IGoodreadsScraperService
                 }
             }
             // After creating all book reviews, check for stored images
-            foreach (var review in bookReviews)
+            foreach (BookReview review in bookReviews)
             {
-                var storedImage = await _dbContext.BookCoverImages
+                BookCoverImage? storedImage = await _dbContext.BookCoverImages
                     .FirstOrDefaultAsync(i => i.Name == review.SearchTerm);
                     
                 if (storedImage != null)

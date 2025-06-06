@@ -59,13 +59,13 @@ namespace levihobbs.Services
                 return null;
             
             // Check if we already have this image in the database
-            var existingImage = await _dbContext.BookCoverImages
+            BookCoverImage? existingImage = await _dbContext.BookCoverImages
                 .FirstOrDefaultAsync(i => i.Name == searchTerm);
                 
             if (existingImage != null)
             {
                 // Log warning about duplicate image fetch attempt
-                var warningLog = new ErrorLog
+                ErrorLog warningLog = new ErrorLog
                 {
                     LogLevel = "Warning", 
                     Message = $"GetBookCoverImageAsync called for '{searchTerm}' which already exists in database; shouldn't be happening.",
@@ -90,15 +90,15 @@ namespace levihobbs.Services
                     "&imgSize=medium" + // Return medium-sized images (~400x400px)
                     "&num=1"; // Return only 1 result to minimize API usage
                 
-                var response = await _httpClient.GetAsync(url);
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
                 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
+                    string errorContent = await response.Content.ReadAsStringAsync();
                     _logger.LogError("Google API returned error {StatusCode}: {ErrorContent}", response.StatusCode, errorContent);
                     
                     // Log API error to database
-                    var apiError = new ErrorLog
+                    ErrorLog apiError = new ErrorLog
                     {
                         LogLevel = "Error",
                         Message = $"Book Cover API Error for '{searchTerm}': Status {response.StatusCode}",
@@ -112,11 +112,11 @@ namespace levihobbs.Services
                     return null;
                 }
                 
-                var content = await response.Content.ReadAsStringAsync();
-                var searchResult = JsonSerializer.Deserialize<GoogleSearchResult>(content);
+                string content = await response.Content.ReadAsStringAsync();
+                GoogleSearchResult? searchResult = JsonSerializer.Deserialize<GoogleSearchResult>(content);
                 if (searchResult?.Items?.Count > 0)
                 {
-                    var imageItem = searchResult.Items[0];
+                    GoogleSearchItem imageItem = searchResult.Items[0];
                     string imageUrl;
 
                     // Try to get image URL from the new format first
@@ -135,19 +135,19 @@ namespace levihobbs.Services
                     }
                     
                     // Download the image
-                    var imageResponse = await _httpClient.GetAsync(imageUrl);
+                    HttpResponseMessage imageResponse = await _httpClient.GetAsync(imageUrl);
                     if (imageResponse.IsSuccessStatusCode)
                     {
-                        var imageData = await imageResponse.Content.ReadAsByteArrayAsync();
+                        byte[] imageData = await imageResponse.Content.ReadAsByteArrayAsync();
                         
                         // Get image dimensions and type
-                        using var image = Image.Load(imageData);
+                        using Image image = Image.Load(imageData);
                         int width = imageItem.Image?.Width ?? image.Width;
                         int height = imageItem.Image?.Height ?? image.Height;
                         string fileType = Path.GetExtension(imageUrl).TrimStart('.');
                         
                         // Store in database
-                        var bookCoverImage = new BookCoverImage
+                        BookCoverImage bookCoverImage = new BookCoverImage
                         {
                             Name = searchTerm,
                             ImageData = imageData,
@@ -164,12 +164,12 @@ namespace levihobbs.Services
                     }
                     else
                     {
-                        var errorContent = await imageResponse.Content.ReadAsStringAsync();
+                        string errorContent = await imageResponse.Content.ReadAsStringAsync();
                         _logger.LogError("Failed to download image from {ImageUrl}. Status: {StatusCode}, Error: {ErrorContent}", 
                             imageUrl, imageResponse.StatusCode, errorContent);
                             
                         // Log download error to database
-                        var downloadError = new ErrorLog
+                        ErrorLog downloadError = new ErrorLog
                         {
                             LogLevel = "Error",
                             Message = $"Book Cover Download Error for '{searchTerm}' from {imageUrl}",

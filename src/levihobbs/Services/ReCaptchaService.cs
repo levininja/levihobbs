@@ -35,16 +35,16 @@ public class ReCaptchaService : IReCaptchaService
             return false;
         }
 
-        var content = new FormUrlEncodedContent(new[]
+        FormUrlEncodedContent content = new FormUrlEncodedContent(new[]
         {
             new KeyValuePair<string, string>("secret", _settings.SecretKey),
             new KeyValuePair<string, string>("response", response)
         });
 
-        var verifyResponse = await _httpClient.PostAsync(VerifyUrl, content);
-        var responseString = await verifyResponse.Content.ReadAsStringAsync();
+        HttpResponseMessage verifyResponse = await _httpClient.PostAsync(VerifyUrl, content);
+        string responseString = await verifyResponse.Content.ReadAsStringAsync();
 
-        var responseData = JsonSerializer.Deserialize<ReCaptchaVerifyResponse>(responseString);
+        ReCaptchaVerifyResponse? responseData = JsonSerializer.Deserialize<ReCaptchaVerifyResponse>(responseString);
         
         if (responseData?.Success == false && responseData.ErrorCodes?.Length > 0)
         {

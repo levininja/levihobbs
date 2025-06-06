@@ -90,12 +90,8 @@ public class ReaderController : Controller
         // \s+ - One or more whitespace characters
         // (.+) - Second capture group: one or more of any character (the chapter/part)
         // $ - End of string
-        var pattern1Groups = stories
-            .Select(s => new
-            {
-                Story = s,
-                Match = Regex.Match(s.Title, @"^(.+)\s+-\s+(.+)$")
-            })
+        List<IGrouping<string, (Story Story, Match Match)>> pattern1Groups = stories
+            .Select(s => (Story: s, Match: Regex.Match(s.Title, @"^(.+)\s+-\s+(.+)$")))
             .Where(x => x.Match.Success)
             .GroupBy(x => x.Match.Groups[1].Value)
             .Where(g => g.Count() > 1)
@@ -112,19 +108,15 @@ public class ReaderController : Controller
         // (\d+) - Third capture group: one or more digits (the total number of parts)
         // \) - Literal closing parenthesis
         // $ - End of string
-        var pattern2Groups = stories
-            .Select(s => new
-            {
-                Story = s,
-                Match = Regex.Match(s.Title, @"^(.+)\s+\((\d+)/(\d+)\)$")
-            })
+        List<IGrouping<(string Title, string Total), (Story Story, Match Match)>> pattern2Groups = stories
+            .Select(s => (Story: s, Match: Regex.Match(s.Title, @"^(.+)\s+\((\d+)/(\d+)\)$")))
             .Where(x => x.Match.Success)
-            .GroupBy(x => new { Title = x.Match.Groups[1].Value, Total = x.Match.Groups[3].Value })
+            .GroupBy(x => (Title: x.Match.Groups[1].Value, Total: x.Match.Groups[3].Value))
             .Where(g => g.Count() > 1)
             .ToList();
             
         // Process pattern 1 groups
-        foreach (var group in pattern1Groups)
+        foreach (IGrouping<string, (Story Story, Match Match)> group in pattern1Groups)
         {
             StoryGroup storyGroup = new StoryGroup
             {
@@ -135,14 +127,14 @@ public class ReaderController : Controller
             viewModel.StoryGroups.Add(storyGroup);
             
             // Remove these stories from the original list
-            foreach (var item in group)
+            foreach ((Story Story, Match Match) item in group)
             {
                 stories.Remove(item.Story);
             }
         }
         
         // Process pattern 2 groups
-        foreach (var group in pattern2Groups)
+        foreach (IGrouping<(string Title, string Total), (Story Story, Match Match)> group in pattern2Groups)
         {
             StoryGroup storyGroup = new StoryGroup
             {
@@ -153,7 +145,7 @@ public class ReaderController : Controller
             viewModel.StoryGroups.Add(storyGroup);
             
             // Remove these stories from the original list
-            foreach (var item in group)
+            foreach ((Story Story, Match Match) item in group)
             {
                 stories.Remove(item.Story);
             }

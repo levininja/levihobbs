@@ -57,7 +57,7 @@ namespace levihobbs.Services
             {
                 string url = $"https://www.goodreads.com/user/updates_rss/{_userId}";
                 
-                var response = await _httpClient.GetAsync(url);
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
                 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -79,12 +79,12 @@ namespace levihobbs.Services
                 }
 
                 // Parse XML
-                var serializer = new XmlSerializer(typeof(RssFeed));
-                using var reader = new StringReader(xmlContent);
+                XmlSerializer serializer = new XmlSerializer(typeof(RssFeed));
+                using StringReader reader = new StringReader(xmlContent);
                 
                 try
                 {
-                    var feed = (RssFeed?)serializer.Deserialize(reader);
+                    RssFeed? feed = (RssFeed?)serializer.Deserialize(reader);
                     
                     if (feed?.Channel != null)
                     {

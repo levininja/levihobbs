@@ -80,7 +80,7 @@ namespace levihobbs.Controllers
                 }
 
                 // Verify reCAPTCHA response
-                var isValidCaptcha = await _reCaptchaService.VerifyResponseAsync(recaptchaResponse);
+                bool isValidCaptcha = await _reCaptchaService.VerifyResponseAsync(recaptchaResponse);
                 if (!isValidCaptcha)
                 {
                     return BadRequest(new { message = "reCAPTCHA verification failed" });
@@ -93,7 +93,7 @@ namespace levihobbs.Controllers
                 }
 
                 // Create local subscription record
-                var subscription = new NewsletterSubscription
+                NewsletterSubscription subscription = new NewsletterSubscription
                 {
                     Email = email,
                     SubscriptionDate = DateTime.UtcNow
@@ -123,7 +123,7 @@ namespace levihobbs.Controllers
                 _logger.LogError(ex, "Error subscribing {Email} to newsletter", email);
                 
                 // Log the error to the database
-                var errorLog = new ErrorLog
+                ErrorLog errorLog = new ErrorLog
                 {
                     LogLevel = "Error",
                     Message = $"Error subscribing {email} to newsletter: {ex.Message}",

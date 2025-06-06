@@ -160,7 +160,7 @@ namespace levihobbs.Services
         public async Task<bool> SubscribeToNewsletterAsync(string email)
         {
             // Create retry policy with exponential backoff
-            var retryPolicy = Policy
+            var retryPolicy = Policy<bool>
                 .Handle<HttpRequestException>()
                 .Or<TaskCanceledException>()
                 .Or<JsonException>()
@@ -171,7 +171,7 @@ namespace levihobbs.Services
                     {
                         _logger.LogWarning(
                             "Attempt {RetryCount} to subscribe {Email} failed with {ExceptionType}: {ExceptionMessage}. Retrying in {TimeSpan}s",
-                            retryCount, email, exception.GetType().Name, exception.Message, timeSpan.TotalSeconds);
+                            retryCount, email, exception.Exception.GetType().Name, exception.Exception.Message, timeSpan.TotalSeconds);
                     }
                 );
 
@@ -180,17 +180,17 @@ namespace levihobbs.Services
                 return await retryPolicy.ExecuteAsync(async () =>
                 {
                     // Prepare the subscription data
-                    var subscriptionData = new Dictionary<string, string>
+                    Dictionary<string, string> subscriptionData = new Dictionary<string, string>
                     {
                         { "email", email },
                         { "source", "subscribe_page" }
                     };
 
-                    var content = new FormUrlEncodedContent(subscriptionData);
+                    FormUrlEncodedContent content = new FormUrlEncodedContent(subscriptionData);
                     _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
 
                     // Make the API call to Substack
-                    var response = await _httpClient.PostAsync($"{_url}/api/v1/free?nojs=true", content);
+                    HttpResponseMessage response = await _httpClient.PostAsync($"{_url}/api/v1/free?nojs=true", content);
                     
                     // Check if the request was successful
                     if (response.IsSuccessStatusCode)
@@ -199,7 +199,7 @@ namespace levihobbs.Services
                     }
                     
                     // Log the error response
-                    var errorContent = await response.Content.ReadAsStringAsync();
+                    string errorContent = await response.Content.ReadAsStringAsync();
                     _logger.LogError("Failed to subscribe {Email} to Substack. Status: {StatusCode}, Response: {Response}", 
                         email, response.StatusCode, errorContent);
                     
@@ -212,7 +212,7 @@ namespace levihobbs.Services
             catch (Exception ex)
             {
                 // Log the error to the database
-                var errorLog = new ErrorLog
+                ErrorLog errorLog = new ErrorLog
                 {
                     LogLevel = "Error",
                     Message = $"Failed to subscribe {email} to Substack newsletter after 3 attempts: {ex.Message}",

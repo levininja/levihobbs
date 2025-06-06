@@ -43,7 +43,7 @@ namespace levihobbs.Tests
         [InlineData("100 End", 100)]  // Large number
         public void ExtractNumberFromTitle_ReturnsExpectedNumber(string title, int? expected)
         {
-            var result = _controller.ExtractNumberFromTitle(title);
+            int? result = _controller.ExtractNumberFromTitle(title);
             Assert.Equal(expected, result);
         }
 
@@ -51,39 +51,39 @@ namespace levihobbs.Tests
         [Fact]
         public void SortStoriesInGroup_SortsByExtractedNumber_AscendingOrder()
         {
-            var stories = new List<Story>
+            List<Story> stories = new List<Story>
             {
                 CreateStory("Chapter 10"),
                 CreateStory("Chapter 2"),
                 CreateStory("Chapter 1")
             };
-            var result = _controller.SortStoriesInGroup(stories);
+            List<Story> result = _controller.SortStoriesInGroup(stories);
             Assert.Equal(new[] { "Chapter 1", "Chapter 2", "Chapter 10" }, result.Select(s => s.Title));
         }
 
         [Fact]
         public void SortStoriesInGroup_FallsBackToStringComparison_WhenNoNumbers()
         {
-            var stories = new List<Story>
+            List<Story> stories = new List<Story>
             {
                 CreateStory("Zebra"),
                 CreateStory("Apple"),
                 CreateStory("Banana")
             };
-            var result = _controller.SortStoriesInGroup(stories);
+            List<Story> result = _controller.SortStoriesInGroup(stories);
             Assert.Equal(new[] { "Apple", "Banana", "Zebra" }, result.Select(s => s.Title));
         }
 
         [Fact]
         public void SortStoriesInGroup_HandlesMixedNumbersAndStrings()
         {
-            var stories = new List<Story>
+            List<Story> stories = new List<Story>
             {
                 CreateStory("Chapter 2"),
                 CreateStory("Apple"),
                 CreateStory("Chapter 1")
             };
-            var result = _controller.SortStoriesInGroup(stories);
+            List<Story> result = _controller.SortStoriesInGroup(stories);
             // String first, then numbers
             Assert.Equal(new[] { "Apple", "Chapter 1", "Chapter 2" }, result.Select(s => s.Title));
         }
@@ -91,8 +91,8 @@ namespace levihobbs.Tests
         [Fact]
         public void SortStoriesInGroup_ReturnsEmptyList_WhenInputIsEmpty()
         {
-            var stories = new List<Story>();
-            var result = _controller.SortStoriesInGroup(stories);
+            List<Story> stories = new List<Story>();
+            List<Story> result = _controller.SortStoriesInGroup(stories);
             Assert.Empty(result);
         }
         #endregion
@@ -101,13 +101,13 @@ namespace levihobbs.Tests
         [Fact]
         public void GroupSimilarStories_GroupsPattern1Correctly_AndRemovesFromOriginalList()
         {
-            var stories = new List<Story>
+            List<Story> stories = new List<Story>
             {
                 CreateStory("Legend - Chapter 1"),
                 CreateStory("Legend - Chapter 2"),
                 CreateStory("Unrelated Story")
             };
-            var viewModel = new StoriesViewModel();
+            StoriesViewModel viewModel = new StoriesViewModel();
             _controller.GroupSimilarStories(stories, viewModel);
 
             // Assert group created
@@ -123,13 +123,13 @@ namespace levihobbs.Tests
         [Fact]
         public void GroupSimilarStories_GroupsPattern2Correctly_AndRemovesFromOriginalList()
         {
-            var stories = new List<Story>
+            List<Story> stories = new List<Story>
             {
                 CreateStory("Wife (1/4)"),
                 CreateStory("Wife (2/4)"),
                 CreateStory("Unrelated Story")
             };
-            var viewModel = new StoriesViewModel();
+            StoriesViewModel viewModel = new StoriesViewModel();
             _controller.GroupSimilarStories(stories, viewModel);
 
             // Assert group created
@@ -145,12 +145,12 @@ namespace levihobbs.Tests
         [Fact]
         public void GroupSimilarStories_HandlesNoGroups_LeavesStoriesUnchanged()
         {
-            var stories = new List<Story>
+            List<Story> stories = new List<Story>
             {
                 CreateStory("Single Story"),
                 CreateStory("Another Story")
             };
-            var viewModel = new StoriesViewModel();
+            StoriesViewModel viewModel = new StoriesViewModel();
             _controller.GroupSimilarStories(stories, viewModel);
 
             Assert.Empty(viewModel.StoryGroups);
@@ -160,7 +160,7 @@ namespace levihobbs.Tests
         [Fact]
         public void GroupSimilarStories_DoesNotGroupWhenPatternsOnlyPartiallyMatch()
         {
-            var stories = new List<Story>
+            List<Story> stories = new List<Story>
             {
                 CreateStory("Wife (1/4)"),
                 CreateStory("Wife (2/3)"),
@@ -175,7 +175,7 @@ namespace levihobbs.Tests
                 CreateStory("Humans--What?"),
                 CreateStory("Humans--Dude.")
             };
-            var viewModel = new StoriesViewModel();
+            StoriesViewModel viewModel = new StoriesViewModel();
             _controller.GroupSimilarStories(stories, viewModel);
 
             Assert.Empty(viewModel.StoryGroups);
@@ -185,8 +185,8 @@ namespace levihobbs.Tests
         [Fact]
         public void GroupSimilarStories_HandlesEmptyInput_NoChanges()
         {
-            var stories = new List<Story>();
-            var viewModel = new StoriesViewModel();
+            List<Story> stories = new List<Story>();
+            StoriesViewModel viewModel = new StoriesViewModel();
             _controller.GroupSimilarStories(stories, viewModel);
 
             Assert.Empty(viewModel.StoryGroups);
@@ -196,12 +196,12 @@ namespace levihobbs.Tests
         [Fact]
         public void GroupSimilarStories_EnsuresGroupsAreSortedInternally()
         {
-            var stories = new List<Story>
+            List<Story> stories = new List<Story>
             {
                 CreateStory("Legend - Chapter 2"),
                 CreateStory("Legend - Chapter 1")
             };
-            var viewModel = new StoriesViewModel();
+            StoriesViewModel viewModel = new StoriesViewModel();
             _controller.GroupSimilarStories(stories, viewModel);
 
             // Assert internal sorting via SortStoriesInGroup

@@ -32,7 +32,7 @@ namespace levihobbs.Controllers
 
             try
             {
-                var imageData = await _bookCoverService.GetBookCoverImageAsync(searchTerm);
+                byte[]? imageData = await _bookCoverService.GetBookCoverImageAsync(searchTerm);
                 if (imageData == null)
                 {
                     return NotFound();
