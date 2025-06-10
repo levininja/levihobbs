@@ -7,6 +7,8 @@ using levihobbs.Models;
 using levihobbs.Services;
 using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
+using levihobbs.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace levihobbs.Controllers;
 
@@ -15,18 +17,18 @@ public class ReaderController : Controller
     private readonly ILogger<ReaderController> _logger;
     private readonly ISubstackApiClient _substackApiClient;
     private readonly IMockDataService _mockDataService;
-    private readonly IGoodreadsScraperService _goodreadsScraperService;
+    private readonly ApplicationDbContext _dbContext;
 
     public ReaderController(
         ILogger<ReaderController> logger,
         ISubstackApiClient substackApiClient,
         IMockDataService mockDataService,
-        IGoodreadsScraperService goodreadsScraperService)
+        ApplicationDbContext dbContext)
     {
         _logger = logger;
         _substackApiClient = substackApiClient;
         _mockDataService = mockDataService;
-        _goodreadsScraperService = goodreadsScraperService;
+        _dbContext = dbContext;
     }
 
     public async Task<IActionResult> Index(string? category)
@@ -46,7 +48,9 @@ public class ReaderController : Controller
         // Handle book reviews separately
         if (displayCategory.Equals("Book Reviews", StringComparison.OrdinalIgnoreCase))
         {
-            List<BookReview> bookReviews = await _goodreadsScraperService.GetBookReviewsAsync();
+            var bookReviews = await _dbContext.BookReviews
+                .OrderByDescending(r => r.DateRead)
+                .ToListAsync();
             ViewData["Category"] = displayCategory;
             return View("BookReviews", bookReviews);
         }

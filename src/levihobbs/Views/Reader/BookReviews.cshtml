@@ -50,10 +50,6 @@
 }
 
 <div class="reader-container">
-    <div class="rss-feed-container">
-        @await Component.InvokeAsync("GoodreadsRssFeed")
-    </div>
-    
     <div class="reader-header">
         <h1>Book Reviews</h1>
         <a href="https://www.goodreads.com/user/show/96423614-levi-hobbs" target="_blank" class="goodreads-icon-link" title="View my Goodreads profile">
@@ -66,62 +62,41 @@
         {
             <div class="card story-card">
                 <div class="row g-0">
-                    <div class="col-md-4">
-                        <div class="thumbnail-container">
-                            @if (string.IsNullOrEmpty(review.ImageUrl) && review.ImageRawData == null)
-                            {
-                                <div class="thumbnail book-reviews">
-                                    <div class="story-icon">
-                                        <svg viewBox="0 0 24 24">
-                                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="thumbnail book-cover-container" 
-                                    data-needs-better-cover="@(review.ImageRawData == null ? "true" : "false")"
-                                    data-book-id="@review.Id"
-                                    data-search-term="@review.SearchTerm">
-                                    @if (review.ImageRawData != null)
-                                    {
-                                        <img id="book-cover-@review.Id" src="data:image/jpeg;base64,@Convert.ToBase64String(review.ImageRawData)" alt="@review.Title" class="high-quality" />
-                                    }
-                                    else
-                                    {
-                                        <img id="book-cover-@review.Id" src="@review.ImageUrl" alt="@review.Title" />
-                                    }
-                                </div>
-                            }
-                        </div>
-                    </div>
-                    <div class="col-md-8">
+                    <div class="col-md-12">
                         <div class="card-body">
                             <div class="book-info">
                                 <h3 class="book-title">@review.Title</h3>
-                                <p class="book-author">by @review.Author</p>
-                                <p class="book-published">Published: @review.DatePublished.Year</p>
-                                <div class="book-tags">
-                                    @foreach (var tag in review.Shelves)
-                                    {
-                                        <span class="book-tag">@tag</span>
-                                    }
-                                </div>
+                                <p class="book-author">by @review.AuthorFirstName @review.AuthorLastName</p>
+                                @if (review.OriginalPublicationYear.HasValue)
+                                {
+                                    <p class="book-published">Published: @review.OriginalPublicationYear</p>
+                                }
+                                @if (!string.IsNullOrEmpty(review.Bookshelves))
+                                {
+                                    <div class="book-tags">
+                                        @foreach (var shelf in review.Bookshelves.Split(','))
+                                        {
+                                            <span class="book-tag">@shelf.Trim()</span>
+                                        }
+                                    </div>
+                                }
                             </div>
                             <div class="book-review-meta">
-                                <span class="rating">@review.StarRating / 5 stars</span>
+                                <span class="rating">@review.MyRating / 5 stars</span>
                                 <span class="date-read">Read on @review.DateRead.ToString("MMMM d, yyyy")</span>
                             </div>
                             <div class="story-preview">
-                                <p>@(review.PreviewText.Length > 200 ? review.PreviewText.Substring(0, 200) + "..." : review.PreviewText)</p>
+                                <p>@(review.MyReview.Length > 200 ? review.MyReview.Substring(0, 200) + "..." : review.MyReview)</p>
                             </div>
                             <div class="story-footer">
                                 <div class="story-meta">
                                     <span class="story-date">@review.DateRead.ToString("MMMM d, yyyy")</span>
-                                    <span class="story-rating">@review.StarRating stars</span>
+                                    <span class="story-rating">@review.MyRating stars</span>
+                                    @if (review.NumberOfPages.HasValue)
+                                    {
+                                        <span class="story-pages">@review.NumberOfPages pages</span>
+                                    }
                                 </div>
-                                <a href="@review.ReadMoreUrl" class="btn btn-primary" target="_blank">Read More</a>
                             </div>
                         </div>
                     </div>

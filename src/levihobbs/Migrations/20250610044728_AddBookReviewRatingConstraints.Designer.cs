@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using levihobbs.Data;
@@ -11,9 +12,11 @@ using levihobbs.Data;
 namespace levihobbs.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250610044728_AddBookReviewRatingConstraints")]
+    partial class AddBookReviewRatingConstraints
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -106,9 +109,9 @@ namespace levihobbs.Migrations
 
                     b.ToTable("BookReviews", t =>
                         {
-                            t.HasCheckConstraint("CK_BookReview_AverageRating", "\"AverageRating\" BETWEEN 0 AND 5");
+                            t.HasCheckConstraint("CK_BookReview_AverageRating", "\"AverageRating\" BETWEEN 1 AND 5");
 
-                            t.HasCheckConstraint("CK_BookReview_MyRating", "\"MyRating\" BETWEEN 0 AND 5");
+                            t.HasCheckConstraint("CK_BookReview_MyRating", "\"MyRating\" BETWEEN 1 AND 5");
                         });
                 });
 

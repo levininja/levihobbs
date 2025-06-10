@@ -64,7 +64,6 @@ namespace levihobbs
             builder.Services.AddScoped<ReaderController>();
             
             builder.Services.AddScoped<IMockDataService, MockDataService>();
-            builder.Services.AddScoped<IGoodreadsScraperService, GoodreadsScraperService>();
 
             // Add BookCoverService
             builder.Services.AddScoped<IBookCoverService, BookCoverService>();
