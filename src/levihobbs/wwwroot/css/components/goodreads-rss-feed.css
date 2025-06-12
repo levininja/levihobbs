@@ -1,0 +1,17 @@
+/* Error: Undefined variable.
+ *   ,
+ * 2 |     margin-bottom: $spacing-lg;
+ *   |                    ^^^^^^^^^^^
+ *   '
+ *   wwwroot/scss/components/goodreads-rss-feed.scss 2:20  root stylesheet */
+
+body::before {
+  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono",
+      "Droid Sans Mono", monospace, monospace;
+  white-space: pre;
+  display: block;
+  padding: 1em;
+  margin-bottom: 1em;
+  border-bottom: 2px solid black;
+  content: "Error: Undefined variable.\a   \2577 \a 2 \2502      margin-bottom: $spacing-lg;\a   \2502                     ^^^^^^^^^^^\a   \2575 \a   wwwroot/scss/components/goodreads-rss-feed.scss 2:20  root stylesheet";
+}

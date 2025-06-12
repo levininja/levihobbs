@@ -5,6 +5,10 @@ $color-text-secondary: #555;
 $color-text-light: #fff;
 $color-text-muted: #777;
 
+// Link Colors
+$color-link: #007bff;
+$color-link-hover: darken($color-link, 15%);
+
 // Brand Colors
 $color-brand-primary: #c8b1d9;
 $color-brand-secondary: #c49a33;
