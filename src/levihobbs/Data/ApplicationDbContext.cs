@@ -14,9 +14,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<ErrorLog> ErrorLogs { get; set; } = null!;
     public DbSet<BookCoverImage> BookCoverImages { get; set; } = null!;
     public DbSet<BookReview> BookReviews { get; set; } = null!;
-
-    // Add your DbSet properties here
-    // Example: public DbSet<Newsletter> Newsletters { get; set; }
+    public DbSet<Bookshelf> Bookshelves { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -42,5 +40,15 @@ public class ApplicationDbContext : DbContext
             entity.Property(b => b.MyRating).HasColumnType("integer");
             entity.Property(b => b.AverageRating).HasColumnType("decimal(3,2)");
         });
+        
+        // Configure many-to-many relationship between BookReview and Bookshelf
+        modelBuilder.Entity<BookReview>()
+            .HasMany(br => br.Bookshelves)
+            .WithMany(bs => bs.BookReviews)
+            .UsingEntity(j => j.ToTable("BookReviewBookshelves"));
+            
+        modelBuilder.Entity<Bookshelf>()
+            .HasIndex(bs => bs.Name)
+            .IsUnique();
     }
 } 

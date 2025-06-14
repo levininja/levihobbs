@@ -111,7 +111,7 @@ namespace levihobbs
             app.MapControllerRoute(
                 name: "read",
                 pattern: "read/{category}",
-                defaults: new { controller = "Reader", action = "Index" });
+                defaults: new { controller = "Reader", action = "Read" });
 
             app.MapControllerRoute(
                 name: "default",

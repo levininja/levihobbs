@@ -11,7 +11,9 @@ namespace levihobbs.Models
         public int? NumberOfPages { get; set; }
         public int? OriginalPublicationYear { get; set; }
         public required DateTime DateRead { get; set; }
-        public required string Bookshelves { get; set; }
         public required string MyReview { get; set; }
+        
+        // Navigation property for many-to-many relationship
+        public ICollection<Bookshelf> Bookshelves { get; set; } = new List<Bookshelf>();
     }
 }

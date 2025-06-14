@@ -91,10 +91,12 @@ namespace levihobbs.Controllers
                 "Bookshelves", "Exclusive Shelf", "My Review" 
             };
             
-            // Load existing reviews once
             var existingReviews = await _context.BookReviews
                 .Select(r => new { r.Title, r.AuthorFirstName, r.AuthorLastName })
                 .ToListAsync();
+            
+            var existingBookshelves = await _context.Bookshelves
+                .ToDictionaryAsync(bs => bs.Name.ToLower(), bs => bs);
             
             int importedCount = 0;
             int duplicateCount = 0;
@@ -108,7 +110,7 @@ namespace levihobbs.Controllers
                 if (i == 0)
                     ValidateCsvHeader(csv, requiredColumns);
                 
-                // Skip rows that don't have Exclusive Shelf = "read"
+                // All GoodReads books with reviews also have exclusive shelf "read".
                 if (row.Exclusive_Shelf?.ToString() != "read")
                     continue;
                 
@@ -168,9 +170,36 @@ namespace levihobbs.Controllers
                     NumberOfPages = pages > 0 ? pages : null,
                     OriginalPublicationYear = pubYear > 0 ? pubYear : null,
                     DateRead = dateRead,
-                    Bookshelves = row.Bookshelves ?? "",
                     MyReview = row.My_Review ?? ""
                 };
+                
+                // Process bookshelves
+                if (!string.IsNullOrEmpty(row.Bookshelves))
+                {
+                    List<string> shelfNames = row.Bookshelves.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(s => s.Trim())
+                        .Where(s => !string.IsNullOrEmpty(s))
+                        .ToList();
+                    
+                    foreach (string shelfName in shelfNames)
+                    {
+                        string normalizedName = shelfName.ToLower();
+                        
+                        // Get or create bookshelf
+                        if (!existingBookshelves.TryGetValue(normalizedName, out Bookshelf bookshelf))
+                        {
+                            bookshelf = new Bookshelf
+                            {
+                                Name = shelfName,
+                                DisplayName = shelfName
+                            };
+                            _context.Bookshelves.Add(bookshelf);
+                            existingBookshelves[normalizedName] = bookshelf;
+                        }
+                        
+                        bookReview.Bookshelves.Add(bookshelf);
+                    }
+                }
                 
                 _context.BookReviews.Add(bookReview);
                 importedCount++;

@@ -53,12 +53,6 @@ namespace levihobbs
 
             app.UseEndpoints(endpoints =>
             {
-                // Custom routes for reader categories
-                endpoints.MapControllerRoute(
-                    name: "read",
-                    pattern: "read/{category}",
-                    defaults: new { controller = "Reader", action = "Index" });
-
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}",

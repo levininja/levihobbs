@@ -1,4 +1,4 @@
-@model IEnumerable<levihobbs.Models.BookReview>
+@model levihobbs.Models.BookReviewsViewModel
 @{
     ViewData["Title"] = "Levi's Book Reviews";
 }
@@ -8,6 +8,64 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .shelf-filters {
+            margin-bottom: 2rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .shelf-filters h3 {
+            margin-bottom: 1rem;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        .shelf-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .shelf-tag {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #495057;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        
+        .shelf-tag:hover {
+            background-color: #e9ecef;
+            color: #495057;
+            text-decoration: none;
+        }
+        
+        .shelf-tag.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .book-shelves {
+            margin-top: 0.5rem;
+        }
+        
+        .book-shelf-tag {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            background-color: #e9ecef;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: #495057;
+            margin-right: 0.3rem;
+            margin-bottom: 0.3rem;
+        }
+    </style>
 }
 
 @section Scripts {
@@ -57,8 +115,24 @@
         </a>
     </div>
     
+    @if (Model.AllBookshelves.Any())
+    {
+        <div class="shelf-filters">
+            <h3>Filter by Shelf:</h3>
+            <div class="shelf-tags">
+                @foreach (Bookshelf bookshelf in Model.AllBookshelves)
+                {
+                    <a href="@Url.Action("Read", "Reader", new { category = "book-reviews", shelf = bookshelf.Name })" 
+                       class="shelf-tag @(Model.SelectedShelf?.Equals(bookshelf.Name, StringComparison.OrdinalIgnoreCase) == true ? "active" : "")">
+                        @(bookshelf.DisplayName ?? bookshelf.Name)
+                    </a>
+                }
+            </div>
+        </div>
+    }
+    
     <div class="story-cards">
-        @foreach (var review in Model)
+        @foreach (BookReview review in Model.BookReviews)
         {
             <div class="card story-card">
                 <div class="row g-0">
@@ -71,12 +145,12 @@
                                 {
                                     <p class="book-published">Published: @review.OriginalPublicationYear</p>
                                 }
-                                @if (!string.IsNullOrEmpty(review.Bookshelves))
+                                @if (review.Bookshelves.Any())
                                 {
-                                    <div class="book-tags">
-                                        @foreach (var shelf in review.Bookshelves.Split(','))
+                                    <div class="book-shelves">
+                                        @foreach (var shelf in review.Bookshelves)
                                         {
-                                            <span class="book-tag">@shelf.Trim()</span>
+                                            <span class="book-shelf-tag">@(shelf.DisplayName ?? shelf.Name)</span>
                                         }
                                     </div>
                                 }

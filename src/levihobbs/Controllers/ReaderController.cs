@@ -31,30 +31,63 @@ public class ReaderController : Controller
         _dbContext = dbContext;
     }
 
-    public async Task<IActionResult> Index(string? category)
+    public async Task<IActionResult> Read(string? category, string? shelf)
     {
+        if (string.IsNullOrEmpty(category))
+            return await BookReviews(category, shelf);
+
         // Convert URL-friendly category to display category
         string displayCategory = category?.Replace("-", " ") ?? string.Empty;
         if (string.IsNullOrEmpty(displayCategory))
-        {
             displayCategory = "All Stories";
-        }
         else
-        {
-            // Capitalize each word in the category
             displayCategory = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(displayCategory);
-        }
+    
+    
+        if (String.Equals(displayCategory, "Book Reviews", StringComparison.OrdinalIgnoreCase))
+            return await BookReviews(displayCategory, shelf);
+        else
+            return await Stories(displayCategory, shelf);
+    }
+
+    public async Task<IActionResult> BookReviews(string? displayCategory, string? shelf)
+    {
+        // Get all available bookshelves
+        var allBookshelves = await _dbContext.Bookshelves
+            .OrderBy(bs => bs.DisplayName ?? bs.Name)
+            .ToListAsync();
         
-        // Handle book reviews separately
-        if (displayCategory.Equals("Book Reviews", StringComparison.OrdinalIgnoreCase))
+        // Default to "favorites" shelf if no shelf is specified
+        if (string.IsNullOrEmpty(shelf))
+            shelf = "favorites";
+        
+        // Build the query for book reviews
+        var bookReviewsQuery = _dbContext.BookReviews
+            .Include(br => br.Bookshelves)
+            .AsQueryable();
+        
+        // Apply shelf filter if specified
+        if (!string.IsNullOrEmpty(shelf))
+            bookReviewsQuery = bookReviewsQuery
+                .Where(br => br.Bookshelves.Any(bs => bs.Name.ToLower() == shelf.ToLower()));
+        
+        var bookReviews = await bookReviewsQuery
+            .OrderByDescending(r => r.DateRead)
+            .ToListAsync();
+        
+        BookReviewsViewModel viewModel = new BookReviewsViewModel
         {
-            var bookReviews = await _dbContext.BookReviews
-                .OrderByDescending(r => r.DateRead)
-                .ToListAsync();
-            ViewData["Category"] = displayCategory;
-            return View("BookReviews", bookReviews);
-        }
+            Category = displayCategory,
+            AllBookshelves = allBookshelves,
+            SelectedShelf = shelf,
+            BookReviews = bookReviews
+        };
         
+        return View("BookReviews", viewModel);
+    }
+    
+    public async Task<IActionResult> Stories(string? displayCategory, string? shelf)
+    {        
         StoriesViewModel viewModel = new StoriesViewModel();
         string[] storyCategories = new[] { "Fantasy", "Science Fiction", "Modern Fiction" };
         
@@ -75,9 +108,7 @@ public class ReaderController : Controller
             GroupSimilarStories(allStories, viewModel);
         }
         else
-        {
             viewModel.NoStoriesMessage = $"No stories found in the category '{displayCategory}'.";
-        }
         
         viewModel.Category = displayCategory;
         return View("Stories", viewModel);
