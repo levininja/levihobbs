@@ -37,16 +37,17 @@ namespace levihobbs.Controllers
         
         [HttpPost]
         [RequestSizeLimit(10 * 1024 * 1024)] // 10MB limit
-        public async Task<IActionResult> ImportBookReviews(IFormFile file)
+        public async Task<IActionResult> ImportBookReviews(IFormFile? file)
         {
-            if (file == null || file.Length == 0)
+            if (file == null)
             {
-                ModelState.AddModelError("", "No file uploaded");
+                ModelState.AddModelError("", "Please select a file to upload");
                 return View(ModelState);
             }
             
+            string fileName = file.FileName;
+            
             // Check if file is CSV
-            string? fileName = file?.FileName;
             if (fileName == null || !fileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
             {
                 ModelState.AddModelError("", "Please upload a CSV file");
@@ -55,7 +56,7 @@ namespace levihobbs.Controllers
             
             try
             {
-                int importResult = await ProcessCsvFile(file);
+                int importResult = await ImportBookReviewsFromCsvFile(file);
                 ViewBag.SuccessMessage = $"Successfully imported {importResult} book reviews.";
                 return View(ModelState);
             }
@@ -184,7 +185,7 @@ namespace levihobbs.Controllers
                     
                     // Add selected bookshelves to the grouping
                     var selectedBookshelves = bookshelves
-                        .Where(bs => groupingModel.SelectedBookshelfIds.Contains(bs.Id))
+                        .Where(bs => groupingModel.SelectedBookshelfIds?.Contains(bs.Id) ?? false)
                         .ToList();
                     _logger.LogInformation("Found {SelectedCount} bookshelves to add to grouping", selectedBookshelves.Count);
                         
@@ -206,8 +207,12 @@ namespace levihobbs.Controllers
             
             return await BookshelfConfiguration();
         }
-        
-        private async Task<int> ProcessCsvFile(IFormFile file)
+        /// <summary>
+        /// Process the CSV file and import the book reviews into the database
+        /// </summary>
+        /// <param name="file">The CSV file to import</param>
+        /// <returns>The number of imported book reviews</returns>
+        private async Task<int> ImportBookReviewsFromCsvFile(IFormFile file)
         {
             using Stream stream = file.OpenReadStream();
             using StreamReader reader = new StreamReader(stream);
@@ -221,25 +226,31 @@ namespace levihobbs.Controllers
                 PrepareHeaderForMatch = args => args.Header.Trim('"', ' ')
             };
             
-            using CsvReader csv = new CsvReader(reader, config);
-            List<GoodreadsBookReviewCsv> records = csv.GetRecords<GoodreadsBookReviewCsv>().ToList();
-            
             string[] requiredColumns = new[] 
             { 
-                "Title", "Author l-f", "My Rating", "Average Rating", 
-                "Number of Pages", "Original Publication Year", "Date Read", 
-                "Bookshelves", "Exclusive Shelf", "My Review" 
+                "Title", 
+                "Author l-f", 
+                "My Rating", 
+                "Average Rating", 
+                "Number of Pages", 
+                "Original Publication Year", 
+                "Date Read", 
+                "Bookshelves", 
+                "Exclusive Shelf", 
+                "My Review" 
             };
             
             var existingReviews = await _context.BookReviews
                 .Select(r => new { r.Title, r.AuthorFirstName, r.AuthorLastName })
                 .ToListAsync();
             
-            var existingBookshelves = await _context.Bookshelves
-                .ToDictionaryAsync(bs => bs.Name.ToLower(), bs => bs);
+            List<Bookshelf> existingBookshelves = await _context.Bookshelves.ToListAsync();
             
             int importedCount = 0;
             int duplicateCount = 0;
+            
+            using CsvReader csv = new CsvReader(reader, config);
+            List<GoodreadsBookReviewCsv> records = csv.GetRecords<GoodreadsBookReviewCsv>().ToList();
             
             for (int i = 0; i < records.Count; i++)
             {
@@ -313,7 +324,7 @@ namespace levihobbs.Controllers
                     MyReview = row.My_Review ?? ""
                 };
                 
-                // Process bookshelves
+                // Import bookshelves, if they don't already exist
                 if (!string.IsNullOrEmpty(row.Bookshelves))
                 {
                     List<string> shelfNames = row.Bookshelves.Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -324,19 +335,23 @@ namespace levihobbs.Controllers
                     foreach (string shelfName in shelfNames)
                     {
                         string normalizedName = shelfName.ToLower();
-                        
-                        // Get or create bookshelf
-                        if (!existingBookshelves.TryGetValue(normalizedName, out Bookshelf bookshelf))
-                        {
+
+                        // See if this bookshelf already exists in the database
+                        Bookshelf? bookshelf = existingBookshelves.FirstOrDefault(b => b.Name.ToLower() == normalizedName);
+
+                        // If the bookshelf doesn't exist, create a new one
+                        if(bookshelf == null){
                             bookshelf = new Bookshelf
                             {
                                 Name = shelfName,
                                 DisplayName = shelfName
                             };
                             _context.Bookshelves.Add(bookshelf);
-                            existingBookshelves[normalizedName] = bookshelf;
+                            existingBookshelves.Add(bookshelf);
                         }
-                        
+
+                        // Either way (whether we created a new bookshelf or found an existing one), add it to the book review
+                        // to track that it has this bookshelf (this populates a crossreference table in the db).
                         bookReview.Bookshelves.Add(bookshelf);
                     }
                 }

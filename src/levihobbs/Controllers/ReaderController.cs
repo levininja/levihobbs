@@ -142,10 +142,13 @@ public class ReaderController : Controller
     
     public async Task<IActionResult> Stories(string? displayCategory, string? shelf)
     {        
-        StoriesViewModel viewModel = new StoriesViewModel();
+        StoriesViewModel viewModel = new StoriesViewModel
+        {
+            Category = displayCategory ?? string.Empty
+        };
         string[] storyCategories = new[] { "Fantasy", "Science Fiction", "Modern Fiction" };
         
-        if (storyCategories.Any(c => c.Equals(displayCategory, StringComparison.OrdinalIgnoreCase)))
+        if (!string.IsNullOrEmpty(displayCategory) && storyCategories.Any(c => c.Equals(displayCategory, StringComparison.OrdinalIgnoreCase)))
         {
             List<StoryDTO> storyDtos = await _substackApiClient.GetStories(displayCategory);
             List<Story> allStories = storyDtos.Select(dto => new Story
@@ -162,9 +165,12 @@ public class ReaderController : Controller
             GroupSimilarStories(allStories, viewModel);
         }
         else
-            viewModel.NoStoriesMessage = $"No stories found in the category '{displayCategory}'.";
+        {
+            viewModel.NoStoriesMessage = string.IsNullOrEmpty(displayCategory) 
+                ? "Please select a category to view stories." 
+                : $"No stories found in the category '{displayCategory}'.";
+        }
         
-        viewModel.Category = displayCategory;
         return View("Stories", viewModel);
     }
 

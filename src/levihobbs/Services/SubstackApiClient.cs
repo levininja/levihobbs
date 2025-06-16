@@ -49,7 +49,7 @@ namespace levihobbs.Services
             if (_cache.TryGetValue(cacheKey, out List<StoryDTO>? cachedStories))
             {
                 _logger.LogInformation("Cache HIT for key: {CacheKey} with {Count} stories", cacheKey, cachedStories?.Count ?? 0);
-                return cachedStories;
+                return cachedStories ?? new List<StoryDTO>();
             }
 
             _logger.LogInformation("Cache MISS for key: {CacheKey}, fetching from Substack API", cacheKey);

@@ -25,12 +25,6 @@ namespace levihobbs
         {
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-            // Log environment and configuration
-            ILogger<Program> logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
-            logger.LogInformation("Current environment: {Environment}", builder.Environment.EnvironmentName);
-            logger.LogInformation("Google Custom Search settings: {Settings}", 
-                builder.Configuration.GetSection("GoogleCustomSearch").Get<GoogleCustomSearchSettings>());
-
             // Add services to the container.
             builder.Services.AddControllersWithViews()
                 .AddRazorRuntimeCompilation();
@@ -79,6 +73,12 @@ namespace levihobbs
             });
 
             WebApplication app = builder.Build();
+
+            // Log environment and configuration after building the app
+            var logger = app.Services.GetRequiredService<ILogger<Program>>();
+            logger.LogInformation("Current environment: {Environment}", app.Environment.EnvironmentName);
+            logger.LogInformation("Google Custom Search settings: {Settings}", 
+                app.Configuration.GetSection("GoogleCustomSearch").Get<GoogleCustomSearchSettings>());
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
