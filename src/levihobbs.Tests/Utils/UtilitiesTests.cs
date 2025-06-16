@@ -9,7 +9,7 @@ namespace levihobbs.Tests.UtilitiesTests
         [Theory]
         [InlineData("", "")]
         [InlineData(null, "")]
-        public void CleanSearchTerm_HandlesEmptyOrNull(string searchTerm, string expected)
+        public void CleanSearchTerm_HandlesEmptyOrNull(string? searchTerm, string expected)
         {
             // Act
             string result = Utilities.CleanBookReviewSearchTerm(searchTerm);

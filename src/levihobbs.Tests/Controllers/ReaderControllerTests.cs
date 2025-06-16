@@ -4,9 +4,11 @@ using System.Linq;
 using levihobbs.Controllers;
 using levihobbs.Models;
 using levihobbs.Services;
+using levihobbs.Data;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using Microsoft.EntityFrameworkCore;
 
 namespace levihobbs.Tests
 {
@@ -15,7 +17,7 @@ namespace levihobbs.Tests
         private readonly Mock<ILogger<ReaderController>> _mockLogger;
         private readonly Mock<ISubstackApiClient> _mockSubstackApiClient;
         private readonly Mock<IMockDataService> _mockDataService;
-        private readonly Mock<IGoodreadsScraperService> _mockGoodreadsScraperService;
+        private readonly Mock<ApplicationDbContext> _mockDbContext;
         private readonly ReaderController _controller;
 
         public ReaderControllerTests()
@@ -24,12 +26,12 @@ namespace levihobbs.Tests
             _mockLogger = new Mock<ILogger<ReaderController>>();
             _mockSubstackApiClient = new Mock<ISubstackApiClient>();
             _mockDataService = new Mock<IMockDataService>();
-            _mockGoodreadsScraperService = new Mock<IGoodreadsScraperService>();
+            _mockDbContext = new Mock<ApplicationDbContext>(new DbContextOptions<ApplicationDbContext>());
             _controller = new ReaderController(
                 _mockLogger.Object,
                 _mockSubstackApiClient.Object,
                 _mockDataService.Object,
-                _mockGoodreadsScraperService.Object);
+                _mockDbContext.Object);
         }
 
         // Tests for ExtractNumberFromTitle
