@@ -115,11 +115,27 @@
         </a>
     </div>
     
-    @if (Model.AllBookshelves.Any())
-    {
-        <div class="shelf-filters">
-            <h3>Filter by Shelf:</h3>
-            <div class="shelf-tags">
+    <div class="shelf-filters">
+        <h3>Filter by:</h3>
+        <div class="shelf-tags">
+            <!-- Recent Reviews Tag -->
+            <a href="@Url.Action("BookReviews", "Reader", new { recent = true })" 
+               class="shelf-tag @(Model.ShowRecentOnly ? "active" : "")">
+                Recent Reviews
+            </a>
+            
+            @if (Model.UseCustomMappings)
+            {
+                <!-- Show groupings -->
+                @foreach (BookshelfGrouping grouping in Model.AllBookshelfGroupings)
+                {
+                    <a href="@Url.Action("BookReviews", "Reader", new { grouping = grouping.Name })" 
+                       class="shelf-tag @(Model.SelectedGrouping?.Equals(grouping.Name, StringComparison.OrdinalIgnoreCase) == true ? "active" : "")">
+                        @(grouping.DisplayName ?? grouping.Name)
+                    </a>
+                }
+                
+                <!-- Show individual bookshelves that are marked for display but not in groupings -->
                 @foreach (Bookshelf bookshelf in Model.AllBookshelves)
                 {
                     <a href="@Url.Action("Read", "Reader", new { category = "book-reviews", shelf = bookshelf.Name })" 
@@ -127,9 +143,20 @@
                         @(bookshelf.DisplayName ?? bookshelf.Name)
                     </a>
                 }
-            </div>
+            }
+            else
+            {
+                <!-- Show all bookshelves as before -->
+                @foreach (Bookshelf bookshelf in Model.AllBookshelves)
+                {
+                    <a href="@Url.Action("Read", "Reader", new { category = "book-reviews", shelf = bookshelf.Name })" 
+                       class="shelf-tag @(Model.SelectedShelf?.Equals(bookshelf.Name, StringComparison.OrdinalIgnoreCase) == true ? "active" : "")">
+                        @(bookshelf.DisplayName ?? bookshelf.Name)
+                    </a>
+                }
+            }
         </div>
-    }
+    </div>
     
     <div class="story-cards">
         @foreach (BookReview review in Model.BookReviews)

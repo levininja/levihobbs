@@ -15,6 +15,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<BookCoverImage> BookCoverImages { get; set; } = null!;
     public DbSet<BookReview> BookReviews { get; set; } = null!;
     public DbSet<Bookshelf> Bookshelves { get; set; } = null!;
+    public DbSet<BookshelfGrouping> BookshelfGroupings { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -49,6 +50,16 @@ public class ApplicationDbContext : DbContext
             
         modelBuilder.Entity<Bookshelf>()
             .HasIndex(bs => bs.Name)
+            .IsUnique();
+            
+        // Configure many-to-many relationship between Bookshelf and BookshelfGrouping
+        modelBuilder.Entity<Bookshelf>()
+            .HasMany(bs => bs.BookshelfGroupings)
+            .WithMany(bg => bg.Bookshelves)
+            .UsingEntity(j => j.ToTable("BookshelfGroupingBookshelves"));
+            
+        modelBuilder.Entity<BookshelfGrouping>()
+            .HasIndex(bg => bg.Name)
             .IsUnique();
     }
 } 

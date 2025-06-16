@@ -67,6 +67,146 @@ namespace levihobbs.Controllers
             }
         }
         
+        public async Task<IActionResult> BookshelfConfiguration()
+        {
+            var bookshelves = await _context.Bookshelves
+                .OrderBy(bs => bs.DisplayName ?? bs.Name)
+                .ToListAsync();
+                
+            var groupings = await _context.BookshelfGroupings
+                .Include(bg => bg.Bookshelves)
+                .OrderBy(bg => bg.DisplayName ?? bg.Name)
+                .ToListAsync();
+                
+            var viewModel = new BookshelfConfigurationViewModel
+            {
+                EnableCustomMappings = bookshelves.Any(bs => bs.Display.HasValue),
+                Bookshelves = bookshelves.Select(bs => new BookshelfDisplayItem
+                {
+                    Id = bs.Id,
+                    Name = bs.Name,
+                    DisplayName = bs.DisplayName,
+                    Display = bs.Display ?? false
+                }).ToList(),
+                Groupings = groupings.Select(bg => new BookshelfGroupingItem
+                {
+                    Id = bg.Id,
+                    Name = bg.Name,
+                    DisplayName = bg.DisplayName,
+                    SelectedBookshelfIds = bg.Bookshelves.Select(bs => bs.Id).ToList()
+                }).ToList()
+            };
+            
+            return View(viewModel);
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> BookshelfConfiguration(BookshelfConfigurationViewModel model)
+        {
+            try
+            {
+                _logger.LogInformation("POST to BookshelfConfiguration received. Model details:");
+                _logger.LogInformation("EnableCustomMappings: {EnableCustomMappings}", model.EnableCustomMappings);
+                _logger.LogInformation("Number of groupings in model: {GroupingCount}", model.Groupings.Count);
+                
+                foreach (var grouping in model.Groupings)
+                {
+                    _logger.LogInformation("Grouping details - Id: {Id}, Name: {Name}, DisplayName: {DisplayName}, SelectedBookshelfIds: {SelectedIds}", 
+                        grouping.Id, 
+                        grouping.Name, 
+                        grouping.DisplayName ?? "null",
+                        string.Join(", ", grouping.SelectedBookshelfIds));
+                }
+                
+                _logger.LogInformation("Starting BookshelfConfiguration save. Model has {GroupingCount} groupings", model.Groupings.Count);
+                
+                // Update bookshelf display settings
+                var bookshelves = await _context.Bookshelves.ToListAsync();
+                _logger.LogInformation("Found {BookshelfCount} bookshelves in database", bookshelves.Count);
+                
+                if (model.EnableCustomMappings)
+                {
+                    foreach (var bookshelf in bookshelves)
+                    {
+                        var displayItem = model.Bookshelves.FirstOrDefault(b => b.Id == bookshelf.Id);
+                        bookshelf.Display = displayItem?.Display ?? false;
+                    }
+                }
+                else
+                {
+                    // Reset all display settings to null when custom mappings are disabled
+                    foreach (var bookshelf in bookshelves)
+                    {
+                        bookshelf.Display = null;
+                    }
+                }
+                
+                // Handle groupings
+                var existingGroupings = await _context.BookshelfGroupings
+                    .Include(bg => bg.Bookshelves)
+                    .ToListAsync();
+                _logger.LogInformation("Found {ExistingGroupingCount} existing groupings in database", existingGroupings.Count);
+                
+                // Only remove groupings that are explicitly marked for removal
+                var groupingsToRemove = existingGroupings
+                    .Where(eg => model.Groupings.Any(mg => mg.Id == eg.Id && mg.ShouldRemove))
+                    .ToList();
+                _logger.LogInformation("Removing {GroupingRemoveCount} groupings", groupingsToRemove.Count);
+                    
+                _context.BookshelfGroupings.RemoveRange(groupingsToRemove);
+                
+                // Update or create groupings
+                foreach (var groupingModel in model.Groupings)
+                {
+                    _logger.LogInformation("Processing grouping: {GroupingName} with {SelectedCount} selected bookshelves", 
+                        groupingModel.Name, groupingModel.SelectedBookshelfIds.Count);
+                    
+                    BookshelfGrouping grouping;
+                    
+                    if (groupingModel.Id > 0)
+                    {
+                        grouping = existingGroupings.First(eg => eg.Id == groupingModel.Id);
+                        grouping.Name = groupingModel.Name;
+                        grouping.DisplayName = groupingModel.DisplayName;
+                        grouping.Bookshelves.Clear();
+                        _logger.LogInformation("Updating existing grouping with ID {GroupingId}", grouping.Id);
+                    }
+                    else
+                    {
+                        grouping = new BookshelfGrouping
+                        {
+                            Name = groupingModel.Name,
+                            DisplayName = groupingModel.DisplayName
+                        };
+                        _context.BookshelfGroupings.Add(grouping);
+                        _logger.LogInformation("Creating new grouping: {GroupingName}", grouping.Name);
+                    }
+                    
+                    // Add selected bookshelves to the grouping
+                    var selectedBookshelves = bookshelves
+                        .Where(bs => groupingModel.SelectedBookshelfIds.Contains(bs.Id))
+                        .ToList();
+                    _logger.LogInformation("Found {SelectedCount} bookshelves to add to grouping", selectedBookshelves.Count);
+                        
+                    foreach (var bookshelf in selectedBookshelves)
+                    {
+                        grouping.Bookshelves.Add(bookshelf);
+                    }
+                }
+                
+                var saveResult = await _context.SaveChangesAsync();
+                _logger.LogInformation("SaveChangesAsync returned {SaveResult} changes", saveResult);
+                ViewBag.SuccessMessage = "Bookshelf configuration saved successfully.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving bookshelf configuration");
+                ModelState.AddModelError("", "An error occurred while saving the configuration.");
+            }
+            
+            return await BookshelfConfiguration();
+        }
+        
         private async Task<int> ProcessCsvFile(IFormFile file)
         {
             using Stream stream = file.OpenReadStream();
