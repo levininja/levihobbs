@@ -40,8 +40,16 @@ public class ApplicationDbContext : DbContext
             });
             entity.Property(b => b.MyRating).HasColumnType("integer");
             entity.Property(b => b.AverageRating).HasColumnType("decimal(3,2)");
+            
+            // Add index for reviews with content
+            entity.Property(b => b.HasReviewContent)
+                .HasComputedColumnSql("CASE WHEN \"MyReview\" IS NOT NULL AND \"MyReview\" != '' THEN true ELSE false END", stored: true);
+
+            entity.HasIndex(b => b.HasReviewContent)
+                .HasDatabaseName("IX_BookReview_HasReviewContent")
+                .HasFilter("\"HasReviewContent\" = true");
         });
-        
+            
         // Configure many-to-many relationship between BookReview and Bookshelf
         modelBuilder.Entity<BookReview>()
             .HasMany(br => br.Bookshelves)

@@ -157,7 +157,7 @@
             }
         </div>
     </div>
-    
+        
     <div class="story-cards">
         @foreach (BookReview review in Model.BookReviews)
         {
@@ -192,14 +192,11 @@
                                 <span class="date-read">Read on @review.DateRead.ToString("MMMM d, yyyy")</span>
                             </div>
                             <div class="story-preview">
-                                <p>@(review.MyReview.Length > 200 ? review.MyReview.Substring(0, 200) + "..." : review.MyReview)</p>
+                                @Html.Raw(review.PreviewText)
                             </div>
                             <div class="story-footer">
                                 <div class="story-meta">
-                                    @if (review.NumberOfPages.HasValue)
-                                    {
-                                        <span class="story-pages">@review.NumberOfPages pages</span>
-                                    }
+                                    <span class="story-reading-time">@review.ReadingTimeMinutes min. read</span>
                                 </div>
                             </div>
                         </div>

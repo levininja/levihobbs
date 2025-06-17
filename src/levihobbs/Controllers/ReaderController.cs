@@ -88,9 +88,10 @@ public class ReaderController : Controller
         if (string.IsNullOrEmpty(shelf) && string.IsNullOrEmpty(grouping) && !recent)
             shelf = "favorites";
         
-        // Build the query for book reviews
+        // Build the query for book reviews - only include reviews with content
         var bookReviewsQuery = _dbContext.BookReviews
             .Include(br => br.Bookshelves)
+            .Where(br => br.HasReviewContent == true)
             .AsQueryable();
         
         // Apply filters
