@@ -90,7 +90,7 @@ namespace levihobbs.Services
                     $"&cx={_settings.SearchEngineId}" + // Custom Search Engine ID
                     $"&q={Uri.EscapeDataString(searchTerm)}" + // Search query, URL encoded
                     "&searchType=image" + // Restrict to image search results only
-                    "&imgSize=medium" + // Return medium-sized images (~400x400px)
+                    "&imgSize=large" + // Typical range: 800×600 to 1600×1200 pixels
                     "&num=1"; // Return only 1 result to minimize API usage
                 
                 HttpResponseMessage response = await _httpClient.GetAsync(url);
