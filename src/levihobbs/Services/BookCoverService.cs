@@ -53,7 +53,7 @@ namespace levihobbs.Services
         /// </summary>
         /// <param name="searchTerm">The title and author of the book to search for</param>
         /// <returns>The image data for the book cover, or null if no image is found</returns>
-        public async Task<byte[]?> GetBookCoverImageAsync(string searchTerm)
+        public async Task<byte[]?> GetBookCoverImageAsync(string searchTerm, int bookReviewId)
         {
             if (string.IsNullOrEmpty(searchTerm))
                 return null;
@@ -74,6 +74,9 @@ namespace levihobbs.Services
                 };
                 _dbContext.ErrorLogs.Add(warningLog);
                 await _dbContext.SaveChangesAsync();
+
+                await AssociateBookReviewWithCoverImage(bookReviewId, existingImage);
+
                 return existingImage.ImageData;
             }
             
@@ -91,7 +94,6 @@ namespace levihobbs.Services
                     "&num=1"; // Return only 1 result to minimize API usage
                 
                 HttpResponseMessage response = await _httpClient.GetAsync(url);
-                
                 if (!response.IsSuccessStatusCode)
                 {
                     string errorContent = await response.Content.ReadAsStringAsync();
@@ -158,7 +160,8 @@ namespace levihobbs.Services
                         };
 
                         _dbContext.BookCoverImages.Add(bookCoverImage);
-                        await _dbContext.SaveChangesAsync();
+                        
+                        await AssociateBookReviewWithCoverImage(bookReviewId, bookCoverImage);
                         
                         return imageData;
                     }
@@ -189,6 +192,18 @@ namespace levihobbs.Services
                 _logger.LogError(ex, "Error fetching book cover for {SearchTerm}", searchTerm);
                 return null;
             }
+        }
+
+        private async Task AssociateBookReviewWithCoverImage(int bookReviewId, BookCoverImage bookCoverImage)
+        {
+            // Get the book review and associate it with the cover image
+            BookReview? bookReview = await _dbContext.BookReviews.FindAsync(bookReviewId);
+            if (bookReview != null)
+            {
+                bookReview.CoverImage = bookCoverImage;
+                bookReview.CoverImageId = bookCoverImage.Id;
+            }
+            await _dbContext.SaveChangesAsync();
         }
         
         // Class to deserialize Google Search API response

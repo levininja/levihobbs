@@ -5,6 +5,6 @@ namespace levihobbs.Services
 {
     public interface IBookCoverService
     {
-        Task<byte[]?> GetBookCoverImageAsync(string searchTerm);
+        Task<byte[]?> GetBookCoverImageAsync(string searchTerm, int bookReviewId);
     }
 }

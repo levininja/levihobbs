@@ -194,10 +194,33 @@
     }
 }
 
+.book-cover-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0;
+}
+
 .book-cover-container {
-    img.high-quality {
+    width: 200px;
+    height: 315px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 4px;
+    overflow: hidden;
+    
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        
+        &.high-quality {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
     }
 }
 

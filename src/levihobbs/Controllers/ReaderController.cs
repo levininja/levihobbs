@@ -91,6 +91,7 @@ public class ReaderController : Controller
         // Build the query for book reviews - only include reviews with content
         var bookReviewsQuery = _dbContext.BookReviews
             .Include(br => br.Bookshelves)
+            .Include(br => br.CoverImage)
             .Where(br => br.HasReviewContent == true)
             .AsQueryable();
         
@@ -125,7 +126,6 @@ public class ReaderController : Controller
         }
         
         var bookReviews = await bookReviewsQuery.ToListAsync();
-        
         BookReviewsViewModel viewModel = new BookReviewsViewModel
         {
             Category = displayCategory,

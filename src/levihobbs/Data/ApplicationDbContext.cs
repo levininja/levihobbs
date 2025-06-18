@@ -48,6 +48,13 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(b => b.HasReviewContent)
                 .HasDatabaseName("IX_BookReview_HasReviewContent")
                 .HasFilter("\"HasReviewContent\" = true");
+
+            // Assumes BookCoverImage can be associated with multiple reviews if needed, but the FK is on BookReview
+            entity.HasOne(br => br.CoverImage)
+                .WithMany()  // No inverse navigation (BookCoverImage doesn't need a list of reviews)
+                .HasForeignKey(br => br.CoverImageId)
+                .IsRequired(false)  // Allows null for reviews without images
+                .OnDelete(DeleteBehavior.SetNull);  // If image is deleted, set FK to null instead of cascading
         });
             
         // Configure many-to-many relationship between BookReview and Bookshelf

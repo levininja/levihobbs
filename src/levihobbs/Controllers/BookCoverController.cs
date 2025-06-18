@@ -22,7 +22,7 @@ namespace levihobbs.Controllers
         }
         
         [HttpGet]
-        public async Task<IActionResult> GetBookCover(string bookTitle)
+        public async Task<IActionResult> GetBookCover(string bookTitle, int bookReviewId)
         {
             if (string.IsNullOrEmpty(bookTitle))
             {
@@ -32,11 +32,9 @@ namespace levihobbs.Controllers
 
             try
             {
-                byte[]? imageData = await _bookCoverService.GetBookCoverImageAsync(bookTitle);
+                byte[]? imageData = await _bookCoverService.GetBookCoverImageAsync(bookTitle, bookReviewId);
                 if (imageData == null)
-                {
                     return NotFound();
-                }
 
                 return File(imageData, "image/jpeg");
             }

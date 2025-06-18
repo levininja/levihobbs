@@ -74,22 +74,23 @@
         // Function to fetch better book cover images
         async function fetchBookCover(bookId, searchTerm) {
             try {
-                const response = await fetch(`/api/BookCover?searchTerm=${encodeURIComponent(searchTerm)}`);
-                
+                const response = await fetch(`/api/BookCover?bookTitle=${encodeURIComponent(searchTerm)}&bookReviewId=${bookId}`);
                 if (response.ok) {
-                    // Convert the response to a blob
                     const imageBlob = await response.blob();
                     const imageUrl = URL.createObjectURL(imageBlob);
-                    
-                    // Find the image element and update it
                     const imgElement = document.querySelector(`#book-cover-${bookId}`);
                     if (imgElement) {
                         imgElement.src = imageUrl;
                         imgElement.classList.add('high-quality');
+                        // New: Update container to prevent re-fetching on page reload
+                        const container = document.querySelector(`#book-cover-container-${bookId}`);
+                        if (container) container.setAttribute('data-needs-better-cover', 'false');
                     }
+                } else {
+                    console.error(`Failed to fetch book cover for ${searchTerm}: ${response.status}`);  // New: Log failures
                 }
             } catch (error) {
-                console.error(`Error fetching book cover for ${searchTerm}:`, error);
+                console.error(`Error fetching book cover for ${searchTerm}:`, error);  // Existing, but emphasized
             }
         }
         
@@ -158,13 +159,41 @@
         </div>
     </div>
         
-    <div class="story-cards">
-        @foreach (BookReview review in Model.BookReviews)
-        {
-            <div class="card story-card">
-                <div class="row g-0">
-                    <div class="col-md-12">
-                        <div class="card-body">
+<div class="story-cards">
+    @foreach (BookReview review in Model.BookReviews)
+    {
+        <div class="card story-card">
+            <div class="row g-0">
+                <!-- New: Left column for book cover image (restores layout for JS compatibility) -->
+                <div class="col-md-3">
+                    <div class="book-cover-wrapper">
+                        <div class="book-cover-container" 
+                             id="book-cover-container-@review.Id" 
+                             data-book-id="@review.Id" 
+                             data-search-term="@review.TitleByAuthor" 
+                             data-needs-better-cover="@(review.CoverImage == null ? "true" : "false")">
+                            @if (review.CoverImage != null)
+                            {
+                                <!-- Display associated image if available (Base64 for inline rendering) -->
+                                <img id="book-cover-@review.Id" 
+                                     src="data:image/@review.CoverImage.FileType;base64,@Convert.ToBase64String(review.CoverImage.ImageData)" 
+                                     alt="@review.Title cover" 
+                                     class="book-cover high-quality">
+                            }
+                            else
+                            {
+                                <!-- Placeholder for reviews without images (JS will attempt to fetch) -->
+                                <img id="book-cover-@review.Id" 
+                                     src="/images/placeholder-cover.jpg" 
+                                     alt="Book cover placeholder" 
+                                     class="book-cover">
+                            }
+                        </div>
+                    </div>
+                </div>
+                <!-- Adjusted: Right column for existing content (reduced from col-md-12 to col-md-8) -->
+                <div class="col-md-9">
+                    <div class="card-body">
                             <div class="book-info">
                                 <h3 class="book-title">@review.Title</h3>
                                 <p class="book-author">by @review.AuthorFirstName @review.AuthorLastName</p>
