@@ -1,6 +1,6 @@
 # Levi Hobbs Website
 
-This is a personal website built using ASP.NET Core MVC with PostgreSQL as the database.
+This is a personal author website built using ASP.NET Core MVC with PostgreSQL as the database.
 
 ## Prerequisites
 
@@ -54,6 +54,10 @@ Before you begin, ensure you have the following installed:
    ```bash
    npm run build
    ```
+   or
+   ```bash
+   npm run scss:watch
+   ```
 
 8. **Run the Application**
    > **Note:** When running `dotnet run` from the root directory, you need to specify the project path: `dotnet run --project src/levihobbs/levihobbs.csproj`. Alternatively, you can `cd` into the `src/levihobbs` directory first and then run the commands.
@@ -72,14 +76,17 @@ Before you begin, ensure you have the following installed:
 
 ## Project Structure
 
-- `Controllers/` - Contains the application's controllers
-- `Models/` - Contains the data models
-- `Views/` - Contains the Razor views
-- `Data/` - Contains database context and configurations
-- `wwwroot/` - Contains static files (CSS, JavaScript, images)
-  - `wwwroot/scss/` - Contains SCSS source files
-  - `wwwroot/css/` - Contains compiled CSS files
-- `Migrations/` - Contains database migration files
+- `src/levihobbs/` - Contains the main project
+   - `Controllers/` - Contains the application's controllers
+   - `Models/` - Contains the data models
+   - `Views/` - Contains the Razor views
+   - `ViewComponents/` - Contains the Razor viewComponents
+   - `Data/` - Contains database context and configurations
+   - `Migrations/` - Contains database migration files
+   - `wwwroot/` - Contains static files (CSS, JavaScript, images)
+      - `wwwroot/scss/` - Contains SCSS source files
+      - `wwwroot/css/` - Contains compiled CSS files
+- `src/levihobbs.Tests/` - Contains the unit test project
 
 ## SCSS Compilation
 
