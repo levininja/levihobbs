@@ -22,9 +22,9 @@ namespace levihobbs.Controllers
         }
         
         [HttpGet]
-        public async Task<IActionResult> GetBookCover(string searchTerm)
+        public async Task<IActionResult> GetBookCover(string bookTitle)
         {
-            if (string.IsNullOrEmpty(searchTerm))
+            if (string.IsNullOrEmpty(bookTitle))
             {
                 _logger.LogWarning("Missing search term in book cover request");
                 return BadRequest("Search term is required");
@@ -32,7 +32,7 @@ namespace levihobbs.Controllers
 
             try
             {
-                byte[]? imageData = await _bookCoverService.GetBookCoverImageAsync(searchTerm);
+                byte[]? imageData = await _bookCoverService.GetBookCoverImageAsync(bookTitle);
                 if (imageData == null)
                 {
                     return NotFound();
@@ -42,7 +42,7 @@ namespace levihobbs.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting book cover for search term: {SearchTerm}", searchTerm);
+                _logger.LogError(ex, "Error getting book cover for search term: {bookTitle}", bookTitle);
                 return StatusCode(500, "An error occurred while fetching the book cover");
             }
         }
