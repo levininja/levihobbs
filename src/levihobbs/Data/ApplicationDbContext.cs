@@ -55,6 +55,10 @@ public class ApplicationDbContext : DbContext
                 .HasForeignKey(br => br.CoverImageId)
                 .IsRequired(false)  // Allows null for reviews without images
                 .OnDelete(DeleteBehavior.SetNull);  // If image is deleted, set FK to null instead of cascading
+                
+            // Add index for searchable string
+            entity.HasIndex(b => b.SearchableString)
+                .HasDatabaseName("IX_BookReview_SearchableString");
         });
             
         // Configure many-to-many relationship between BookReview and Bookshelf

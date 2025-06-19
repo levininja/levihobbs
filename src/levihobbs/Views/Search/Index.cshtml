@@ -1,0 +1,137 @@
+@{
+    ViewData["Title"] = "Search Books";
+}
+
+<div class="container mt-4">
+    <h2>Search Book Reviews</h2>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search by title, author, publisher, or genre..." />
+            </div>
+        </div>
+    </div>
+    
+    <div id="searchResults" class="mt-4">
+        <!-- Search results will be populated here -->
+    </div>
+    
+    <div id="loadingIndicator" class="text-center mt-4" style="display: none;">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.trim();
+        
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+        
+        // Clear results if search term is empty
+        if (searchTerm === '') {
+            searchResults.innerHTML = '';
+            return;
+        }
+        
+        // Only search if user has entered at least 3 characters
+        if (searchTerm.length < 3) {
+            searchResults.innerHTML = '<div class="alert alert-info">Please enter at least 3 characters to search.</div>';
+            return;
+        }
+        
+        // Debounce search - wait 500ms after user stops typing
+        searchTimeout = setTimeout(() => {
+            performSearch(searchTerm);
+        }, 500);
+    });
+    
+    async function performSearch(searchTerm) {
+        try {
+            loadingIndicator.style.display = 'block';
+            searchResults.innerHTML = '';
+            
+            const response = await fetch(`/api/BookReviewSearch?searchTerm=${encodeURIComponent(searchTerm)}`);
+            
+            if (!response.ok) {
+                throw new Error('Search failed');
+            }
+            
+            const results = await response.json();
+            displayResults(results);
+            
+        } catch (error) {
+            console.error('Search error:', error);
+            searchResults.innerHTML = '<div class="alert alert-danger">An error occurred while searching. Please try again.</div>';
+        } finally {
+            loadingIndicator.style.display = 'none';
+        }
+    }
+    
+    function displayResults(results) {
+        if (results.length === 0) {
+            searchResults.innerHTML = '<div class="alert alert-info">No results found.</div>';
+            return;
+        }
+        
+        let html = `<h4>Found ${results.length} result(s)</h4><div class="row">`;
+        
+        results.forEach(book => {
+            const bookshelfNames = book.bookshelves.map(bs => bs.displayName || bs.name).join(', ');
+            const coverImageSrc = book.coverImageId ? `/api/BookCover?bookTitle=${encodeURIComponent(book.title)}&bookReviewId=${book.id}` : '/images/no-cover.jpg';
+            
+            html += `
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="row no-gutters">
+                            <div class="col-md-4">
+                                <img src="${coverImageSrc}" class="card-img" alt="Book cover" style="height: 200px; object-fit: cover;">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">${book.titleByAuthor}</h5>
+                                    <p class="card-text">
+                                        <strong>ID:</strong> ${book.id}<br>
+                                        <strong>My Rating:</strong> ${book.myRating}/5<br>
+                                        <strong>Average Rating:</strong> ${book.averageRating}/5<br>
+                                        ${book.numberOfPages ? `<strong>Pages:</strong> ${book.numberOfPages}<br>` : ''}
+                                        ${book.originalPublicationYear ? `<strong>Published:</strong> ${book.originalPublicationYear}<br>` : ''}
+                                        <strong>Date Read:</strong> ${new Date(book.dateRead).toLocaleDateString()}<br>
+                                        ${bookshelfNames ? `<strong>Shelves:</strong> ${bookshelfNames}<br>` : ''}
+                                        <strong>Has Review Content:</strong> ${book.hasReviewContent ? 'Yes' : 'No'}<br>
+                                        <strong>Cover Image ID:</strong> ${book.coverImageId || 'None'}<br>
+                                        ${book.hasReviewContent ? `<strong>Reading Time:</strong> ${book.readingTimeMinutes} min<br>` : ''}
+                                    </p>
+                                    ${book.hasReviewContent ? `<p class="card-text"><small class="text-muted">${book.previewText}</small></p>` : ''}
+                                    <div class="mt-2">
+                                        <strong>Searchable String:</strong>
+                                        <small class="text-muted d-block">${book.searchableString || 'None'}</small>
+                                    </div>
+                                    ${book.myReview ? `
+                                        <div class="mt-2">
+                                            <strong>My Review:</strong>
+                                            <small class="text-muted d-block">${book.myReview.length > 200 ? book.myReview.substring(0, 200) + '...' : book.myReview}</small>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        searchResults.innerHTML = html;
+    }
+});
+</script>

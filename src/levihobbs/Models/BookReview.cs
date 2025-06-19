@@ -15,6 +15,7 @@ namespace levihobbs.Models
         public int? OriginalPublicationYear { get; set; }
         public required DateTime DateRead { get; set; }
         public string? MyReview { get; set; }
+        public string? SearchableString { get; set; } // New searchable column
         
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public bool HasReviewContent { get; set; }

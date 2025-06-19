@@ -62,6 +62,12 @@ namespace levihobbs
             // Add BookCoverService
             builder.Services.AddScoped<IBookCoverService, BookCoverService>();
 
+            builder.Services.AddScoped<IBookReviewSearchService, BookReviewSearchService>();
+
+            // Add AdminController
+            builder.Services.AddScoped<AdminController>();
+
+
             // Configure Kestrel
             builder.WebHost.ConfigureKestrel(serverOptions =>
             {

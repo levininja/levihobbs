@@ -207,6 +207,7 @@ namespace levihobbs.Controllers
             
             return await BookshelfConfiguration();
         }
+        
         /// <summary>
         /// Process the CSV file and import the book reviews into the database
         /// </summary>
@@ -248,6 +249,7 @@ namespace levihobbs.Controllers
             
             int importedCount = 0;
             int duplicateCount = 0;
+            int skippedToReadCount = 0;
             
             using CsvReader csv = new CsvReader(reader, config);
             List<GoodreadsBookReviewCsv> records = csv.GetRecords<GoodreadsBookReviewCsv>().ToList();
@@ -260,6 +262,14 @@ namespace levihobbs.Controllers
                 // because of how stream readers work.
                 if (i == 0)
                     ValidateCsvHeader(csv, requiredColumns);
+                
+                // Skip rows that contain "to-read" in bookshelves
+                if (!string.IsNullOrEmpty(row.Bookshelves) && 
+                    row.Bookshelves.Split(',').Any(shelf => shelf.Trim().ToLower() == "to-read"))
+                {
+                    skippedToReadCount++;
+                    continue;
+                }
                 
                 // All GoodReads books with reviews also have exclusive shelf "read".
                 if (row.Exclusive_Shelf?.ToString() != "read")
@@ -321,7 +331,9 @@ namespace levihobbs.Controllers
                     NumberOfPages = pages > 0 ? pages : null,
                     OriginalPublicationYear = pubYear > 0 ? pubYear : null,
                     DateRead = dateRead,
-                    MyReview = row.My_Review ?? ""
+                    MyReview = row.My_Review ?? "",
+                    SearchableString = BuildSearchableString(row.Title ?? "", firstName, lastName, 
+                        row.Additional_Authors, row.Publisher, row.Bookshelves)
                 };
                 
                 // Import bookshelves, if they don't already exist
@@ -362,7 +374,59 @@ namespace levihobbs.Controllers
             
             await _context.SaveChangesAsync();
             ViewBag.DuplicateCount = duplicateCount;
+            ViewBag.SkippedToReadCount = skippedToReadCount;
             return importedCount;
+        }
+
+        private string BuildSearchableString(string title, string firstName, string lastName, 
+            string? additionalAuthors, string? publisher, string? bookshelves)
+        {
+            var searchableParts = new List<string>();
+            
+            // Add title and author
+            searchableParts.Add(title);
+            searchableParts.Add($"{firstName} {lastName}".Trim());
+            
+            // Add additional authors
+            if (!string.IsNullOrEmpty(additionalAuthors))
+                searchableParts.Add(additionalAuthors);
+            
+            // Add publisher
+            if (!string.IsNullOrEmpty(publisher))
+                searchableParts.Add(publisher);
+            
+            // Process bookshelves
+            if (!string.IsNullOrEmpty(bookshelves))
+            {
+                var processedShelves = ProcessBookshelvesForSearch(bookshelves);
+                if (!string.IsNullOrEmpty(processedShelves))
+                    searchableParts.Add(processedShelves);
+            }
+            
+            return string.Join(" ", searchableParts.Where(p => !string.IsNullOrEmpty(p))).ToLower();
+        }
+
+        private string ProcessBookshelvesForSearch(string bookshelves)
+        {
+            var excludedShelves = new HashSet<string> 
+            { 
+                "to-read", "to-look-into", "currently-reading", 
+                "decided-not-to-read", "anticipating-release" 
+            };
+            
+            var synonymMap = new Dictionary<string, string>
+            {
+                { "sf", "Science Fiction Sci-Fi Scifi" }
+            };
+            
+            var shelves = bookshelves.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim().ToLower())
+                .Where(s => !excludedShelves.Contains(s))
+                .Select(s => s.Replace('-', ' '))
+                .Select(s => synonymMap.ContainsKey(s) ? synonymMap[s] : s)
+                .Where(s => !string.IsNullOrEmpty(s));
+            
+            return string.Join(" ", shelves);
         }
 
         private void ValidateCsvHeader(CsvReader csv, string[] requiredColumns)

@@ -1,5 +1,4 @@
 // Used for mapping Goodreads book review CSV columns to properties for import.
-
 using CsvHelper.Configuration.Attributes;
 
 public class GoodreadsBookReviewCsv
@@ -9,6 +8,12 @@ public class GoodreadsBookReviewCsv
 
     [Name("Author l-f")]
     public string? Author_l_f { get; set; }
+
+    [Name("Additional Authors")]
+    public string? Additional_Authors { get; set; }
+
+    [Name("Publisher")]
+    public string? Publisher { get; set; }
 
     [Name("My Rating")]
     public string? My_Rating { get; set; }
