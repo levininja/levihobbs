@@ -1,0 +1,48 @@
+/**
+ * Converts a PascalCase string to camelCase
+ */
+function toCamelCase(str: string): string {
+  return str.charAt(0).toLowerCase() + str.slice(1);
+}
+
+/**
+ * Recursively converts all object keys from PascalCase to camelCase
+ */
+export function convertToCamelCase<T>(obj: unknown): T {
+  if (obj === null || obj === undefined) {
+    return obj as T;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(item => convertToCamelCase(item)) as T;
+  }
+
+  if (typeof obj === 'object') {
+    const camelCaseObj: Record<string, unknown> = {};
+    
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const camelKey = toCamelCase(key);
+        camelCaseObj[camelKey] = convertToCamelCase((obj as Record<string, unknown>)[key]);
+      }
+    }
+    
+    return camelCaseObj as T;
+  }
+
+  return obj as T;
+}
+
+/**
+ * Converts a BookReviewsViewModel from PascalCase to camelCase
+ */
+export function convertBookReviewsViewModel(data: unknown): unknown {
+  return convertToCamelCase(data);
+}
+
+/**
+ * Converts an array of BookReview objects from PascalCase to camelCase
+ */
+export function convertBookReviews(data: unknown[]): unknown[] {
+  return convertToCamelCase(data);
+} 

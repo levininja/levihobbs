@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/bookcard.tsx","./src/components/bookreviewreader.tsx","./src/components/searchbar.tsx","./src/services/api.ts","./src/services/mockdata.ts","./src/test/setup.ts","./src/types/bookreview.ts","./src/utils/caseconverter.ts","./tests/components/bookcard.test.tsx"],"version":"5.8.3"}

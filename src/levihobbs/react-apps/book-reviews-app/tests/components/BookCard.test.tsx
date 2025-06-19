@@ -1,0 +1,56 @@
+import { render, screen, fireEvent } from '@testing-library/react';
+import { BookCard } from '../../src/components/BookCard';
+import type { BookReview } from '../../src/types/BookReview';
+
+const mockBook: BookReview = {
+  id: 1,
+  title: "Test Book",
+  authorFirstName: "John",
+  authorLastName: "Doe",
+  titleByAuthor: "Test Book by John Doe",
+  myRating: 4,
+  averageRating: 3.8,
+  numberOfPages: 300,
+  originalPublicationYear: 2020,
+  dateRead: "2024-01-01",
+  myReview: "This is a great test book that I really enjoyed reading.",
+  searchableString: "test book john doe",
+  hasReviewContent: true,
+  previewText: "This is a test book review...",
+  readingTimeMinutes: 3,
+  coverImageId: 1,
+  bookshelves: [
+    { id: 1, name: "test", displayName: "Test" }
+  ]
+};
+
+describe('BookCard', () => {
+  it('renders book information correctly', () => {
+    render(<BookCard book={mockBook} />);
+    
+    expect(screen.getByText('Test Book')).toBeInTheDocument();
+    expect(screen.getByText('by John Doe')).toBeInTheDocument();
+    expect(screen.getByText('My Rating: 4/5')).toBeInTheDocument();
+    expect(screen.getByText('Average: 3.8/5')).toBeInTheDocument();
+  });
+
+  it('calls onClick when clicked', () => {
+    const mockOnClick = vi.fn();
+    render(<BookCard book={mockBook} onClick={mockOnClick} />);
+    
+    fireEvent.click(screen.getByTestId('book-card-1'));
+    expect(mockOnClick).toHaveBeenCalledWith(mockBook);
+  });
+
+  it('displays bookshelf tags', () => {
+    render(<BookCard book={mockBook} />);
+    
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('displays reading time when review content exists', () => {
+    render(<BookCard book={mockBook} />);
+    
+    expect(screen.getByText('3 min read')).toBeInTheDocument();
+  });
+}); 

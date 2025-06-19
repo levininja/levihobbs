@@ -1,0 +1,32 @@
+@{
+    ViewData["Title"] = "Book Reviews";
+    Layout = "_Layout";
+}
+
+<div id="book-reviews-app"></div>
+
+@if (!string.IsNullOrEmpty(ViewBag.Error))
+{
+    <div class="alert alert-warning">
+        @ViewBag.Error
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Pass configuration to React app
+        window.bookReviewsConfig = {
+            mockApiMode: @Json.Serialize(ViewBag.MockApiMode) // false = use real API, true = use mock data
+        };
+    </script>
+    
+    @if (!string.IsNullOrEmpty(ViewBag.CssPath))
+    {
+        <link rel="stylesheet" href="~/react-apps/book-reviews-app/@ViewBag.CssPath" />
+    }
+    
+    @if (!string.IsNullOrEmpty(ViewBag.ScriptPath))
+    {
+        <script type="module" src="~/react-apps/book-reviews-app/@ViewBag.ScriptPath"></script>
+    }
+} 
