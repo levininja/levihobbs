@@ -25,7 +25,6 @@ namespace levihobbs.Controllers
                 
                 _logger.LogInformation("React app paths loaded - Script: {ScriptPath}, CSS: {CssPath}", scriptPath, cssPath);
                 
-                ViewBag.MockApiMode = false; // false = use real API, true = use mock data
                 ViewBag.ScriptPath = scriptPath;
                 ViewBag.CssPath = cssPath;
             }
@@ -33,8 +32,6 @@ namespace levihobbs.Controllers
             {
                 _logger.LogError(ex, "Error loading React app paths");
                 
-                // If React app is not built, fall back to mock mode
-                ViewBag.MockApiMode = true;
                 ViewBag.ScriptPath = string.Empty;
                 ViewBag.CssPath = string.Empty;
                 ViewBag.Error = "React app not built. Using mock data.";

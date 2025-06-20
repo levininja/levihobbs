@@ -1,0 +1,55 @@
+# Docker Compose file for Book Reviews React App
+# This file defines how to run the app in different environments using Docker
+
+# Specify the version of Docker Compose file format
+version: '3.8'
+
+# Define the services (containers) that make up the application
+services:
+  # Production service - serves the built React app
+  book-reviews-app:
+    # Build configuration - tells Docker how to create the image
+    build:
+      context: .                    # Use current directory as build context
+      dockerfile: Dockerfile        # Use the main Dockerfile for production build
+    # Port mapping - maps container port 80 to host port 3000
+    # Format: "host_port:container_port"
+    ports:
+      - "3000:80"                   # Access app at http://localhost:3000
+    # Environment variables passed to the container
+    environment:
+      - NODE_ENV=production         # Tell Node.js this is production environment
+    # Restart policy - automatically restart container if it crashes
+    restart: unless-stopped         # Restart unless manually stopped
+    # Health check - periodically test if the app is working
+    healthcheck:
+      # Command to test if app is healthy (check health endpoint)
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s                 # Check every 30 seconds
+      timeout: 10s                  # Wait max 10 seconds for response
+      retries: 3                    # Try 3 times before marking unhealthy
+      start_period: 40s             # Wait 40 seconds after start before checking
+
+  # Development service - runs the app in development mode with hot reload
+  # This service is optional and only runs when explicitly requested
+  book-reviews-dev:
+    # Build configuration for development
+    build:
+      context: .                    # Use current directory as build context
+      dockerfile: Dockerfile.dev    # Use development-specific Dockerfile
+    # Port mapping for development server
+    ports:
+      - "5173:5173"                 # Access dev server at http://localhost:5173
+    # Volume mounts - sync local files with container for hot reload
+    volumes:
+      - .:/app                      # Mount current directory to /app in container
+      - /app/node_modules           # Exclude node_modules from sync (use container's)
+    # Environment variables for development
+    environment:
+      - NODE_ENV=development        # Tell Node.js this is development environment
+      - VITE_USE_MOCK=true          # Enable mock data for standalone development
+    # Command to run when container starts
+    command: npm run dev            # Start Vite development server
+    # Profiles - this service only runs when 'dev' profile is specified
+    profiles:
+      - dev                         # Run with: docker-compose --profile dev up 

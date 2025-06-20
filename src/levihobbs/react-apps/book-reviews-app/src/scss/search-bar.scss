@@ -1,0 +1,26 @@
+@use './variables' as *;
+
+.search-bar {
+  margin-bottom: $spacing-xl;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: $spacing-sm $spacing-md;
+  border: 2px solid $color-ui-medium;
+  border-radius: $radius-md;
+  font-size: $size-base;
+  transition: border-color $transition-fast;
+
+  &:focus {
+    outline: none;
+    border-color: $color-brand-primary;
+  }
+}
+
+.search-hint {
+  margin-top: $spacing-xs;
+  font-size: $size-sm;
+  color: $color-text-secondary;
+} 

@@ -21,6 +21,15 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
     }
   };
 
+  // In standalone mode, use the fallback image directly
+  // In integrated mode, try to load from the API
+  const isStandaloneMode = typeof window !== 'undefined' && 
+    (!window.bookReviewsConfig || window.bookReviewsConfig.standaloneMode);
+  
+  const imageSrc = isStandaloneMode 
+    ? '/story icon.png' 
+    : `/api/BookCoverApi?bookTitle=${encodeURIComponent(book.titleByAuthor)}&bookReviewId=${book.id}`;
+
   return (
     <div 
       className="book-card" 
@@ -29,7 +38,7 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
     >
       <div className="book-cover">
         <img 
-          src={`/api/BookCoverApi?bookTitle=${encodeURIComponent(book.titleByAuthor)}&bookReviewId=${book.id}`}
+          src={imageSrc}
           alt={`${book.title} cover`}
           onError={handleImageError}
         />

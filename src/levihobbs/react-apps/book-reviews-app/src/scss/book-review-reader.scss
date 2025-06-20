@@ -1,0 +1,102 @@
+@use './variables' as *;
+@use './common' as *;
+
+.book-review-reader {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: $spacing-xl;
+  background: $color-text-light;
+  border-radius: $radius-md;
+  @include shadow-sm;
+}
+
+.reader-header {
+  position: relative;
+  margin-bottom: $spacing-2xl;
+  text-align: center;
+
+  h1 {
+    margin: 0 0 $spacing-sm 0;
+    color: $color-text-primary;
+  }
+
+  h2 {
+    margin: 0;
+    color: $color-text-secondary;
+    font-weight: $weight-normal;
+  }
+}
+
+.close-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  font-size: $size-2xl;
+  cursor: pointer;
+  color: $color-text-secondary;
+  padding: $spacing-xs;
+  border-radius: $radius-sm;
+  transition: background-color $transition-fast;
+
+  &:hover {
+    background-color: $color-ui-medium;
+  }
+}
+
+.reader-content {
+  line-height: 1.6;
+}
+
+.book-meta {
+  margin-bottom: $spacing-2xl;
+  padding-bottom: $spacing-xl;
+  border-bottom: 1px solid $color-ui-medium;
+
+  p {
+    margin: $spacing-xs 0;
+    color: $color-text-secondary;
+  }
+}
+
+.rating-info {
+  display: flex;
+  gap: $spacing-xl;
+  margin-bottom: $spacing-md;
+  font-size: $size-base;
+}
+
+.review-content {
+  h3 {
+    margin: 0 0 $spacing-md 0;
+    color: $color-text-primary;
+  }
+}
+
+.review-text {
+  margin-bottom: $spacing-xl;
+  font-size: $size-base;
+  line-height: 1.7;
+}
+
+.reading-info {
+  margin-top: $spacing-xl;
+  padding-top: $spacing-md;
+  border-top: 1px solid $color-ui-medium;
+  color: $color-text-secondary;
+  font-style: italic;
+}
+
+.bookshelves {
+  h4 {
+    margin: 0 0 $spacing-sm 0;
+    color: $color-text-primary;
+  }
+}
+
+.bookshelf-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+} 

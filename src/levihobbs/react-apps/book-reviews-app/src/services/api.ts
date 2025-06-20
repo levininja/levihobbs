@@ -10,7 +10,7 @@ interface ApiConfig {
 declare global {
   interface Window {
     bookReviewsConfig?: {
-      mockApiMode: boolean;
+      standaloneMode: boolean;
     };
   }
 }
@@ -21,12 +21,13 @@ const getApiConfig = (): ApiConfig => {
   if (typeof window !== 'undefined' && window.bookReviewsConfig) {
     const config = window.bookReviewsConfig;
     return {
-      useMock: config.mockApiMode, // mockApiMode: true = use mock, false = use real API
+      useMock: config.standaloneMode, // standaloneMode: true = use mock, false = use real API
       baseUrl: '' // Use relative URLs when in C# website
     };
   }
   
   // Fallback to environment variables for standalone mode
+  // Default to standalone mode (true) if no configuration is provided
   return {
     useMock: import.meta.env.VITE_USE_MOCK !== 'false',
     baseUrl: import.meta.env.VITE_API_BASE_URL

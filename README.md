@@ -86,6 +86,8 @@ Before you begin, ensure you have the following installed:
    - `wwwroot/` - Contains static files (CSS, JavaScript, images)
       - `wwwroot/scss/` - Contains SCSS source files
       - `wwwroot/css/` - Contains compiled CSS files
+      - `wwwroot/react-apps/` - Contains React applications
+         - `book-reviews-app/` - [Book Reviews React App](src/levihobbs/react-apps/book-reviews-app/README.md) (standalone and integrated modes)
 - `src/levihobbs.Tests/` - Contains the unit test project
 
 ## SCSS Compilation
