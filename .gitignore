@@ -37,6 +37,14 @@ bld/
 *.ncrunchproject
 *.DotSettings.user
 
+# React App Build Files
+src/levihobbs/wwwroot/react-apps/book-reviews-app/
+src/levihobbs/react-apps/book-reviews-app/dist/
+src/levihobbs/react-apps/book-reviews-app/node_modules/
+src/levihobbs/react-apps/book-reviews-app/package-lock.json
+src/levihobbs/react-apps/book-reviews-app/*.log
+src/levihobbs/react-apps/book-reviews-app/.env*
+
 # Misc
 .DS_Store
 .env

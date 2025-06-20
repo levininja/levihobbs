@@ -25,8 +25,8 @@ export default defineConfig({
     }
   },
   build: {
-    outDir: '../../wwwroot/react-apps/book-reviews-app',
+    outDir: process.env.DOCKER_BUILD ? 'dist' : '../../wwwroot/react-apps/book-reviews-app',
     emptyOutDir: true,
   },
-  base: process.env.NODE_ENV === 'production' ? '/react-apps/book-reviews-app/' : '/',
+  base: process.env.DOCKER_BUILD || process.env.NODE_ENV === 'development' ? '/' : '/react-apps/book-reviews-app/',
 })

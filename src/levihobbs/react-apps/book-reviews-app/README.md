@@ -2,6 +2,54 @@
 
 A React application for browsing and searching book reviews, designed to work both as a standalone application and integrated within an ASP.NET Core website.
 
+## Three Ways to Run the App
+
+### **1. C# Integration (Real API)**
+**Purpose:** Production deployment within ASP.NET Core website
+```bash
+# Build for C# integration
+npm run build
+
+# The built files go to ../../wwwroot/react-apps/book-reviews-app/
+# Access via /BookReviews route in your C# website
+```
+- **Data Source:** Real database via BookReviewsApiController
+- **API:** HTTP requests to C# backend
+- **Mode:** Integrated mode (standaloneMode: false)
+- **Base Path:** `/react-apps/book-reviews-app/`
+
+### **2. Docker Container (Mock API)**
+**Purpose:** Production-like environment with mock data
+```bash
+# Production container (no hot reload)
+docker compose up --build -d
+
+# Development container (with hot reload)
+docker compose --profile dev up
+
+# Access at http://localhost:3000 (prod) or http://localhost:5173 (dev)
+```
+- **Data Source:** Mock data (standalone mode)
+- **API:** In-memory filtering and search
+- **Mode:** Standalone mode (standaloneMode: true)
+- **Hot Reload:** Available in development container
+
+### **3. Node Dev Server (Mock API)**
+**Purpose:** Local development with hot reloading
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Access at http://localhost:3000 or http://localhost:3001 (if 3000 is busy)
+```
+- **Data Source:** Mock data (standalone mode)
+- **API:** In-memory filtering and search
+- **Mode:** Standalone mode (standaloneMode: true)
+- **Hot Reload:** Yes, with fast refresh
+
 ## Quick Start (Standalone Mode)
 
 ### Prerequisites
@@ -16,7 +64,7 @@ npm install
 # Start development server with hot reload
 npm run dev
 
-# The app will be available at http://localhost:5173
+# The app will be available at http://localhost:3000 (or 3001 if 3000 is busy)
 ```
 
 ### Building for Production
@@ -40,23 +88,21 @@ npm run build
 
 ### Quick Start with Docker
 
-#### Production Build
+#### Production Build (No Hot Reload)
 ```bash
 # Build and run production container
-./docker-run.sh
-
-# Or use docker-compose
-docker-compose up -d
+docker compose up --build -d
 
 # Access the app at http://localhost:3000
 ```
 
-#### Development with Docker
+#### Development with Docker (With Hot Reload)
 ```bash
 # Start development environment with hot reload
-docker-compose --profile dev up
+docker compose --profile dev up
 
 # Access the dev server at http://localhost:5173
+# Edit files locally - changes are reflected in container
 ```
 
 ### Docker Commands
@@ -75,23 +121,23 @@ docker build -f Dockerfile.dev -t book-reviews-app:dev .
 # Run production container
 docker run -d -p 3000:80 --name book-reviews-app book-reviews-app
 
-# Run development container
+# Run development container with hot reload
 docker run -d -p 5173:5173 -v $(pwd):/app --name book-reviews-dev book-reviews-app:dev
 ```
 
 #### Using Docker Compose
 ```bash
-# Production
-docker-compose up -d
+# Production (no hot reload)
+docker compose up -d
 
-# Development
-docker-compose --profile dev up
+# Development (with hot reload)
+docker compose --profile dev up
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop services
-docker-compose down
+docker compose down
 ```
 
 ### Docker Configuration
@@ -101,16 +147,19 @@ docker-compose down
 - Nginx for serving static files
 - Optimized for production with mock data enabled
 - Health check endpoint at `/health`
+- **No hot reload** - static files only
 
 #### Development Dockerfile
 - Single-stage build for development
 - Volume mounting for hot reload
 - Vite dev server with host binding for Docker
+- **Full hot reload** - edit files locally, see changes immediately
 
 #### Environment Variables
 - `VITE_USE_MOCK=true` - Enable standalone mode with mock data
 - `NODE_ENV=production` - Production optimizations
 - `NODE_ENV=development` - Development mode with hot reload
+- `DOCKER_BUILD=true` - Use Docker-specific build settings
 
 ### Health Checks
 The production container includes a health check endpoint:
@@ -188,16 +237,18 @@ interface BookReviewsViewModel {
 
 ## Development Workflow
 
-### Standalone Development
+### Local Development (Recommended)
 1. Run `npm run dev` for hot reloading
 2. Edit components in `src/components/`
 3. Update styles in `src/scss/` files
 4. Test search and browse functionality
+5. Access at http://localhost:3000 (or 3001 if 3000 is busy)
 
-### Docker Development
-1. Run `docker-compose --profile dev up` for containerized development
+### Docker Development (Alternative)
+1. Run `docker compose --profile dev up` for containerized development
 2. Edit files locally - changes are reflected in container
 3. Access dev server at http://localhost:5173
+4. Same hot reload experience as local development
 
 ### Integration Testing
 1. Build with `npm run build`
@@ -208,6 +259,7 @@ interface BookReviewsViewModel {
 ### Environment Variables
 - `VITE_USE_MOCK` - Force standalone mode (default: true when not set)
 - `VITE_API_BASE_URL` - Base URL for real API calls
+- `DOCKER_BUILD` - Use Docker-specific build settings
 
 ## File Structure
 ```
@@ -299,6 +351,36 @@ docker logs book-reviews-app-container
 docker restart book-reviews-app-container
 
 # Remove and rebuild
-docker-compose down
-docker-compose up --build
+docker compose down
+docker compose up --build
 ```
+
+### Which Development Method to Choose?
+
+#### **Local Development (`npm run dev`) - Recommended**
+- ✅ Fastest hot reload
+- ✅ No Docker overhead
+- ✅ Direct access to local files
+- ✅ Best debugging experience
+- ✅ Works offline
+- ✅ Access at http://localhost:3000 (or 3001)
+
+#### **Docker Development (`docker compose --profile dev up`)**
+- ✅ Consistent environment across team
+- ✅ Same environment as production
+- ✅ Good for testing Docker-specific issues
+- ❌ Slower than local development
+- ❌ More complex setup
+
+#### **Production Docker (`docker compose up -d`)**
+- ✅ Production-like environment
+- ✅ Good for testing built app
+- ❌ No hot reload
+- ❌ Requires rebuild for changes
+
+## Recent Fixes
+
+### Base Path Configuration (Latest)
+- **Issue**: Local dev server was using wrong base path causing asset 404 errors
+- **Fix**: Updated `vite.config.ts` to use correct base path for each environment
+- **Result**: All three modes now work correctly with proper asset loading

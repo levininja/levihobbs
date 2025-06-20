@@ -15,6 +15,7 @@ COPY . .
 # Set environment for standalone mode with mock data
 ENV VITE_USE_MOCK=true
 ENV NODE_ENV=production
+ENV DOCKER_BUILD=true
 
 # Build the React app
 RUN npm run build

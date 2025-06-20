@@ -48,8 +48,9 @@ services:
     environment:
       - NODE_ENV=development        # Tell Node.js this is development environment
       - VITE_USE_MOCK=true          # Enable mock data for standalone development
+      - DOCKER_BUILD=true           # Use Docker-specific build settings
     # Command to run when container starts
-    command: npm run dev            # Start Vite development server
+    command: npm run dev -- --host 0.0.0.0  # Start Vite development server
     # Profiles - this service only runs when 'dev' profile is specified
     profiles:
       - dev                         # Run with: docker-compose --profile dev up 
