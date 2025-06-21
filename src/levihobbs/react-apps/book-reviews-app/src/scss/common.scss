@@ -70,4 +70,42 @@
   display: flex;
   flex-wrap: wrap;
   gap: $spacing-sm;
+}
+
+// Search loading indicator
+.search-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xl;
+  color: $color-text-secondary;
+  
+  p {
+    margin-top: $spacing-md;
+    font-size: $size-base;
+  }
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid $color-ui-medium;
+  border-top: 3px solid $color-brand-primary;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Search message styling
+.search-message {
+  margin-top: $spacing-sm;
+  font-size: $size-sm;
+  color: $color-text-secondary;
+  text-align: center;
+  font-style: italic;
 } 

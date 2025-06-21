@@ -128,6 +128,7 @@ class BookReviewApi {
         bookReviews: searchResults
       };
     }
+    
     const response = await this.fetchFromRealApi(`/api/BookReviewsApi?searchTerm=${encodeURIComponent(searchTerm)}`);
     return convertToCamelCase<BookReviewsViewModel>(response);
   }
@@ -207,9 +208,11 @@ class BookReviewApi {
    */
   private getMockSearchResults(searchTerm: string): BookReview[] {
     const lowerSearchTerm = searchTerm.toLowerCase();
-    return mockBookReviews.filter(review => 
+    
+    const results = mockBookReviews.filter(review => 
       review.searchableString?.toLowerCase().includes(lowerSearchTerm)
     );
+    return results;
   }
   
   /**

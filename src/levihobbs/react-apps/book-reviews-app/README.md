@@ -43,7 +43,7 @@ npm install
 # Start development server
 npm run dev
 
-# Access at http://localhost:3000 or http://localhost:3001 (if 3000 is busy)
+# Access at http://localhost:5173
 ```
 - **Data Source:** Mock data (standalone mode)
 - **API:** In-memory filtering and search
@@ -64,7 +64,7 @@ npm install
 # Start development server with hot reload
 npm run dev
 
-# The app will be available at http://localhost:3000 (or 3001 if 3000 is busy)
+# The app will be available at http://localhost:5173
 ```
 
 ### Building for Production
@@ -122,7 +122,7 @@ docker build -f Dockerfile.dev -t book-reviews-app:dev .
 docker run -d -p 3000:80 --name book-reviews-app book-reviews-app
 
 # Run development container with hot reload
-docker run -d -p 5173:5173 -v $(pwd):/app --name book-reviews-dev book-reviews-app:dev
+docker run -d -p 5173:3000 -v $(pwd):/app --name book-reviews-dev book-reviews-app:dev
 ```
 
 #### Using Docker Compose
@@ -138,6 +138,8 @@ docker compose logs -f
 
 # Stop services
 docker compose down
+
+# Access at http://localhost:5173 or http://localhost:5174 (if 5173 is busy)
 ```
 
 ### Docker Configuration

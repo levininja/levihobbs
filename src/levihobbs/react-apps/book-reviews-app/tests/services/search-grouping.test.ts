@@ -10,7 +10,7 @@ describe('BookReviewApi.getBookReviews - Grouping Parameter Tests', () => {
     it('should return books from "Science Fiction" grouping', async () => {
       const result = await bookReviewApi.getBookReviews(undefined, undefined, 'Science Fiction');
       expect(result.selectedGrouping).toBe('Science Fiction');
-      expect(result.bookReviews.length).toBeGreaterThan(0);
+      expect(result.bookReviews.length).toBe(3);
       // All returned books should belong to bookshelves in the Science Fiction grouping
       const sfBookshelves = ['sf-classics', 'space-opera', 'epic-sf', 'science-fiction-comps', 'cyberpunk', '2024-science-fiction'];
       result.bookReviews.forEach(book => {
@@ -34,7 +34,7 @@ describe('BookReviewApi.getBookReviews - Grouping Parameter Tests', () => {
     it('should return books from "Ancient Classics" grouping', async () => {
       const result = await bookReviewApi.getBookReviews(undefined, undefined, 'Ancient Classics');
       expect(result.selectedGrouping).toBe('Ancient Classics');
-      expect(result.bookReviews.length).toBeGreaterThan(0);
+      expect(result.bookReviews.length).toBe(1);
       // All returned books should belong to bookshelves in the Ancient Classics grouping
       const ancientBookshelves = ['ancient-greek', 'ancient-history', 'ancient-classics', 'ancient-roman'];
       result.bookReviews.forEach(book => {
@@ -46,7 +46,7 @@ describe('BookReviewApi.getBookReviews - Grouping Parameter Tests', () => {
     it('should return books from "Classics" grouping', async () => {
       const result = await bookReviewApi.getBookReviews(undefined, undefined, 'Classics');
       expect(result.selectedGrouping).toBe('Classics');
-      expect(result.bookReviews.length).toBeGreaterThan(0);
+      expect(result.bookReviews.length).toBe(4);
       // All returned books should belong to bookshelves in the Classics grouping
       const classicsBookshelves = ['ancient-greek', 'renaissance-classics', 'modern-classics', 'classic-literature', 'classic-fiction', 'classic-non-fiction', 'classic-poetry'];
       result.bookReviews.forEach(book => {
@@ -64,7 +64,7 @@ describe('BookReviewApi.getBookReviews - Grouping Parameter Tests', () => {
     it('should return books from "Favorites" grouping', async () => {
       const result = await bookReviewApi.getBookReviews(undefined, undefined, 'Favorites');
       expect(result.selectedGrouping).toBe('Favorites');
-      expect(result.bookReviews.length).toBeGreaterThan(0);
+      expect(result.bookReviews.length).toBe(4);
       // All returned books should belong to the favorites bookshelf
       result.bookReviews.forEach(book => {
         const hasFavoritesBookshelf = book.bookshelves.some(bs => bs.name === 'favorites');
@@ -77,13 +77,13 @@ describe('BookReviewApi.getBookReviews - Grouping Parameter Tests', () => {
     it('should find "science fiction" grouping regardless of case', async () => {
       const result = await bookReviewApi.getBookReviews(undefined, undefined, 'science fiction');
       expect(result.selectedGrouping).toBe('science fiction');
-      expect(result.bookReviews.length).toBeGreaterThan(0);
+      expect(result.bookReviews.length).toBe(3);
     });
 
     it('should find "FANTASY" grouping regardless of case', async () => {
       const result = await bookReviewApi.getBookReviews(undefined, undefined, 'FANTASY');
       expect(result.selectedGrouping).toBe('FANTASY');
-      expect(result.bookReviews.length).toBeGreaterThan(0);
+      expect(result.bookReviews.length).toBe(2);
     });
   });
 

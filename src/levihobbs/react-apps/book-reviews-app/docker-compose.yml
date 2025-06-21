@@ -39,7 +39,7 @@ services:
       dockerfile: Dockerfile.dev    # Use development-specific Dockerfile
     # Port mapping for development server
     ports:
-      - "5173:5173"                 # Access dev server at http://localhost:5173
+      - "5173:3000"                 # Access dev server at http://localhost:5173
     # Volume mounts - sync local files with container for hot reload
     volumes:
       - .:/app                      # Mount current directory to /app in container

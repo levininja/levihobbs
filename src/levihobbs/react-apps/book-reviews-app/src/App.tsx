@@ -14,6 +14,7 @@ function App() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchResults, setSearchResults] = useState<BookReview[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [userHasInteracted, setUserHasInteracted] = useState(false);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -46,6 +47,9 @@ function App() {
       return;
     }
 
+    // User has interacted by searching
+    setUserHasInteracted(true);
+
     try {
       setIsSearching(true);
       const results = await bookReviewApi.getBookReviews(undefined, undefined, undefined, false, term);
@@ -74,7 +78,7 @@ function App() {
   }
 
   // Determine which books to display
-  const booksToDisplay = isSearching ? searchResults : (viewModel?.bookReviews || []);
+  const booksToDisplay = !userHasInteracted ? (viewModel?.bookReviews || []) : searchResults;
 
   return (
     <div className="app" data-testid="app">
@@ -84,6 +88,11 @@ function App() {
           searchTerm={searchTerm}
           onSearchChange={handleSearchChange}
         />
+        {!userHasInteracted && (
+          <div className="search-message" data-testid="search-message">
+            Showing favorites shelf by default
+          </div>
+        )}
       </header>
       
       <main className="app-main">
@@ -93,15 +102,23 @@ function App() {
             onClose={handleCloseReader}
           />
         ) : (
-          <div className="books-grid" data-testid="books-grid">
-            {booksToDisplay.map(book => (
-              <BookCard
-                key={book.id}
-                book={book}
-                onClick={handleBookClick}
-              />
-            ))}
-          </div>
+          <>
+            {isSearching && (
+              <div className="search-loading" data-testid="search-loading">
+                <div className="loading-spinner"></div>
+                <p>Searching...</p>
+              </div>
+            )}
+            <div className="books-grid" data-testid="books-grid">
+              {booksToDisplay.map(book => (
+                <BookCard
+                  key={book.id}
+                  book={book}
+                  onClick={handleBookClick}
+                />
+              ))}
+            </div>
+          </>
         )}
       </main>
     </div>

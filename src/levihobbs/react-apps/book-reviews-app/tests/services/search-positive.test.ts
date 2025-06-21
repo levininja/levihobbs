@@ -43,6 +43,18 @@ describe('BookReviewApi.searchBookReviews - Positive Tests', () => {
       expect(result.bookReviews[0].title).toBe('1984');
     });
 
+    it('should find books by title and author "1984 by George Orwell"', async () => {
+      const result = await bookReviewApi.searchBookReviews('1984 by George Orwell');
+      expect(result.bookReviews.length).toBe(1);
+      expect(result.bookReviews[0].title).toBe('1984');
+    });
+
+    it('should find books by author and title "George Orwell 1984"', async () => {
+      const result = await bookReviewApi.searchBookReviews('George Orwell 1984');
+      expect(result.bookReviews.length).toBe(1);
+      expect(result.bookReviews[0].title).toBe('1984');
+    });
+
     it('should find books by title "1984"', async () => {
       const result = await bookReviewApi.searchBookReviews('1984');
       expect(result.bookReviews.length).toBe(1);
