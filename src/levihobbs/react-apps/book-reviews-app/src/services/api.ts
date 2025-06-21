@@ -105,7 +105,7 @@ class BookReviewApi {
   }
   
   /**
-   * Private method that handles search functionality for the real API.
+   * Public method that handles search functionality.
    * 
    * @param searchTerm - The search term to look for
    * @param displayCategory - Passed through to response
@@ -114,7 +114,7 @@ class BookReviewApi {
    * @param recent - Passed through to response
    * @returns BookReviewsViewModel with search results
    */
-  private async searchBookReviews(searchTerm: string, displayCategory?: string, shelf?: string, grouping?: string, recent: boolean = false): Promise<BookReviewsViewModel> {
+  async searchBookReviews(searchTerm: string, displayCategory?: string, shelf?: string, grouping?: string, recent: boolean = false): Promise<BookReviewsViewModel> {
     if (this.config.useMock) {
       const searchResults = this.getMockSearchResults(searchTerm);
       return {
