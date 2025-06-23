@@ -4,18 +4,17 @@ import { bookReviewApi } from '../../../src/services/api';
 // Mock the global window object for testing
 const mockWindow = {
   bookReviewsConfig: {
-    standaloneMode: true // Use mock data for testing
+    standaloneMode: true
   }
 };
 
 // Mock fetch for real API calls
 global.fetch = vi.fn();
 
+/* These test that if the user selects a grouping (i.e. "Science Fiction", which groups together
+  * several more specific subgenres of science fiction), that all the books of shelves in that shelf 
+  * grouping (i.e., subgenres in that genre) are returned. */
 describe('BookReviewApi.getBookReviews - Grouping Parameter Tests', () => {
-  beforeEach(() => {
-    // Reset any state if needed
-  });
-
   describe('should filter by bookshelf grouping', () => {
     it('should return books from "Science Fiction" grouping', async () => {
       const result = await bookReviewApi.getBookReviews(undefined, undefined, 'Science Fiction');
@@ -112,6 +111,8 @@ describe('BookReviewApi.getBookReviews - Grouping Parameter Tests', () => {
   });
 }); 
 
+/* These tests verify that if a user combines multiple types of filters together, the results
+ * match all those filters. */
 describe('BookReviewApi.getBookReviews - Filter Combination Tests', () => {
   beforeEach(() => {
     // Reset any state if needed
@@ -180,6 +181,8 @@ describe('BookReviewApi.getBookReviews - Filter Combination Tests', () => {
   });
 }); 
 
+/* These tests verify that if the user toggle the "Recent" filter on, that only the last 10 book reviews
+ * are returned. */
 describe('BookReviewApi.getBookReviews - Recent Books Tests', () => {
   beforeEach(() => {
     // Reset any state if needed
@@ -228,6 +231,7 @@ describe('BookReviewApi.getBookReviews - Recent Books Tests', () => {
     });
   });
 
+  // Tests various combinations of the "recent" filter with other filters.
   describe('should handle recent parameter with other filters', () => {
     it('should return recent books from a specific shelf', async () => {
       const result = await bookReviewApi.getBookReviews(undefined, 'favorites', undefined, true);
@@ -292,6 +296,7 @@ describe('BookReviewApi.getBookReviews - Recent Books Tests', () => {
     });
   });
 
+  // Negative tests for the "recent" filter.
   describe('should handle recent=false (default behavior)', () => {
     it('should return favorites shelf when recent=false', async () => {
       const result = await bookReviewApi.getBookReviews(undefined, undefined, undefined, false);
@@ -307,6 +312,8 @@ describe('BookReviewApi.getBookReviews - Recent Books Tests', () => {
   });
 }); 
 
+/* These are positive tests for covering all the basic search functionality of the search bar
+ * (e.g. searching by author, title, etc.) */
 describe('BookReviewApi.searchBookReviews - Positive Tests', () => {
     beforeEach(() => {
       // Reset mocks
@@ -491,6 +498,8 @@ describe('BookReviewApi.searchBookReviews - Positive Tests', () => {
     });
   }); 
 
+/* These are negative tests for covering all the basic search functionality of the search bar
+ * (e.g. all the use cases where the search bar can and should fail to return any results) */
 describe('BookReviewApi.searchBookReviews - Negative Tests', () => {
   beforeEach(() => {
     // Reset mocks
