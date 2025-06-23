@@ -1,0 +1,1226 @@
+unique_validation_id,codebase_name,zip_file,timestamp,extraction_success,build_script_present,test_script_present,build_success,test_success,test_execution_time,docker_image,error_message,build_output,build_error,test_output,test_error,differs_from_preedit,differs_from_beetle,differs_from_sonnet,differs_from_rewrite,comparison_errors,diff_vs_preedit,diff_vs_beetle,diff_vs_sonnet,diff_vs_rewrite
+,preedit_codebase,preedit_codebase.zip,2025-06-21T04:57:25.699194,True,True,True,True,False,2.7132270336151123,validation-preedit-codebase,,"
+#1 [internal] load build definition from Dockerfile.dev
+#1 sha256:2e702216f22ef9a8d802754caac195994a3fe2a4515a914b049b6a43ced0bb0e
+#1 transferring dockerfile: 1.27kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.10-slim
+#2 sha256:bad0f9024d7849cbfa4aa6483d3a63d8280e6c587c3b797031261735c0a5419c
+#2 DONE 0.2s
+
+#3 [internal] load .dockerignore
+#3 sha256:24bf7082e715a25965e69aa9a8a3c4b7d160839ed27a70b542d33d1fb68461ed
+#3 transferring context: 243B done
+#3 DONE 0.0s
+
+#12 [internal] load build context
+#12 sha256:8a77f7839d189a00b3794e123e6abad135478e169bbe8ff969df395e3d8b21ab
+#12 DONE 0.0s
+
+#9 [ 1/13] FROM docker.io/library/python:3.10-slim@sha256:034724ef64585eeb0e82385e9aabcbeabfe5f7cae2c2dcedb1da95114372b6d7
+#9 sha256:d3305432e60c2d37161e1790251cf151387009426412ce33beacb2702a18ee6b
+#9 resolve docker.io/library/python:3.10-slim@sha256:034724ef64585eeb0e82385e9aabcbeabfe5f7cae2c2dcedb1da95114372b6d7 done
+#9 DONE 0.0s
+
+#12 [internal] load build context
+#12 sha256:8a77f7839d189a00b3794e123e6abad135478e169bbe8ff969df395e3d8b21ab
+#12 transferring context: 1.34MB 0.1s done
+#12 DONE 0.1s
+
+#10 [ 5/13] RUN chmod +x /run_tests.sh
+#10 sha256:30c787319b977ef2b901295d3308e529ec49117f398b680f348f4e61ff767855
+#10 CACHED
+
+#14 [ 2/13] RUN apt-get update && apt-get install -y     docker.io     && rm -rf /var/lib/apt/lists/*
+#14 sha256:9d505fde061f6b407e9205d9249f835f946a03cf18828a940abcdedaa01dfbb1
+#14 CACHED
+
+#11 [ 4/13] COPY run_tests.sh /run_tests.sh
+#11 sha256:1a305e1b07e4a1aa4c0ac8bc64e1c1226059396792a465cc34f90b8c07d5f6d9
+#11 CACHED
+
+#7 [ 8/13] RUN npm ci
+#7 sha256:9ec8ccaf53d872d8f50290e86fd45e823dbd26860e9eb604a6fb918cc4d1c35b
+#7 CACHED
+
+#5 [10/13] COPY run_tests.sh /app/run_tests.sh
+#5 sha256:eafb289a40ee8d21c5efebe76d79f22e869dd13b9773439130df118d8bd0fac6
+#5 CACHED
+
+#13 [ 3/13] RUN apt-get update && apt-get install -y     curl     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash -     && apt-get install -y nodejs     && rm -rf /var/lib/apt/lists/*
+#13 sha256:1b49cbd60332b7e155aec4dbf83b3c148d0eba7d08428574c9cf6ace860763bf
+#13 CACHED
+
+#6 [ 9/13] COPY . .
+#6 sha256:78143e6d8df07a88b011e7331a9b1f6dd4dd61815038c231adb5549a516b068a
+#6 CACHED
+
+#4 [11/13] COPY run_tests.sh ./run_tests.sh
+#4 sha256:9c5fffe7bdd48f2f0d999fea888e951e68a50caae36df4f84d0b48679d7f9fd1
+#4 CACHED
+
+#16 [ 6/13] WORKDIR /app
+#16 sha256:7345bacf28ce70fda5a9b8c0bee7a903a0477d6002db64434c55904a44b95fab
+#16 CACHED
+
+#8 [ 7/13] COPY package*.json ./
+#8 sha256:9c03af5284361ed36485d8408ff4794b23a28b9bea23b5123551f777ec3b2925
+#8 CACHED
+
+#15 [12/13] RUN chmod +x /app/run_tests.sh ./run_tests.sh
+#15 sha256:8d5984b5e93f2026dcaf006edd0249d721f65bad33c7cfeee3cf66685a4b610a
+#15 CACHED
+
+#17 exporting to image
+#17 sha256:f9973e54207dda825cdf1ee0ae908ec8a9c51da978d90e5aeaaab0e17578d89b
+#17 exporting layers done
+#17 exporting manifest sha256:429a223d83f43fe0a7395b088903f2dd109a34d89fad34cd8c72d3049fb0adcb done
+#17 exporting config sha256:a358299370d7ca6e3c34e41365aca712b246a548b5633364892c4929f453d155 done
+#17 naming to docker.io/library/book-reviews-app:latest done
+#17 unpacking to docker.io/library/book-reviews-app:latest done
+#17 DONE 0.0s
+",,"
+> book-reviews-app@0.0.0 test
+> vitest --run --coverage --passWithNoTests
+
+
+ RUN  v3.2.4 /app
+      Coverage enabled with v8
+
+ ✓ tests/services/search-critical.test.ts (0 test) 1ms
+ ❯ tests/services/search-mixed.test.ts (5 tests | 4 failed) 10ms
+   × BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching search term AND shelf 6ms
+     → expected false to be true // Object.is equality
+   ✓ BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching search term AND grouping 0ms
+   × BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching shelf AND grouping 1ms
+     → expected false to be true // Object.is equality
+   × BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching search term AND shelf AND grouping 1ms
+     → expected false to be true // Object.is equality
+   × BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching ALL filters: search term, shelf, grouping, and recent 1ms
+     → expected false to be true // Object.is equality
+ ❯ tests/services/search-grouping.test.ts (10 tests | 2 failed) 10ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Science Fiction"" grouping 2ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Fantasy"" grouping 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Ancient Classics"" grouping 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Classics"" grouping 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return no books from ""History"" grouping 0ms
+   × BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Favorites"" grouping 5ms
+     → expected +0 to be 4 // Object.is equality
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should handle case insensitivity for grouping > should find ""science fiction"" grouping regardless of case 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should handle case insensitivity for grouping > should find ""FANTASY"" grouping regardless of case 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should handle invalid grouping names > should return empty results for non-existent grouping 0ms
+   × BookReviewApi.getBookReviews - Grouping Parameter Tests > should handle invalid grouping names > should return favorites shelf for empty grouping name 0ms
+     → expected 5 to be +0 // Object.is equality
+ ❯ tests/services/search-negative.test.ts (9 tests | 4 failed) 14ms
+   × BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return favorites shelf for empty search term 10ms
+     → expected 12 to be 5 // Object.is equality
+   ✓ BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for search term with only spaces 0ms
+   × BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for very short search term (1 character) 1ms
+     → expected 12 to be +0 // Object.is equality
+   × BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for very short search term (2 characters) 0ms
+     → expected 1 to be +0 // Object.is equality
+   ✓ BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for non-matching search term ""asfd98yads"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for search term with only special characters 0ms
+   ✓ BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for search term with only numbers 0ms
+   ✓ BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for search term that is too long 0ms
+   × BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return result for search term with extra spaces 0ms
+     → expected +0 to be 1 // Object.is equality
+ ❯ tests/services/search-recent.test.ts (10 tests | 4 failed) 27ms
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should return recent books when recent=true > should return exactly 10 books when recent=true 2ms
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should return recent books when recent=true > should return books ordered by dateRead descending (most recent first) 3ms
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should return recent books when recent=true > should return the 10 most recently read books, in order 2ms
+   × BookReviewApi.getBookReviews - Recent Books Tests > should handle recent parameter with other filters > should return recent books from a specific shelf 10ms
+     → expected false to be true // Object.is equality
+   × BookReviewApi.getBookReviews - Recent Books Tests > should handle recent parameter with other filters > should return recent books from a specific grouping 6ms
+     → expected 10 to be 3 // Object.is equality
+   × BookReviewApi.getBookReviews - Recent Books Tests > should handle edge cases for recent parameter > should return empty results when no books match the criteria 1ms
+     → expected 10 to be +0 // Object.is equality
+   × BookReviewApi.getBookReviews - Recent Books Tests > should handle edge cases for recent parameter > should return fewer than 10 books when less than 10 books match criteria 1ms
+     → expected 10 to deeply equal 5
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should handle edge cases for recent parameter > should return books ordered by dateRead even when fewer than 10 books 1ms
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should handle recent=false (default behavior) > should return favorites shelf when recent=false 0ms
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should handle recent=false (default behavior) > should return favorites shelf when recent parameter is not provided 0ms
+ ❯ tests/services/search-combined.test.ts (60 tests | 22 failed) 28ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Science Fiction"" grouping 3ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Fantasy"" grouping 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Ancient Classics"" grouping 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Classics"" grouping 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return no books from ""History"" grouping 0ms
+   × BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Favorites"" grouping 8ms
+     → expected +0 to be 4 // Object.is equality
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should handle case insensitivity for grouping > should find ""science fiction"" grouping regardless of case 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should handle case insensitivity for grouping > should find ""FANTASY"" grouping regardless of case 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should handle invalid grouping names > should return empty results for non-existent grouping 0ms
+   × BookReviewApi.getBookReviews - Grouping Parameter Tests > should handle invalid grouping names > should return favorites shelf for empty grouping name 0ms
+     → expected 5 to be +0 // Object.is equality
+   × BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching search term AND shelf 0ms
+     → expected false to be true // Object.is equality
+   ✓ BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching search term AND grouping 0ms
+   × BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching shelf AND grouping 1ms
+     → expected false to be true // Object.is equality
+   × BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching search term AND shelf AND grouping 0ms
+     → expected false to be true // Object.is equality
+   × BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching ALL filters: search term, shelf, grouping, and recent 1ms
+     → expected false to be true // Object.is equality
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should return recent books when recent=true > should return exactly 10 books when recent=true 2ms
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should return recent books when recent=true > should return books ordered by dateRead descending (most recent first) 0ms
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should return recent books when recent=true > should return the 10 most recently read books, in order 1ms
+   × BookReviewApi.getBookReviews - Recent Books Tests > should handle recent parameter with other filters > should return recent books from a specific shelf 0ms
+     → expected false to be true // Object.is equality
+   × BookReviewApi.getBookReviews - Recent Books Tests > should handle recent parameter with other filters > should return recent books from a specific grouping 0ms
+     → expected 10 to be 3 // Object.is equality
+   × BookReviewApi.getBookReviews - Recent Books Tests > should handle edge cases for recent parameter > should return empty results when no books match the criteria 0ms
+     → expected 10 to be +0 // Object.is equality
+   × BookReviewApi.getBookReviews - Recent Books Tests > should handle edge cases for recent parameter > should return fewer than 10 books when less than 10 books match criteria 0ms
+     → expected 10 to deeply equal 5
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should handle edge cases for recent parameter > should return books ordered by dateRead even when fewer than 10 books 0ms
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should handle recent=false (default behavior) > should return favorites shelf when recent=false 0ms
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should handle recent=false (default behavior) > should return favorites shelf when recent parameter is not provided 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author first name ""George"" (1984 by George Orwell) 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author last name ""Orwell"" (1984) 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by full author name ""George Orwell"" (1984) 0ms
+   × BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title and author ""1984 by George Orwell"" 0ms
+     → expected +0 to be 1 // Object.is equality
+   × BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author and title ""George Orwell 1984"" 0ms
+     → expected +0 to be 1 // Object.is equality
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""1984"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author ""Scott Cohen"" (Don't You Just Hate That?) 2ms
+   × BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""Don't You Just Hate That?"" 0ms
+     → expected +0 to be 1 // Object.is equality
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author ""Homer"" (The Odyssey) 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""The Odyssey"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author ""Ursula K. Le Guin"" (The Left Hand of Darkness) 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""The Left Hand of Darkness"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author ""Alcoholics Anonymous"" (Twelve Steps) 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""Twelve Steps"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should handle case insensitivity > should find books regardless of case - ""george"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should handle case insensitivity > should find books regardless of case - ""ORWELL"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should handle case insensitivity > should find books regardless of case - ""king arthur"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should handle case insensitivity > should find books with mixed case search terms 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should search by publisher > should find books by publisher ""Houghton Mifflin Harcourt"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should search by publisher > should find books by publisher ""Random House"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should search by publisher > should find books by publisher ""Workman Publishing"" 0ms
+   × BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""featured"" 0ms
+     → expected 1 to be 2 // Object.is equality
+   × BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""high-fantasy"" 0ms
+     → expected +0 to be 2 // Object.is equality
+   × BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""history-of-lit"" 1ms
+     → expected +0 to be 1 // Object.is equality
+   × BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""ancient-greek"" 0ms
+     → expected +0 to be 1 // Object.is equality
+   × BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""modern-classics"" 0ms
+     → expected +0 to be 3 // Object.is equality
+   × BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return favorites shelf for empty search term 0ms
+     → expected 12 to be 5 // Object.is equality
+   ✓ BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for search term with only spaces 0ms
+   × BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for very short search term (1 character) 0ms
+     → expected 12 to be +0 // Object.is equality
+   × BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for very short search term (2 characters) 0ms
+     → expected 1 to be +0 // Object.is equality
+   ✓ BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for non-matching search term ""asfd98yads"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for search term with only special characters 0ms
+   ✓ BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for search term with only numbers 0ms
+   ✓ BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for search term that is too long 0ms
+   × BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return result for search term with extra spaces 0ms
+     → expected +0 to be 1 // Object.is equality
+ ❯ tests/services/search-positive.test.ts (26 tests | 8 failed) 28ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author first name ""George"" (1984 by George Orwell) 2ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author last name ""Orwell"" (1984) 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by full author name ""George Orwell"" (1984) 0ms
+   × BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title and author ""1984 by George Orwell"" 12ms
+     → expected +0 to be 1 // Object.is equality
+   × BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author and title ""George Orwell 1984"" 4ms
+     → expected +0 to be 1 // Object.is equality
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""1984"" 1ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author ""Scott Cohen"" (Don't You Just Hate That?) 0ms
+   × BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""Don't You Just Hate That?"" 1ms
+     → expected +0 to be 1 // Object.is equality
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author ""Homer"" (The Odyssey) 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""The Odyssey"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author ""Ursula K. Le Guin"" (The Left Hand of Darkness) 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""The Left Hand of Darkness"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author ""Alcoholics Anonymous"" (Twelve Steps) 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""Twelve Steps"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should handle case insensitivity > should find books regardless of case - ""george"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should handle case insensitivity > should find books regardless of case - ""ORWELL"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should handle case insensitivity > should find books regardless of case - ""king arthur"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should handle case insensitivity > should find books with mixed case search terms 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should search by publisher > should find books by publisher ""Houghton Mifflin Harcourt"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should search by publisher > should find books by publisher ""Random House"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should search by publisher > should find books by publisher ""Workman Publishing"" 0ms
+   × BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""featured"" 0ms
+     → expected 1 to be 2 // Object.is equality
+   × BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""high-fantasy"" 0ms
+     → expected +0 to be 2 // Object.is equality
+   × BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""history-of-lit"" 0ms
+     → expected +0 to be 1 // Object.is equality
+   × BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""ancient-greek"" 0ms
+     → expected +0 to be 1 // Object.is equality
+   × BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""modern-classics"" 1ms
+     → expected +0 to be 3 // Object.is equality
+ ✓ tests/services/search-api.test.ts (1 test) 1ms
+ ❯ tests/services/search.test.ts (62 tests | 22 failed) 19ms
+   × BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return favorites shelf for empty search term 5ms
+     → expected 12 to be 5 // Object.is equality
+   ✓ BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for search term with only spaces 0ms
+   × BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for very short search term (1 character) 0ms
+     → expected 12 to be +0 // Object.is equality
+   × BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for very short search term (2 characters) 0ms
+     → expected 1 to be +0 // Object.is equality
+   ✓ BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for non-matching search term ""asfd98yads"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for search term with only special characters 0ms
+   ✓ BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for search term with only numbers 0ms
+   ✓ BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for search term that is too long 0ms
+   × BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return result for search term with extra spaces 0ms
+     → expected +0 to be 1 // Object.is equality
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author first name ""George"" (1984 by George Orwell) 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author last name ""Orwell"" (1984) 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by full author name ""George Orwell"" (1984) 0ms
+   × BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title and author ""1984 by George Orwell"" 1ms
+     → expected +0 to be 1 // Object.is equality
+   × BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author and title ""George Orwell 1984"" 0ms
+     → expected +0 to be 1 // Object.is equality
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""1984"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author ""Scott Cohen"" (Don't You Just Hate That?) 0ms
+   × BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""Don't You Just Hate That?"" 0ms
+     → expected +0 to be 1 // Object.is equality
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author ""Homer"" (The Odyssey) 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""The Odyssey"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author ""Ursula K. Le Guin"" (The Left Hand of Darkness) 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""The Left Hand of Darkness"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author ""Alcoholics Anonymous"" (Twelve Steps) 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""Twelve Steps"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should handle case insensitivity > should find books regardless of case - ""george"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should handle case insensitivity > should find books regardless of case - ""ORWELL"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should handle case insensitivity > should find books regardless of case - ""king arthur"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should handle case insensitivity > should find books with mixed case search terms 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should search by publisher > should find books by publisher ""Houghton Mifflin Harcourt"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should search by publisher > should find books by publisher ""Random House"" 0ms
+   ✓ BookReviewApi.searchBookReviews - Positive Tests > should search by publisher > should find books by publisher ""Workman Publishing"" 0ms
+   × BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""featured"" 0ms
+     → expected 1 to be 2 // Object.is equality
+   × BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""high-fantasy"" 0ms
+     → expected +0 to be 2 // Object.is equality
+   × BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""history-of-lit"" 0ms
+     → expected +0 to be 1 // Object.is equality
+   × BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""ancient-greek"" 0ms
+     → expected +0 to be 1 // Object.is equality
+   × BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""modern-classics"" 0ms
+     → expected +0 to be 3 // Object.is equality
+   ✓ BookReviewApi.searchBookReviews - Real API Mode Tests > real API mode tests > should have real API tests commented out 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Science Fiction"" grouping 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Fantasy"" grouping 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Ancient Classics"" grouping 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Classics"" grouping 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return no books from ""History"" grouping 0ms
+   × BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Favorites"" grouping 0ms
+     → expected +0 to be 4 // Object.is equality
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should handle case insensitivity for grouping > should find ""science fiction"" grouping regardless of case 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should handle case insensitivity for grouping > should find ""FANTASY"" grouping regardless of case 0ms
+   ✓ BookReviewApi.getBookReviews - Grouping Parameter Tests > should handle invalid grouping names > should return empty results for non-existent grouping 0ms
+   × BookReviewApi.getBookReviews - Grouping Parameter Tests > should handle invalid grouping names > should return favorites shelf for empty grouping name 0ms
+     → expected 5 to be +0 // Object.is equality
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should return recent books when recent=true > should return exactly 10 books when recent=true 0ms
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should return recent books when recent=true > should return books ordered by dateRead descending (most recent first) 0ms
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should return recent books when recent=true > should return the 10 most recently read books, in order 1ms
+   × BookReviewApi.getBookReviews - Recent Books Tests > should handle recent parameter with other filters > should return recent books from a specific shelf 1ms
+     → expected false to be true // Object.is equality
+   × BookReviewApi.getBookReviews - Recent Books Tests > should handle recent parameter with other filters > should return recent books from a specific grouping 0ms
+     → expected 10 to be 3 // Object.is equality
+   × BookReviewApi.getBookReviews - Recent Books Tests > should handle edge cases for recent parameter > should return empty results when no books match the criteria 0ms
+     → expected 10 to be +0 // Object.is equality
+   × BookReviewApi.getBookReviews - Recent Books Tests > should handle edge cases for recent parameter > should return fewer than 10 books when less than 10 books match criteria 0ms
+     → expected 10 to deeply equal 5
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should handle edge cases for recent parameter > should return books ordered by dateRead even when fewer than 10 books 0ms
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should handle recent=false (default behavior) > should return favorites shelf when recent=false 0ms
+   ✓ BookReviewApi.getBookReviews - Recent Books Tests > should handle recent=false (default behavior) > should return favorites shelf when recent parameter is not provided 0ms
+   × BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching search term AND shelf 1ms
+     → expected false to be true // Object.is equality
+   ✓ BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching search term AND grouping 0ms
+   × BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching shelf AND grouping 0ms
+     → expected false to be true // Object.is equality
+   × BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching search term AND shelf AND grouping 0ms
+     → expected false to be true // Object.is equality
+   × BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching ALL filters: search term, shelf, grouping, and recent 1ms
+     → expected false to be true // Object.is equality
+   ✓ BookReviewApi.searchBookReviews - Complete Test Suite > should have all test files imported and ready to run 1ms
+ ✓ tests/components/BookCard.test.tsx (4 tests) 38ms
+
+ Test Files  7 failed | 3 passed (10)
+      Tests  66 failed | 121 passed (187)
+   Start at  04:57:26
+   Duration  1.91s (transform 459ms, setup 1.08s, collect 973ms, tests 175ms, environment 4.39s, prepare 858ms)
+
+","
+⎯⎯⎯⎯⎯⎯ Failed Tests 66 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Favorites"" grouping
+AssertionError: expected +0 to be 4 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 4[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-combined.test.ts:77:41
+     75|       const result = await bookReviewApi.getBookReviews(undefined, und…
+     76|       expect(result.selectedGrouping).toBe('Favorites');
+     77|       expect(result.bookReviews.length).toBe(4);
+       |                                         ^
+     78|       // All returned books should belong to the favorites bookshelf
+     79|       result.bookReviews.forEach(book => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.getBookReviews - Grouping Parameter Tests > should handle invalid grouping names > should return favorites shelf for empty grouping name
+AssertionError: expected 5 to be +0 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 5[39m
+
+ ❯ tests/services/search-combined.test.ts:110:41
+    108|       const result = await bookReviewApi.getBookReviews(undefined, und…
+    109|       expect(result.selectedGrouping).toBe('');
+    110|       expect(result.bookReviews.length).toBe(0);
+       |                                         ^
+    111|     });
+    112|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching search term AND shelf
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/services/search-combined.test.ts:125:37
+    123|       expect(book.searchableString?.toLowerCase()).toContain('george');
+    124|       const hasFavoritesBookshelf = book.bookshelves.some(bs => bs.nam…
+    125|       expect(hasFavoritesBookshelf).toBe(true);
+       |                                     ^
+    126|     });
+    127|   });
+ ❯ tests/services/search-combined.test.ts:122:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching shelf AND grouping
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/services/search-combined.test.ts:144:37
+    142|     result.bookReviews.forEach(book => {
+    143|       const hasFavoritesBookshelf = book.bookshelves.some(bs => bs.nam…
+    144|       expect(hasFavoritesBookshelf).toBe(true);
+       |                                     ^
+    145|       const hasSfBookshelf = book.bookshelves.some(bs => sfBookshelves…
+    146|       expect(hasSfBookshelf).toBe(true);
+ ❯ tests/services/search-combined.test.ts:142:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching search term AND shelf AND grouping
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/services/search-combined.test.ts:156:37
+    154|       expect(book.searchableString?.toLowerCase()).toContain('george');
+    155|       const hasFavoritesBookshelf = book.bookshelves.some(bs => bs.nam…
+    156|       expect(hasFavoritesBookshelf).toBe(true);
+       |                                     ^
+    157|       const hasSfBookshelf = book.bookshelves.some(bs => sfBookshelves…
+    158|       expect(hasSfBookshelf).toBe(true);
+ ❯ tests/services/search-combined.test.ts:153:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching ALL filters: search term, shelf, grouping, and recent
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/services/search-combined.test.ts:176:37
+    174|       expect(book.searchableString?.toLowerCase()).toContain('george');
+    175|       const hasFavoritesBookshelf = book.bookshelves.some(bs => bs.nam…
+    176|       expect(hasFavoritesBookshelf).toBe(true);
+       |                                     ^
+    177|       const hasSfBookshelf = book.bookshelves.some(bs => sfBookshelves…
+    178|       expect(hasSfBookshelf).toBe(true);
+ ❯ tests/services/search-combined.test.ts:173:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.getBookReviews - Recent Books Tests > should handle recent parameter with other filters > should return recent books from a specific shelf
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/services/search-combined.test.ts:241:39
+    239|       result.bookReviews.forEach(book => {
+    240|         const hasFavoritesBookshelf = book.bookshelves.some(bs => bs.n…
+    241|         expect(hasFavoritesBookshelf).toBe(true);
+       |                                       ^
+    242|       });
+    243|     });
+ ❯ tests/services/search-combined.test.ts:239:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.getBookReviews - Recent Books Tests > should handle recent parameter with other filters > should return recent books from a specific grouping
+AssertionError: expected 10 to be 3 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 3[39m
+[31m+ 10[39m
+
+ ❯ tests/services/search-combined.test.ts:249:41
+    247|       expect(result.selectedGrouping).toBe('Science Fiction');
+    248|       expect(result.showRecentOnly).toBe(true);
+    249|       expect(result.bookReviews.length).toBe(3);
+       |                                         ^
+    250|       
+    251|       // All books should be from Science Fiction grouping
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.getBookReviews - Recent Books Tests > should handle edge cases for recent parameter > should return empty results when no books match the criteria
+AssertionError: expected 10 to be +0 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 10[39m
+
+ ❯ tests/services/search-combined.test.ts:271:41
+    269|       expect(result.selectedShelf).toBe('non-existent-shelf');
+    270|       expect(result.showRecentOnly).toBe(true);
+    271|       expect(result.bookReviews.length).toBe(0);
+       |                                         ^
+    272|     });
+    273| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.getBookReviews - Recent Books Tests > should handle edge cases for recent parameter > should return fewer than 10 books when less than 10 books match criteria
+AssertionError: expected 10 to deeply equal 5
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 5[39m
+[31m+ 10[39m
+
+ ❯ tests/services/search-combined.test.ts:279:41
+    277|       expect(result.selectedShelf).toBe('favorites');
+    278|       expect(result.showRecentOnly).toBe(true);
+    279|       expect(result.bookReviews.length).toEqual(5);
+       |                                         ^
+    280|     });
+    281| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title and author ""1984 by George Orwell""
+AssertionError: expected +0 to be 1 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-combined.test.ts:344:43
+    342|       it('should find books by title and author ""1984 by George Orwell…
+    343|         const result = await bookReviewApi.searchBookReviews('1984 by …
+    344|         expect(result.bookReviews.length).toBe(1);
+       |                                           ^
+    345|         expect(result.bookReviews[0].title).toBe('1984');
+    346|       });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author and title ""George Orwell 1984""
+AssertionError: expected +0 to be 1 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-combined.test.ts:350:43
+    348|       it('should find books by author and title ""George Orwell 1984""',…
+    349|         const result = await bookReviewApi.searchBookReviews('George O…
+    350|         expect(result.bookReviews.length).toBe(1);
+       |                                           ^
+    351|         expect(result.bookReviews[0].title).toBe('1984');
+    352|       });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""Don't You Just Hate That?""
+AssertionError: expected +0 to be 1 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-combined.test.ts:368:43
+    366|       it('should find books by title ""Don\'t You Just Hate That?""', as…
+    367|         const result = await bookReviewApi.searchBookReviews('Don\'t Y…
+    368|         expect(result.bookReviews.length).toBe(1);
+       |                                           ^
+    369|         expect(result.bookReviews[0].title).toBe('Don\'t You Just Hate…
+    370|       });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""featured""
+AssertionError: expected 1 to be 2 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 2[39m
+[31m+ 1[39m
+
+ ❯ tests/services/search-combined.test.ts:460:43
+    458|       it('should find books by bookshelf ""featured""', async () => {
+    459|         const result = await bookReviewApi.searchBookReviews('featured…
+    460|         expect(result.bookReviews.length).toBe(2);
+       |                                           ^
+    461|         expect(result.bookReviews.some(book => book.title === 'The Lor…
+    462|         expect(result.bookReviews.some(book => book.title === 'Tenth o…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""high-fantasy""
+AssertionError: expected +0 to be 2 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 2[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-combined.test.ts:467:43
+    465|       it('should find books by bookshelf ""high-fantasy""', async () => {
+    466|         const result = await bookReviewApi.searchBookReviews('high-fan…
+    467|         expect(result.bookReviews.length).toBe(2);
+       |                                           ^
+    468|         expect(['Assassin\'s Apprentice (Farseer Trilogy, #1)', 'The L…
+    469|         expect(['Assassin\'s Apprentice (Farseer Trilogy, #1)', 'The L…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""history-of-lit""
+AssertionError: expected +0 to be 1 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-combined.test.ts:474:43
+    472|       it('should find books by bookshelf ""history-of-lit""', async () =…
+    473|         const result = await bookReviewApi.searchBookReviews('history-…
+    474|         expect(result.bookReviews.length).toBe(1);
+       |                                           ^
+    475|         expect(result.bookReviews[0].title).toBe('The Odyssey');
+    476|       });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""ancient-greek""
+AssertionError: expected +0 to be 1 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-combined.test.ts:480:43
+    478|       it('should find books by bookshelf ""ancient-greek""', async () =>…
+    479|         const result = await bookReviewApi.searchBookReviews('ancient-…
+    480|         expect(result.bookReviews.length).toBe(1);
+       |                                           ^
+    481|         expect(result.bookReviews[0].title).toBe('The Odyssey');
+    482|       });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""modern-classics""
+AssertionError: expected +0 to be 3 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 3[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-combined.test.ts:486:43
+    484|       it('should find books by bookshelf ""modern-classics""', async () …
+    485|         const result = await bookReviewApi.searchBookReviews('modern-c…
+    486|         expect(result.bookReviews.length).toBe(3);
+       |                                           ^
+    487|         expect(result.bookReviews.some(book => book.title === '1984'))…
+    488|         expect(result.bookReviews.some(book => book.title === 'The Lef…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return favorites shelf for empty search term
+AssertionError: expected 12 to be 5 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 5[39m
+[31m+ 12[39m
+
+ ❯ tests/services/search-combined.test.ts:509:41
+    507|     it('should return favorites shelf for empty search term', async ()…
+    508|       const result = await bookReviewApi.searchBookReviews('');
+    509|       expect(result.bookReviews.length).toBe(5);
+       |                                         ^
+    510|     });
+    511| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for very short search term (1 character)
+AssertionError: expected 12 to be +0 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 12[39m
+
+ ❯ tests/services/search-combined.test.ts:519:41
+    517|     it('should return empty results for very short search term (1 char…
+    518|       const result = await bookReviewApi.searchBookReviews('a');
+    519|       expect(result.bookReviews.length).toBe(0);
+       |                                         ^
+    520|     });
+    521| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for very short search term (2 characters)
+AssertionError: expected 1 to be +0 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 1[39m
+
+ ❯ tests/services/search-combined.test.ts:524:41
+    522|     it('should return empty results for very short search term (2 char…
+    523|       const result = await bookReviewApi.searchBookReviews('ab');
+    524|       expect(result.bookReviews.length).toBe(0);
+       |                                         ^
+    525|     });
+    526| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/66]⎯
+
+ FAIL  tests/services/search-combined.test.ts > BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return result for search term with extra spaces
+AssertionError: expected +0 to be 1 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-combined.test.ts:549:41
+    547|     it('should return result for search term with extra spaces', async…
+    548|       const result = await bookReviewApi.searchBookReviews('  George  …
+    549|       expect(result.bookReviews.length).toBe(1);
+       |                                         ^
+    550|       expect(result.bookReviews[0].title).toBe('1984');
+    551|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/66]⎯
+
+ FAIL  tests/services/search-grouping.test.ts > BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Favorites"" grouping
+ FAIL  tests/services/search.test.ts > BookReviewApi.getBookReviews - Grouping Parameter Tests > should filter by bookshelf grouping > should return books from ""Favorites"" grouping
+AssertionError: expected +0 to be 4 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 4[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-grouping.test.ts:67:41
+     65|       const result = await bookReviewApi.getBookReviews(undefined, und…
+     66|       expect(result.selectedGrouping).toBe('Favorites');
+     67|       expect(result.bookReviews.length).toBe(4);
+       |                                         ^
+     68|       // All returned books should belong to the favorites bookshelf
+     69|       result.bookReviews.forEach(book => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/66]⎯
+
+ FAIL  tests/services/search-grouping.test.ts > BookReviewApi.getBookReviews - Grouping Parameter Tests > should handle invalid grouping names > should return favorites shelf for empty grouping name
+ FAIL  tests/services/search.test.ts > BookReviewApi.getBookReviews - Grouping Parameter Tests > should handle invalid grouping names > should return favorites shelf for empty grouping name
+AssertionError: expected 5 to be +0 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 5[39m
+
+ ❯ tests/services/search-grouping.test.ts:100:41
+     98|       const result = await bookReviewApi.getBookReviews(undefined, und…
+     99|       expect(result.selectedGrouping).toBe('');
+    100|       expect(result.bookReviews.length).toBe(0);
+       |                                         ^
+    101|     });
+    102|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/66]⎯
+
+ FAIL  tests/services/search-mixed.test.ts > BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching search term AND shelf
+ FAIL  tests/services/search.test.ts > BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching search term AND shelf
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/services/search-mixed.test.ts:14:37
+     12|       expect(book.searchableString?.toLowerCase()).toContain('george');
+     13|       const hasFavoritesBookshelf = book.bookshelves.some(bs => bs.nam…
+     14|       expect(hasFavoritesBookshelf).toBe(true);
+       |                                     ^
+     15|     });
+     16|   });
+ ❯ tests/services/search-mixed.test.ts:11:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/66]⎯
+
+ FAIL  tests/services/search-mixed.test.ts > BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching shelf AND grouping
+ FAIL  tests/services/search.test.ts > BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching shelf AND grouping
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/services/search-mixed.test.ts:33:37
+     31|     result.bookReviews.forEach(book => {
+     32|       const hasFavoritesBookshelf = book.bookshelves.some(bs => bs.nam…
+     33|       expect(hasFavoritesBookshelf).toBe(true);
+       |                                     ^
+     34|       const hasSfBookshelf = book.bookshelves.some(bs => sfBookshelves…
+     35|       expect(hasSfBookshelf).toBe(true);
+ ❯ tests/services/search-mixed.test.ts:31:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/66]⎯
+
+ FAIL  tests/services/search-mixed.test.ts > BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching search term AND shelf AND grouping
+ FAIL  tests/services/search.test.ts > BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching search term AND shelf AND grouping
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/services/search-mixed.test.ts:45:37
+     43|       expect(book.searchableString?.toLowerCase()).toContain('george');
+     44|       const hasFavoritesBookshelf = book.bookshelves.some(bs => bs.nam…
+     45|       expect(hasFavoritesBookshelf).toBe(true);
+       |                                     ^
+     46|       const hasSfBookshelf = book.bookshelves.some(bs => sfBookshelves…
+     47|       expect(hasSfBookshelf).toBe(true);
+ ❯ tests/services/search-mixed.test.ts:42:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/66]⎯
+
+ FAIL  tests/services/search-mixed.test.ts > BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching ALL filters: search term, shelf, grouping, and recent
+ FAIL  tests/services/search.test.ts > BookReviewApi.getBookReviews - Filter Combination Tests > should return books matching ALL filters: search term, shelf, grouping, and recent
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/services/search-mixed.test.ts:65:37
+     63|       expect(book.searchableString?.toLowerCase()).toContain('george');
+     64|       const hasFavoritesBookshelf = book.bookshelves.some(bs => bs.nam…
+     65|       expect(hasFavoritesBookshelf).toBe(true);
+       |                                     ^
+     66|       const hasSfBookshelf = book.bookshelves.some(bs => sfBookshelves…
+     67|       expect(hasSfBookshelf).toBe(true);
+ ❯ tests/services/search-mixed.test.ts:62:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/66]⎯
+
+ FAIL  tests/services/search-negative.test.ts > BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return favorites shelf for empty search term
+ FAIL  tests/services/search.test.ts > BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return favorites shelf for empty search term
+AssertionError: expected 12 to be 5 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 5[39m
+[31m+ 12[39m
+
+ ❯ tests/services/search-negative.test.ts:29:41
+     27|     it('should return favorites shelf for empty search term', async ()…
+     28|       const result = await bookReviewApi.searchBookReviews('');
+     29|       expect(result.bookReviews.length).toBe(5);
+       |                                         ^
+     30|     });
+     31| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/66]⎯
+
+ FAIL  tests/services/search-negative.test.ts > BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for very short search term (1 character)
+ FAIL  tests/services/search.test.ts > BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for very short search term (1 character)
+AssertionError: expected 12 to be +0 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 12[39m
+
+ ❯ tests/services/search-negative.test.ts:39:41
+     37|     it('should return empty results for very short search term (1 char…
+     38|       const result = await bookReviewApi.searchBookReviews('a');
+     39|       expect(result.bookReviews.length).toBe(0);
+       |                                         ^
+     40|     });
+     41| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/66]⎯
+
+ FAIL  tests/services/search-negative.test.ts > BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for very short search term (2 characters)
+ FAIL  tests/services/search.test.ts > BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return empty results for very short search term (2 characters)
+AssertionError: expected 1 to be +0 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 1[39m
+
+ ❯ tests/services/search-negative.test.ts:44:41
+     42|     it('should return empty results for very short search term (2 char…
+     43|       const result = await bookReviewApi.searchBookReviews('ab');
+     44|       expect(result.bookReviews.length).toBe(0);
+       |                                         ^
+     45|     });
+     46| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/66]⎯
+
+ FAIL  tests/services/search-negative.test.ts > BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return result for search term with extra spaces
+ FAIL  tests/services/search.test.ts > BookReviewApi.searchBookReviews - Negative Tests > should return empty results > should return result for search term with extra spaces
+AssertionError: expected +0 to be 1 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-negative.test.ts:69:41
+     67|     it('should return result for search term with extra spaces', async…
+     68|       const result = await bookReviewApi.searchBookReviews('  George  …
+     69|       expect(result.bookReviews.length).toBe(1);
+       |                                         ^
+     70|       expect(result.bookReviews[0].title).toBe('1984');
+     71|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/66]⎯
+
+ FAIL  tests/services/search-positive.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title and author ""1984 by George Orwell""
+ FAIL  tests/services/search.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title and author ""1984 by George Orwell""
+AssertionError: expected +0 to be 1 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-positive.test.ts:48:41
+     46|     it('should find books by title and author ""1984 by George Orwell""'…
+     47|       const result = await bookReviewApi.searchBookReviews('1984 by Ge…
+     48|       expect(result.bookReviews.length).toBe(1);
+       |                                         ^
+     49|       expect(result.bookReviews[0].title).toBe('1984');
+     50|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/66]⎯
+
+ FAIL  tests/services/search-positive.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author and title ""George Orwell 1984""
+ FAIL  tests/services/search.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by author and title ""George Orwell 1984""
+AssertionError: expected +0 to be 1 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-positive.test.ts:54:41
+     52|     it('should find books by author and title ""George Orwell 1984""', a…
+     53|       const result = await bookReviewApi.searchBookReviews('George Orw…
+     54|       expect(result.bookReviews.length).toBe(1);
+       |                                         ^
+     55|       expect(result.bookReviews[0].title).toBe('1984');
+     56|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/66]⎯
+
+ FAIL  tests/services/search-positive.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""Don't You Just Hate That?""
+ FAIL  tests/services/search.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should return matching results > should find books by title ""Don't You Just Hate That?""
+AssertionError: expected +0 to be 1 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-positive.test.ts:72:41
+     70|     it('should find books by title ""Don\'t You Just Hate That?""', asyn…
+     71|       const result = await bookReviewApi.searchBookReviews('Don\'t You…
+     72|       expect(result.bookReviews.length).toBe(1);
+       |                                         ^
+     73|       expect(result.bookReviews[0].title).toBe('Don\'t You Just Hate T…
+     74|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/66]⎯
+
+ FAIL  tests/services/search-positive.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""featured""
+ FAIL  tests/services/search.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""featured""
+AssertionError: expected 1 to be 2 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 2[39m
+[31m+ 1[39m
+
+ ❯ tests/services/search-positive.test.ts:164:41
+    162|     it('should find books by bookshelf ""featured""', async () => {
+    163|       const result = await bookReviewApi.searchBookReviews('featured');
+    164|       expect(result.bookReviews.length).toBe(2);
+       |                                         ^
+    165|       expect(result.bookReviews.some(book => book.title === 'The Lord …
+    166|       expect(result.bookReviews.some(book => book.title === 'Tenth of …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/66]⎯
+
+ FAIL  tests/services/search-positive.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""high-fantasy""
+ FAIL  tests/services/search.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""high-fantasy""
+AssertionError: expected +0 to be 2 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 2[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-positive.test.ts:171:41
+    169|     it('should find books by bookshelf ""high-fantasy""', async () => {
+    170|       const result = await bookReviewApi.searchBookReviews('high-fanta…
+    171|       expect(result.bookReviews.length).toBe(2);
+       |                                         ^
+    172|       expect(['Assassin\'s Apprentice (Farseer Trilogy, #1)', 'The Lor…
+    173|       expect(['Assassin\'s Apprentice (Farseer Trilogy, #1)', 'The Lor…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/66]⎯
+
+ FAIL  tests/services/search-positive.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""history-of-lit""
+ FAIL  tests/services/search.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""history-of-lit""
+AssertionError: expected +0 to be 1 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-positive.test.ts:178:41
+    176|     it('should find books by bookshelf ""history-of-lit""', async () => {
+    177|       const result = await bookReviewApi.searchBookReviews('history-of…
+    178|       expect(result.bookReviews.length).toBe(1);
+       |                                         ^
+    179|       expect(result.bookReviews[0].title).toBe('The Odyssey');
+    180|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/66]⎯
+
+ FAIL  tests/services/search-positive.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""ancient-greek""
+ FAIL  tests/services/search.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""ancient-greek""
+AssertionError: expected +0 to be 1 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-positive.test.ts:184:41
+    182|     it('should find books by bookshelf ""ancient-greek""', async () => {
+    183|       const result = await bookReviewApi.searchBookReviews('ancient-gr…
+    184|       expect(result.bookReviews.length).toBe(1);
+       |                                         ^
+    185|       expect(result.bookReviews[0].title).toBe('The Odyssey');
+    186|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/66]⎯
+
+ FAIL  tests/services/search-positive.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""modern-classics""
+ FAIL  tests/services/search.test.ts > BookReviewApi.searchBookReviews - Positive Tests > should search by bookshelf > should find books by bookshelf ""modern-classics""
+AssertionError: expected +0 to be 3 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 3[39m
+[31m+ 0[39m
+
+ ❯ tests/services/search-positive.test.ts:190:41
+    188|     it('should find books by bookshelf ""modern-classics""', async () =>…
+    189|       const result = await bookReviewApi.searchBookReviews('modern-cla…
+    190|       expect(result.bookReviews.length).toBe(3);
+       |                                         ^
+    191|       expect(result.bookReviews.some(book => book.title === '1984')).t…
+    192|       expect(result.bookReviews.some(book => book.title === 'The Left …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/66]⎯
+
+ FAIL  tests/services/search-recent.test.ts > BookReviewApi.getBookReviews - Recent Books Tests > should handle recent parameter with other filters > should return recent books from a specific shelf
+ FAIL  tests/services/search.test.ts > BookReviewApi.getBookReviews - Recent Books Tests > should handle recent parameter with other filters > should return recent books from a specific shelf
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/services/search-recent.test.ts:62:39
+     60|       result.bookReviews.forEach(book => {
+     61|         const hasFavoritesBookshelf = book.bookshelves.some(bs => bs.n…
+     62|         expect(hasFavoritesBookshelf).toBe(true);
+       |                                       ^
+     63|       });
+     64|     });
+ ❯ tests/services/search-recent.test.ts:60:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/66]⎯
+
+ FAIL  tests/services/search-recent.test.ts > BookReviewApi.getBookReviews - Recent Books Tests > should handle recent parameter with other filters > should return recent books from a specific grouping
+ FAIL  tests/services/search.test.ts > BookReviewApi.getBookReviews - Recent Books Tests > should handle recent parameter with other filters > should return recent books from a specific grouping
+AssertionError: expected 10 to be 3 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 3[39m
+[31m+ 10[39m
+
+ ❯ tests/services/search-recent.test.ts:70:41
+     68|       expect(result.selectedGrouping).toBe('Science Fiction');
+     69|       expect(result.showRecentOnly).toBe(true);
+     70|       expect(result.bookReviews.length).toBe(3);
+       |                                         ^
+     71|       
+     72|       // All books should be from Science Fiction grouping
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/66]⎯
+
+ FAIL  tests/services/search-recent.test.ts > BookReviewApi.getBookReviews - Recent Books Tests > should handle edge cases for recent parameter > should return empty results when no books match the criteria
+ FAIL  tests/services/search.test.ts > BookReviewApi.getBookReviews - Recent Books Tests > should handle edge cases for recent parameter > should return empty results when no books match the criteria
+AssertionError: expected 10 to be +0 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 10[39m
+
+ ❯ tests/services/search-recent.test.ts:92:41
+     90|       expect(result.selectedShelf).toBe('non-existent-shelf');
+     91|       expect(result.showRecentOnly).toBe(true);
+     92|       expect(result.bookReviews.length).toBe(0);
+       |                                         ^
+     93|     });
+     94| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/66]⎯
+
+ FAIL  tests/services/search-recent.test.ts > BookReviewApi.getBookReviews - Recent Books Tests > should handle edge cases for recent parameter > should return fewer than 10 books when less than 10 books match criteria
+ FAIL  tests/services/search.test.ts > BookReviewApi.getBookReviews - Recent Books Tests > should handle edge cases for recent parameter > should return fewer than 10 books when less than 10 books match criteria
+AssertionError: expected 10 to deeply equal 5
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 5[39m
+[31m+ 10[39m
+
+ ❯ tests/services/search-recent.test.ts:100:41
+     98|       expect(result.selectedShelf).toBe('favorites');
+     99|       expect(result.showRecentOnly).toBe(true);
+    100|       expect(result.bookReviews.length).toEqual(5);
+       |                                         ^
+    101|     });
+    102| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/66]⎯
+
+",False,False,False,False,,,,,
