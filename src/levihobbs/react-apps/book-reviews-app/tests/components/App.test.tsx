@@ -59,6 +59,10 @@ describe('App', () => {
   });
 
   describe('Initial Load Behavior', () => {
+    /**
+     * Tests that the app displays a helpful message indicating it's showing the favorites shelf by default.
+     * This is important for user experience as it explains what content they're seeing and sets expectations.
+     */
     it('shows "Showing favorites shelf by default" message when first loaded', async () => {
       render(<App />);
       
@@ -68,6 +72,10 @@ describe('App', () => {
       });
     });
 
+    /**
+     * Verifies that book review cards are displayed when the app loads.
+     * This ensures the main content area is populated with books for users to browse.
+     */
     it('shows book review cards when first loaded', async () => {
       render(<App />);
       
@@ -77,6 +85,10 @@ describe('App', () => {
       });
     });
 
+    /**
+     * Confirms that all displayed books have the "favorites" tag, ensuring the filtering is working correctly.
+     * This validates that the app is actually showing the favorites shelf content as intended.
+     */
     it('all book review cards have "favorites" tag when first loaded', async () => {
       render(<App />);
       
@@ -91,6 +103,10 @@ describe('App', () => {
   });
 
   describe('SearchBar Rendering', () => {
+    /**
+     * Ensures the SearchBar component is properly rendered in the App component.
+     * This is critical for user interaction as it provides the primary way for users to find specific books.
+     */
     it('renders SearchBar component from App.tsx', async () => {
       render(<App />);
       
@@ -102,6 +118,10 @@ describe('App', () => {
   });
 
   describe('Search Functionality', () => {
+    /**
+     * Tests that the search functionality triggers the correct API calls when users type in the search bar.
+     * This ensures the search feature is properly connected to the backend and will return relevant results.
+     */
     it('calls searchBookReviews when user types "search" into SearchBar', async () => {
       // Mock the search results
       vi.mocked(bookReviewApi.getBookReviews).mockImplementation(
@@ -138,6 +158,10 @@ describe('App', () => {
       });
     });
 
+    /**
+     * Verifies that the book list updates when search is performed, showing only relevant results.
+     * This is essential for search functionality as users expect to see different content when they search.
+     */
     it('changes the list of book review cards when search is performed', async () => {
       // Mock the search results
       vi.mocked(bookReviewApi.getBookReviews).mockImplementation(
@@ -181,6 +205,10 @@ describe('App', () => {
       expect(screen.queryByText('Frog and Toad Are Friends (Frog and Toad, #1)')).not.toBeInTheDocument();
     });
 
+    /**
+     * Tests that the default message disappears after search (that message is shown when the user first loads the app
+     * because in that case, the favorites shelf is shown by default).
+     */
     it('hides the "Showing favorites shelf by default" message after search', async () => {
       // Mock the search results
       vi.mocked(bookReviewApi.getBookReviews).mockImplementation(
@@ -215,6 +243,9 @@ describe('App', () => {
   });
 
   describe('Loading and Error States', () => {
+    /**
+     * Ensures the app shows a loading indicator while fetching data, providing user feedback.
+     */
     it('shows loading state initially', () => {
       vi.mocked(bookReviewApi.getBookReviews).mockImplementation(
         () => new Promise(() => {}) // Never resolves
@@ -225,6 +256,9 @@ describe('App', () => {
       expect(screen.getByText('Loading...')).toBeInTheDocument();
     });
 
+    /**
+     * Tests that error messages are displayed when API calls fail, helping users understand what went wrong.
+     */
     it('shows error state when API call fails', async () => {
       vi.mocked(bookReviewApi.getBookReviews).mockRejectedValue(new Error('API Error'));
       

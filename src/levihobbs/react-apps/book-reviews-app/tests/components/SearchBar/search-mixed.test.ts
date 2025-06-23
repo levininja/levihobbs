@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { bookReviewApi } from '../../src/services/api';
+import { bookReviewApi } from '../../../src/services/api';
 
 describe('BookReviewApi.getBookReviews - Filter Combination Tests', () => {
   beforeEach(() => {
