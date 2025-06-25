@@ -7,43 +7,52 @@ import { SearchBar } from './components/SearchBar';
 import { FilterPanel } from './components/FilterPanel';
 import './App.scss';
 
-interface SearchFilters {
-  searchTerm: string;
+type AppMode = 'welcome' | 'search' | 'browse';
+
+interface BrowseFilters {
   selectedTags: string[];
-  recentOnly: boolean;
 }
 
 function App() {
-  const [loading, setLoading] = useState(true);
+  const [mode, setMode] = useState<AppMode>('welcome');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewModel, setViewModel] = useState<BookReviewsViewModel | null>(null);
   const [selectedBook, setSelectedBook] = useState<BookReview | null>(null);
-  const [filters, setFilters] = useState<SearchFilters>({
-    searchTerm: '',
-    selectedTags: [],
-    recentOnly: false
-  });
+  
+  // Search state
+  const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<BookReview[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [userHasInteracted, setUserHasInteracted] = useState(false);
+  
+  // Browse state
+  const [browseFilters, setBrowseFilters] = useState<BrowseFilters>({
+    selectedTags: []
+  });
+  const [browseResults, setBrowseResults] = useState<BookReview[]>([]);
+  const [isBrowsing, setIsBrowsing] = useState(false);
 
+  // Load initial data when switching to search or browse mode
   useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        setLoading(true);
-        const result = await bookReviewApi.getBookReviews();
-        setViewModel(result);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch books');
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (mode !== 'welcome' && !viewModel) {
+      const fetchData = async () => {
+        try {
+          setLoading(true);
+          const result = await bookReviewApi.browseBookReviews();
+          setViewModel(result);
+          if (mode === 'browse')
+            setBrowseResults(result.bookReviews || []);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to fetch books');
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchData();
+    }
+  }, [mode, viewModel]);
 
-    fetchBooks();
-  }, []);
-
-  // Memoize lookup maps to avoid recreating them on every search
+  // Memoize lookup maps for filtering
   const lookupMaps = useMemo(() => {
     const allBookshelves = viewModel?.allBookshelves || [];
     const allGroupings = viewModel?.allBookshelfGroupings || [];
@@ -58,46 +67,18 @@ function App() {
     return { groupingMap, shelfMap };
   }, [viewModel?.allBookshelves, viewModel?.allBookshelfGroupings]);
 
-  const performSearch = useCallback(async (searchFilters: SearchFilters) => {
-    const { searchTerm, selectedTags, recentOnly } = searchFilters;
+  const handleSearchChange = useCallback(async (term: string) => {
+    setSearchTerm(term);
     
-    // If no filters are applied, show default favorites
-    if (!searchTerm.trim() && selectedTags.length === 0 && !recentOnly) {
+    if (term.trim().length < 2) {
       setSearchResults([]);
       setIsSearching(false);
       return;
     }
 
-    // User has interacted by applying filters
-    setUserHasInteracted(true);
-
     try {
       setIsSearching(true);
-      
-      const { groupingMap, shelfMap } = lookupMaps;
-      
-      let shelf: string | undefined;
-      let grouping: string | undefined;
-      
-      // Only allow one shelf or grouping at a time - prioritize grouping if both exist
-      for (const tag of selectedTags) {
-        const tagLower = tag.toLowerCase();
-        if (groupingMap.has(tagLower)) {
-          grouping = groupingMap.get(tagLower);
-          break; // Prioritize grouping if both exist
-        } else if (shelfMap.has(tagLower)) {
-          shelf = shelfMap.get(tagLower);
-          break; // Only take the first shelf found
-        }
-      }
-      
-      const results = await bookReviewApi.searchBookReviews(
-        searchTerm || '', // Use empty string instead of undefined
-        undefined,
-        shelf,
-        grouping,
-        recentOnly
-      );
+      const results = await bookReviewApi.searchBookReviews(term);
       setSearchResults(results.bookReviews || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to search books');
@@ -105,19 +86,40 @@ function App() {
     } finally {
       setIsSearching(false);
     }
-  }, [lookupMaps]);
+  }, []);
 
-  const handleSearchChange = useCallback(async (term: string) => {
-    const newFilters = { ...filters, searchTerm: term };
-    setFilters(newFilters);
-    await performSearch(newFilters);
-  }, [filters, performSearch]);
+  const handleBrowseFiltersChange = useCallback(async (newFilters: Partial<BrowseFilters>) => {
+    const updatedFilters = { ...browseFilters, ...newFilters };
+    setBrowseFilters(updatedFilters);
 
-  const handleFiltersChange = useCallback(async (newFilters: Partial<SearchFilters>) => {
-    const updatedFilters = { ...filters, ...newFilters };
-    setFilters(updatedFilters);
-    await performSearch(updatedFilters);
-  }, [filters, performSearch]);
+    try {
+      setIsBrowsing(true);
+      const { groupingMap, shelfMap } = lookupMaps;
+      
+      let shelf: string | undefined;
+      let grouping: string | undefined;
+      
+      // Only allow one shelf or grouping at a time - prioritize grouping if both exist
+      for (const tag of updatedFilters.selectedTags) {
+        const tagLower = tag.toLowerCase();
+        if (groupingMap.has(tagLower)) {
+          grouping = groupingMap.get(tagLower);
+          break;
+        } else if (shelfMap.has(tagLower)) {
+          shelf = shelfMap.get(tagLower);
+          break;
+        }
+      }
+      
+      const results = await bookReviewApi.browseBookReviews(grouping, shelf);
+      setBrowseResults(results.bookReviews || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to browse books');
+      setBrowseResults([]);
+    } finally {
+      setIsBrowsing(false);
+    }
+  }, [browseFilters, lookupMaps]);
 
   const handleBookClick = useCallback((book: BookReview) => {
     setSelectedBook(book);
@@ -127,43 +129,80 @@ function App() {
     setSelectedBook(null);
   }, []);
 
-  // Memoize the books to display to prevent unnecessary re-renders
-  const booksToDisplay = useMemo(() => {
-    return !userHasInteracted ? (viewModel?.bookReviews || []) : (searchResults || []);
-  }, [userHasInteracted, viewModel?.bookReviews, searchResults]);
-
   // Memoize the combined tags list for FilterPanel
   const allTags = useMemo(() => [
     ...(viewModel?.allBookshelfGroupings || []).map(g => ({ name: g.name, type: 'grouping' as const })),
     ...(viewModel?.allBookshelves || []).map(s => ({ name: s.name, type: 'shelf' as const }))
   ], [viewModel?.allBookshelfGroupings, viewModel?.allBookshelves]);
 
-  if (loading) {
+  if (loading)
     return <div className="app">Loading...</div>;
-  }
 
-  if (error) {
+  if (error)
     return <div className="app">Error: {error}</div>;
+
+  // Welcome screen
+  if (mode === 'welcome') {
+    return (
+      <div className="app welcome-screen" data-testid="welcome-screen">
+        <div className="welcome-content">
+          <h1>Welcome to Levi's suppository of book reviews</h1>
+          <p>What would you like to do?</p>
+          <div className="welcome-options">
+            <button 
+              className="welcome-button"
+              onClick={() => setMode('search')}
+              data-testid="find-book-button"
+            >
+              Find a particular book review
+            </button>
+            <button 
+              className="welcome-button"
+              onClick={() => setMode('browse')}
+              data-testid="browse-books-button"
+            >
+              Browse book reviews
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="app" data-testid="app">
       <header className="app-header">
         <h1>Book Reviews</h1>
-        <SearchBar 
-          searchTerm={filters.searchTerm}
-          onSearchChange={handleSearchChange}
-        />
-        <FilterPanel
-          availableTags={allTags}
-          selectedTags={filters.selectedTags}
-          recentOnly={filters.recentOnly}
-          onFiltersChange={handleFiltersChange}
-        />
-        {!userHasInteracted && (
-          <div className="search-message" data-testid="search-message">
-            Showing favorites shelf by default
-          </div>
+        <div className="tab-navigation">
+          <button 
+            className={`tab-button ${mode === 'search' ? 'active' : ''}`}
+            onClick={() => setMode('search')}
+            data-testid="search-tab"
+          >
+            Search
+          </button>
+          <button 
+            className={`tab-button ${mode === 'browse' ? 'active' : ''}`}
+            onClick={() => setMode('browse')}
+            data-testid="browse-tab"
+          >
+            Browse
+          </button>
+        </div>
+        
+        {mode === 'search' && (
+          <SearchBar 
+            searchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
+          />
+        )}
+        
+        {mode === 'browse' && (
+          <FilterPanel
+            availableTags={allTags}
+            selectedTags={browseFilters.selectedTags}
+            onFiltersChange={handleBrowseFiltersChange}
+          />
         )}
       </header>
       
@@ -175,14 +214,21 @@ function App() {
           />
         ) : (
           <>
-            {isSearching && (
-              <div className="search-loading" data-testid="search-loading">
+            {(isSearching || isBrowsing) && (
+              <div className="loading" data-testid="loading">
                 <div className="loading-spinner"></div>
-                <p>Searching...</p>
+                <p>{isSearching ? 'Searching...' : 'Loading...'}</p>
               </div>
             )}
             <div className="books-grid" data-testid="books-grid">
-              {booksToDisplay.map(book => (
+              {mode === 'search' && searchResults.map(book => (
+                <BookCard
+                  key={book.id}
+                  book={book}
+                  onClick={handleBookClick}
+                />
+              ))}
+              {mode === 'browse' && browseResults.map(book => (
                 <BookCard
                   key={book.id}
                   book={book}
@@ -190,11 +236,6 @@ function App() {
                 />
               ))}
             </div>
-            {userHasInteracted && booksToDisplay.length === 0 && !isSearching && (
-              <div className="no-results-message" data-testid="no-results-message">
-                <p>There are no search results. Try broadening your search to display results.</p>
-              </div>
-            )}
           </>
         )}
       </main>

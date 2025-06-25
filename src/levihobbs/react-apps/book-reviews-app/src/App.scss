@@ -21,6 +21,10 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
+.active{
+  border-color: #464cff;
+}
+
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);

@@ -26,13 +26,13 @@ export const SearchBar: React.FC<SearchBarProps> = React.memo(({
         className="search-input"
         data-testid="search-input"
       />
-      {searchTerm.length > 0 && searchTerm.length < 3 && (
+      {searchTerm.length > 0 && searchTerm.length < 2 && (
         <div className="search-hint">
-          Please enter at least 3 characters to search
+          Please enter at least 2 characters to search
         </div>
       )}
     </div>
   );
 });
 
-SearchBar.displayName = 'SearchBar'; 
+SearchBar.displayName = 'SearchBar';

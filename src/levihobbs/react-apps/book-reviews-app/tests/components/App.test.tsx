@@ -8,7 +8,7 @@ import { mockBookReviews } from '../../src/services/mockData';
 // Mock the API module
 vi.mock('../../src/services/api', () => ({
   bookReviewApi: {
-    getBookReviews: vi.fn(),
+    browseBookReviews: vi.fn(),
     searchBookReviews: vi.fn()
   }
 }));
@@ -42,8 +42,14 @@ const mockSearchResults: BookReview[] = [
 
 const mockViewModel: BookReviewsViewModel = {
   category: "Book Reviews",
-  allBookshelves: [],
-  allBookshelfGroupings: [],
+  allBookshelves: [
+    { id: 1, name: "favorites", displayName: "favorites" },
+    { id: 2, name: "science-fiction", displayName: "science-fiction" }
+  ],
+  allBookshelfGroupings: [
+    { id: 1, name: "Fiction", displayName: "Fiction", bookshelves: [] },
+    { id: 2, name: "Non-Fiction", displayName: "Non-Fiction", bookshelves: [] }
+  ],
   selectedShelf: "favorites",
   selectedGrouping: undefined,
   showRecentOnly: false,
@@ -55,117 +61,85 @@ describe('App', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Mock the API to return favorites by default
-    vi.mocked(bookReviewApi.getBookReviews).mockResolvedValue(mockViewModel);
+    vi.mocked(bookReviewApi.browseBookReviews).mockResolvedValue(mockViewModel);
   });
 
-  describe('Initial Load Behavior', () => {
-    /**
-     * Tests that the app displays a helpful message indicating it's showing the favorites shelf by default.
-     * This is important for user experience as it explains what content they're seeing and sets expectations.
-     */
-    it('shows "Showing favorites shelf by default" message when first loaded', async () => {
+  describe('Welcome Screen', () => {
+    it('shows welcome screen initially', () => {
       render(<App />);
       
-      await waitFor(() => {
-        expect(screen.getByTestId('search-message')).toBeInTheDocument();
-        expect(screen.getByText('Showing favorites shelf by default')).toBeInTheDocument();
-      });
+      expect(screen.getByTestId('welcome-screen')).toBeInTheDocument();
+      expect(screen.getByText('Welcome to Levi\'s suppository of book reviews')).toBeInTheDocument();
+      expect(screen.getByText('What would you like to do?')).toBeInTheDocument();
+      expect(screen.getByTestId('find-book-button')).toBeInTheDocument();
+      expect(screen.getByTestId('browse-books-button')).toBeInTheDocument();
     });
 
-    /**
-     * Verifies that book review cards are displayed when the app loads.
-     * This ensures the main content area is populated with books for users to browse.
-     */
-    it('shows book review cards when first loaded', async () => {
+    it('navigates to search mode when "Find a particular book review" is clicked', async () => {
       render(<App />);
       
-      await waitFor(() => {
-        const bookCards = screen.getAllByTestId(/book-card-/);
-        expect(bookCards.length).toBeGreaterThan(0);
-      });
-    });
+      const searchButton = screen.getByTestId('find-book-button');
+      fireEvent.click(searchButton);
 
-    /**
-     * Confirms that all displayed books have the "favorites" tag, ensuring the filtering is working correctly.
-     * This validates that the app is actually showing the favorites shelf content as intended.
-     */
-    it('all book review cards have "favorites" tag when first loaded', async () => {
-      render(<App />);
-      
       await waitFor(() => {
-        const favoritesTags = screen.getAllByText('favorites');
-        expect(favoritesTags.length).toBeGreaterThan(0);
-        // Verify that the number of favorites tags matches the number of book cards
-        const bookCards = screen.getAllByTestId(/book-card-/);
-        expect(favoritesTags).toHaveLength(bookCards.length);
-      });
-    });
-  });
-
-  describe('SearchBar Rendering', () => {
-    /**
-     * Ensures the SearchBar component is properly rendered in the App component.
-     * This is critical for user interaction as it provides the primary way for users to find specific books.
-     */
-    it('renders SearchBar component from App.tsx', async () => {
-      render(<App />);
-      
-      await waitFor(() => {
-        // Check that SearchBar is rendered by looking for its input element
+        expect(screen.getByTestId('search-tab')).toHaveClass('active');
         expect(screen.getByTestId('search-bar')).toBeInTheDocument();
       });
     });
+
+    it('navigates to browse mode when "Browse book reviews" is clicked', async () => {
+      render(<App />);
+      
+      const browseButton = screen.getByTestId('browse-books-button');
+      fireEvent.click(browseButton);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('browse-tab')).toHaveClass('active');
+        expect(screen.getByTestId('books-grid')).toBeInTheDocument();
+      });
+    });
   });
 
-  describe('Search Functionality', () => {
-    /**
-     * Tests that the search functionality triggers the correct API calls when users type in the search bar.
-     * This ensures the search feature is properly connected to the backend and will return relevant results.
-     */
-    it('calls searchBookReviews when user types "search" into SearchBar', async () => {
+  describe('Search Mode', () => {
+    beforeEach(async () => {
+      render(<App />);
+      const searchButton = screen.getByTestId('find-book-button');
+      fireEvent.click(searchButton);
+      await waitFor(() => {
+        expect(screen.getByTestId('search-bar')).toBeInTheDocument();
+      });
+    });
+
+    it('renders SearchBar component in search mode', () => {
+      expect(screen.getByTestId('search-bar')).toBeInTheDocument();
+      expect(screen.getByTestId('search-input')).toBeInTheDocument();
+    });
+
+    it('calls searchBookReviews when user types in SearchBar', async () => {
       // Mock the search results
       vi.mocked(bookReviewApi.searchBookReviews).mockResolvedValue({
         ...mockViewModel,
         bookReviews: mockSearchResults
       });
 
-      render(<App />);
-      
-      await waitFor(() => {
-        expect(screen.getByRole('textbox')).toBeInTheDocument();
-      });
-
-      const searchInput = screen.getByRole('textbox');
+      const searchInput = screen.getByTestId('search-input');
       
       // Type "search" into the search bar
       fireEvent.change(searchInput, { target: { value: 'search' } });
 
       await waitFor(() => {
-        expect(bookReviewApi.searchBookReviews).toHaveBeenCalledWith(
-          'search', undefined, undefined, undefined, false
-        );
+        expect(bookReviewApi.searchBookReviews).toHaveBeenCalledWith('search');
       });
     });
 
-    /**
-     * Verifies that the book list updates when search is performed, showing only relevant results.
-     * This is essential for search functionality as users expect to see different content when they search.
-     */
-    it('changes the list of book review cards when search is performed', async () => {
+    it('shows search results when search is performed', async () => {
       // Mock the search results
       vi.mocked(bookReviewApi.searchBookReviews).mockResolvedValue({
         ...mockViewModel,
         bookReviews: mockSearchResults
       });
 
-      render(<App />);
-      
-      // Wait for initial load
-      await waitFor(() => {
-        expect(screen.getAllByTestId(/book-card-/).length).toBeGreaterThan(0);
-      });
-
-      const searchInput = screen.getByRole('textbox');
+      const searchInput = screen.getByTestId('search-input');
       
       // Type "search" into the search bar
       fireEvent.change(searchInput, { target: { value: 'search' } });
@@ -177,67 +151,113 @@ describe('App', () => {
         expect(screen.getByText('Search Result Book')).toBeInTheDocument();
         expect(screen.getByText('by Search Author')).toBeInTheDocument();
       });
-
-      // Verify that the favorites books are no longer shown
-      // Check for some of the actual book titles from the mock data
-      expect(screen.queryByText('Tenth of December')).not.toBeInTheDocument();
-      expect(screen.queryByText('The Lord of the Rings')).not.toBeInTheDocument();
-      expect(screen.queryByText('Twelve Steps and Twelve Traditions')).not.toBeInTheDocument();
-      expect(screen.queryByText('Assassin\'s Apprentice (Farseer Trilogy, #1)')).not.toBeInTheDocument();
-      expect(screen.queryByText('Frog and Toad Are Friends (Frog and Toad, #1)')).not.toBeInTheDocument();
     });
 
-    /**
-     * Tests that the default message disappears after search (that message is shown when the user first loads the app
-     * because in that case, the favorites shelf is shown by default).
-     */
-    it('hides the "Showing favorites shelf by default" message after search', async () => {
-      // Mock the search results
-      vi.mocked(bookReviewApi.searchBookReviews).mockResolvedValue({
-        ...mockViewModel,
-        bookReviews: mockSearchResults
-      });
+    it('shows loading state while searching', async () => {
+      // Mock a delayed search response
+      vi.mocked(bookReviewApi.searchBookReviews).mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve({
+          ...mockViewModel,
+          bookReviews: mockSearchResults
+        }), 100))
+      );
 
-      render(<App />);
-      
-      // Wait for initial load and verify message is shown
-      await waitFor(() => {
-        expect(screen.getByTestId('search-message')).toBeInTheDocument();
-      });
-
-      const searchInput = screen.getByRole('textbox');
-      
-      // Type "search" into the search bar
+      const searchInput = screen.getByTestId('search-input');
       fireEvent.change(searchInput, { target: { value: 'search' } });
 
-      // Wait for search results and verify message is hidden
+      expect(screen.getByTestId('loading')).toBeInTheDocument();
+      expect(screen.getByText('Searching...')).toBeInTheDocument();
+    });
+  });
+
+  describe('Browse Mode', () => {
+    beforeEach(async () => {
+      render(<App />);
+      const browseButton = screen.getByTestId('browse-books-button');
+      fireEvent.click(browseButton);
       await waitFor(() => {
-        expect(screen.queryByTestId('search-message')).not.toBeInTheDocument();
+        expect(screen.getByTestId('browse-tab')).toHaveClass('active');
+      });
+    });
+
+    it('shows book review cards when browse mode is loaded', async () => {
+      await waitFor(() => {
+        const bookCards = screen.getAllByTestId(/book-card-/);
+        expect(bookCards.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('shows loading state while browsing', async () => {
+      // Mock a delayed browse response
+      vi.mocked(bookReviewApi.browseBookReviews).mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve(mockViewModel), 100))
+      );
+
+      // Clear the mock and re-render to trigger the delayed response
+      vi.clearAllMocks();
+      render(<App />);
+      const browseButton = screen.getByTestId('browse-books-button');
+      fireEvent.click(browseButton);
+
+      // The loading state should be visible immediately after clicking
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
+    });
+  });
+
+  describe('Tab Navigation', () => {
+    beforeEach(async () => {
+      render(<App />);
+      const searchButton = screen.getByTestId('find-book-button');
+      fireEvent.click(searchButton);
+      await waitFor(() => {
+        expect(screen.getByTestId('search-bar')).toBeInTheDocument();
+      });
+    });
+
+    it('switches between search and browse tabs', async () => {
+      // Should be in search mode initially
+      expect(screen.getByTestId('search-tab')).toHaveClass('active');
+      expect(screen.getByTestId('search-bar')).toBeInTheDocument();
+
+      // Switch to browse mode
+      const browseTab = screen.getByTestId('browse-tab');
+      fireEvent.click(browseTab);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('browse-tab')).toHaveClass('active');
+        expect(screen.queryByTestId('search-bar')).not.toBeInTheDocument();
+      });
+
+      // Switch back to search mode
+      const searchTab = screen.getByTestId('search-tab');
+      fireEvent.click(searchTab);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('search-tab')).toHaveClass('active');
+        expect(screen.getByTestId('search-bar')).toBeInTheDocument();
       });
     });
   });
 
   describe('Loading and Error States', () => {
-    /**
-     * Ensures the app shows a loading indicator while fetching data, providing user feedback.
-     */
-    it('shows loading state initially', () => {
-      vi.mocked(bookReviewApi.getBookReviews).mockImplementation(
+    it('shows loading state when API call is in progress', async () => {
+      vi.mocked(bookReviewApi.browseBookReviews).mockImplementation(
         () => new Promise(() => {}) // Never resolves
       );
       
       render(<App />);
+      const browseButton = screen.getByTestId('browse-books-button');
+      fireEvent.click(browseButton);
       
       expect(screen.getByText('Loading...')).toBeInTheDocument();
     });
 
-    /**
-     * Tests that error messages are displayed when API calls fail, helping users understand what went wrong.
-     */
     it('shows error state when API call fails', async () => {
-      vi.mocked(bookReviewApi.getBookReviews).mockRejectedValue(new Error('API Error'));
+      vi.mocked(bookReviewApi.browseBookReviews).mockRejectedValue(new Error('API Error'));
       
       render(<App />);
+      const browseButton = screen.getByTestId('browse-books-button');
+      fireEvent.click(browseButton);
       
       await waitFor(() => {
         expect(screen.getByText('Error: API Error')).toBeInTheDocument();

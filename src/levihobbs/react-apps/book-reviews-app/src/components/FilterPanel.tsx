@@ -8,14 +8,12 @@ interface Tag {
 interface FilterPanelProps {
   availableTags: Tag[];
   selectedTags: string[];
-  recentOnly: boolean;
-  onFiltersChange: (filters: { selectedTags?: string[]; recentOnly?: boolean }) => void;
+  onFiltersChange: (filters: { selectedTags?: string[]; }) => void;
 }
 
 export const FilterPanel: React.FC<FilterPanelProps> = React.memo(({
   availableTags,
   selectedTags,
-  recentOnly,
   onFiltersChange
 }) => {
   const handleTagToggle = useCallback((tagName: string) => {
@@ -26,30 +24,14 @@ export const FilterPanel: React.FC<FilterPanelProps> = React.memo(({
     onFiltersChange({ selectedTags: newSelectedTags });
   }, [selectedTags, onFiltersChange]);
 
-  const handleRecentToggle = useCallback(() => {
-    onFiltersChange({ recentOnly: !recentOnly });
-  }, [recentOnly, onFiltersChange]);
-
   const clearAllFilters = useCallback(() => {
-    onFiltersChange({ selectedTags: [], recentOnly: false });
+    onFiltersChange({ selectedTags: [] });
   }, [onFiltersChange]);
 
-  const hasActiveFilters = selectedTags.length > 0 || recentOnly;
+  const hasActiveFilters = selectedTags.length > 0;
 
   return (
     <div className="filter-panel" data-testid="filter-panel">
-      <div className="filter-section">
-        <label className="filter-label">
-          <input
-            type="checkbox"
-            checked={recentOnly}
-            onChange={handleRecentToggle}
-            data-testid="recent-filter"
-          />
-          Recent (last 10)
-        </label>
-      </div>
-
       <div className="filter-section">
         <h4>Tags</h4>
         <div className="tags-container">
