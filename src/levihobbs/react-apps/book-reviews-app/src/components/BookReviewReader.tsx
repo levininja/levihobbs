@@ -8,7 +8,7 @@ interface BookReviewReaderProps {
 
 export const BookReviewReader: React.FC<BookReviewReaderProps> = React.memo(({ bookReview, onClose }) => {
   return (
-    <div className="book-review-reader" data-testid="book-review-reader">
+    <div id="book-review-reader"className="book-review-reader" data-testid="book-review-reader">
       <div className="reader-header">
         <button 
           className="close-button" 
