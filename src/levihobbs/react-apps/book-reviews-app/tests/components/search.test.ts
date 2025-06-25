@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { bookReviewApi } from '../../../src/services/api';
+import { bookReviewApi } from '../../src/services/api';
 
 // Mock the global window object for testing
 const mockWindow = {
