@@ -15,6 +15,7 @@ export interface BookReview {
   previewText: string;
   readingTimeMinutes: number;
   coverImageId?: number | null;
+  coverImageUrl?: string | null;
   bookshelves: Bookshelf[];
 }
 
