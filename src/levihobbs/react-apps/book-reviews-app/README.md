@@ -267,22 +267,28 @@ interface BookReviewsViewModel {
 ```
 src/
 ├── components/          # React components
+├── scss/               # Modular SCSS styles
+│   ├── variables.scss  # Shared design variables
+│   ├── common.scss     # Common styles across components│   ├── common.scss     # Common styles across components
+
+Reject
+⌘N
+
+Accept
+⌘Y
+getMockBookReviews
 │   ├── BookCard.tsx    # Individual book display
 │   ├── BookReviewReader.tsx # Full review reader
 │   └── SearchBar.tsx   # Search interface
 ├── scss/               # Modular SCSS styles
 │   ├── variables.scss  # Shared design variables
 │   ├── common.scss     # Common styles across components
-│   ├── book-card.scss  # Book card component styles
-│   ├── book-review-reader.scss # Review reader styles
-│   └── search-bar.scss # Search bar styles
+│   ├── ...
 ├── services/
 │   ├── api.ts          # API client (unified interface)
 │   └── mockData.ts     # Mock data and helpers
-├── types/
-│   └── BookReview.ts   # TypeScript interfaces
-├── utils/
-│   └── caseConverter.ts # Utility functions
+├── types/              # TypeScript interfaces
+├── utils/              # Utility functions
 ├── App.tsx             # Main application component
 ├── App.scss            # Main app layout styles
 └── main.tsx            # Application entry point
