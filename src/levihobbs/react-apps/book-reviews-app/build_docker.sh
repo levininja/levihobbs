@@ -1,3 +1,5 @@
 #!/bin/bash
-IMAGE_NAME="book-reviews-app"
-docker build -f Dockerfile.dev -t $IMAGE_NAME . 
+DOCKER_TAG=${1:-book-reviews-app}
+DOCKER_DEFAULT_PLATFORM=${2:-linux/amd64}
+
+docker build --platform $DOCKER_DEFAULT_PLATFORM -f Dockerfile.dev -t $DOCKER_TAG . 
