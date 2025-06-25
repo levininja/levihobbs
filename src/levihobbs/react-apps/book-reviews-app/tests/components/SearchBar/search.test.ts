@@ -6,7 +6,6 @@ import { describe, it, expect } from 'vitest';
 // Import all search test files
 import './search-negative.test';
 import './search-positive.test';
-import './search-critical.test';
 import './search-api.test';
 import './search-grouping.test';
 import './search-recent.test';

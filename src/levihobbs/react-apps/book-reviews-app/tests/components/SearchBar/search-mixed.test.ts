@@ -1,11 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { bookReviewApi } from '../../../src/services/api';
 
 describe('BookReviewApi.getBookReviews - Filter Combination Tests', () => {
-  beforeEach(() => {
-    // Reset any state if needed
-  });
-
   it('should return books matching search term AND shelf', async () => {
     const result = await bookReviewApi.searchBookReviews('George', undefined, 'favorites');
     result.bookReviews.forEach(book => {
@@ -28,6 +24,7 @@ describe('BookReviewApi.getBookReviews - Filter Combination Tests', () => {
   it('should return books matching shelf AND grouping', async () => {
     const result = await bookReviewApi.getBookReviews(undefined, 'favorites', 'Science Fiction');
     const sfBookshelves = ['sf-classics', 'space-opera', 'epic-sf', 'science-fiction-comps', 'cyberpunk', '2024-science-fiction'];
+    expect(result.bookReviews.length).toBe(1); // Only books that are both favorites and in Science Fiction
     result.bookReviews.forEach(book => {
       const hasFavoritesBookshelf = book.bookshelves.some(bs => bs.name === 'favorites');
       expect(hasFavoritesBookshelf).toBe(true);

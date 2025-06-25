@@ -124,17 +124,10 @@ describe('App', () => {
      */
     it('calls searchBookReviews when user types "search" into SearchBar', async () => {
       // Mock the search results
-      vi.mocked(bookReviewApi.getBookReviews).mockImplementation(
-        (displayCategory?: string, shelf?: string, grouping?: string, recent: boolean = false, searchTerm?: string) => {
-          if (searchTerm) {
-            return Promise.resolve({
-              ...mockViewModel,
-              bookReviews: mockSearchResults
-            });
-          }
-          return Promise.resolve(mockViewModel);
-        }
-      );
+      vi.mocked(bookReviewApi.searchBookReviews).mockResolvedValue({
+        ...mockViewModel,
+        bookReviews: mockSearchResults
+      });
 
       render(<App />);
       
@@ -148,10 +141,6 @@ describe('App', () => {
       fireEvent.change(searchInput, { target: { value: 'search' } });
 
       await waitFor(() => {
-        expect(bookReviewApi.getBookReviews).toHaveBeenCalledWith(
-          undefined, undefined, undefined, false, 'search'
-        );
-        // Verify searchBookReviews was called
         expect(bookReviewApi.searchBookReviews).toHaveBeenCalledWith(
           'search', undefined, undefined, undefined, false
         );
@@ -164,17 +153,10 @@ describe('App', () => {
      */
     it('changes the list of book review cards when search is performed', async () => {
       // Mock the search results
-      vi.mocked(bookReviewApi.getBookReviews).mockImplementation(
-        (displayCategory?: string, shelf?: string, grouping?: string, recent: boolean = false, searchTerm?: string) => {
-          if (searchTerm) {
-            return Promise.resolve({
-              ...mockViewModel,
-              bookReviews: mockSearchResults
-            });
-          }
-          return Promise.resolve(mockViewModel);
-        }
-      );
+      vi.mocked(bookReviewApi.searchBookReviews).mockResolvedValue({
+        ...mockViewModel,
+        bookReviews: mockSearchResults
+      });
 
       render(<App />);
       
@@ -211,17 +193,10 @@ describe('App', () => {
      */
     it('hides the "Showing favorites shelf by default" message after search', async () => {
       // Mock the search results
-      vi.mocked(bookReviewApi.getBookReviews).mockImplementation(
-        (displayCategory?: string, shelf?: string, grouping?: string, recent: boolean = false, searchTerm?: string) => {
-          if (searchTerm) {
-            return Promise.resolve({
-              ...mockViewModel,
-              bookReviews: mockSearchResults
-            });
-          }
-          return Promise.resolve(mockViewModel);
-        }
-      );
+      vi.mocked(bookReviewApi.searchBookReviews).mockResolvedValue({
+        ...mockViewModel,
+        bookReviews: mockSearchResults
+      });
 
       render(<App />);
       

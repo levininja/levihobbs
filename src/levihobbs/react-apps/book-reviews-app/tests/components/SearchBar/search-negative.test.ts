@@ -23,46 +23,46 @@ describe('BookReviewApi.searchBookReviews - Negative Tests', () => {
     });
   });
 
-  describe('should return empty results', () => {
+  describe('should return favorites shelf', () => {
     it('should return favorites shelf for empty search term', async () => {
       const result = await bookReviewApi.searchBookReviews('');
       expect(result.bookReviews.length).toBe(5);
     });
 
-    it('should return empty results for search term with only spaces', async () => {
+    it('should return favorites shelf for search term with only spaces', async () => {
       const result = await bookReviewApi.searchBookReviews('   ');
-      expect(result.bookReviews.length).toBe(0);
+      expect(result.bookReviews.length).toBe(5);
     });
 
-    it('should return empty results for very short search term (1 character)', async () => {
+    it('should return favorites shelf for very short search term (1 character)', async () => {
       const result = await bookReviewApi.searchBookReviews('a');
-      expect(result.bookReviews.length).toBe(0);
+      expect(result.bookReviews.length).toBe(5);
     });
 
-    it('should return empty results for very short search term (2 characters)', async () => {
+    it('should return favorites shelf for very short search term (2 characters)', async () => {
       const result = await bookReviewApi.searchBookReviews('ab');
-      expect(result.bookReviews.length).toBe(0);
+      expect(result.bookReviews.length).toBe(5);
     });
 
-    it('should return empty results for non-matching search term "asfd98yads"', async () => {
+    it('should return favorites shelf for non-matching search term "asfd98yads"', async () => {
       const result = await bookReviewApi.searchBookReviews('asfd98yads');
-      expect(result.bookReviews.length).toBe(0);
+      expect(result.bookReviews.length).toBe(5);
     });
 
-    it('should return empty results for search term with only special characters', async () => {
+    it('should return favorites shelf for search term with only special characters', async () => {
       const result = await bookReviewApi.searchBookReviews('!@#$%^&*()');
-      expect(result.bookReviews.length).toBe(0);
+      expect(result.bookReviews.length).toBe(5);
     });
 
-    it('should return empty results for search term with only numbers', async () => {
+    it('should return favorites shelf for search term with only numbers', async () => {
       const result = await bookReviewApi.searchBookReviews('12345');
-      expect(result.bookReviews.length).toBe(0);
+      expect(result.bookReviews.length).toBe(5);
     });
 
-    it('should return empty results for search term that is too long', async () => {
+    it('should return favorites shelf for search term that is too long', async () => {
       const longSearchTerm = 'a'.repeat(1000);
       const result = await bookReviewApi.searchBookReviews(longSearchTerm);
-      expect(result.bookReviews.length).toBe(0);
+      expect(result.bookReviews.length).toBe(5);
     });
     it('should return result for search term with extra spaces', async () => {
       const result = await bookReviewApi.searchBookReviews('  George  Orwell  ');

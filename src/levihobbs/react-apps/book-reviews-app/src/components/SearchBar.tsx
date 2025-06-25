@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 interface SearchBarProps {
   searchTerm: string;
@@ -6,15 +6,15 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-export const SearchBar: React.FC<SearchBarProps> = ({ 
+export const SearchBar: React.FC<SearchBarProps> = React.memo(({ 
   searchTerm,
   onSearchChange,
   placeholder = "Search by title, author, or genre..." 
 }) => {
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     onSearchChange(value);
-  };
+  }, [onSearchChange]);
 
   return (
     <div className="search-bar" data-testid="search-bar">
@@ -33,4 +33,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       )}
     </div>
   );
-}; 
+});
+
+SearchBar.displayName = 'SearchBar'; 

@@ -37,6 +37,11 @@ bld/
 *.ncrunchproject
 *.DotSettings.user
 
+# Node.js
+node_modules/
+package-lock.json
+*.log
+
 # React App Build Files
 src/levihobbs/wwwroot/react-apps/book-reviews-app/
 src/levihobbs/react-apps/book-reviews-app/dist/
@@ -44,6 +49,7 @@ src/levihobbs/react-apps/book-reviews-app/node_modules/
 src/levihobbs/react-apps/book-reviews-app/package-lock.json
 src/levihobbs/react-apps/book-reviews-app/*.log
 src/levihobbs/react-apps/book-reviews-app/.env*
+src/levihobbs/react-apps/raven-unit-test-validation-tool/
 
 # Misc
 .DS_Store

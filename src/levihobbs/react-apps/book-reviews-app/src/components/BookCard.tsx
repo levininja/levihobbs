@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { BookReview } from '../types/BookReview';
 
 interface BookCardProps {
@@ -6,29 +6,32 @@ interface BookCardProps {
   onClick?: (book: BookReview) => void;
 }
 
-export const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
-  const handleClick = () => {
+export const BookCard: React.FC<BookCardProps> = React.memo(({ book, onClick }) => {
+  const handleClick = useCallback(() => {
     if (onClick) {
       onClick(book);
     }
-  };
+  }, [onClick, book]);
 
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     const target = e.target as HTMLImageElement;
     // Only set fallback if it's not already set to prevent infinite loops
     if (!target.src.includes('story icon.png')) {
       target.src = '/story icon.png';
     }
-  };
+  }, []);
 
-  // In standalone mode, use the fallback image directly
-  // In integrated mode, try to load from the API
-  const isStandaloneMode = typeof window !== 'undefined' && 
-    (!window.bookReviewsConfig || window.bookReviewsConfig.standaloneMode);
-  
-  const imageSrc = isStandaloneMode 
-    ? '/story icon.png' 
-    : `/api/BookCoverApi?bookTitle=${encodeURIComponent(book.titleByAuthor)}&bookReviewId=${book.id}`;
+  // Memoize the image source
+  const imageSrc = useMemo(() => {
+    // In standalone mode, use the fallback image directly
+    // In integrated mode, try to load from the API
+    const isStandaloneMode = typeof window !== 'undefined' && 
+      (!window.bookReviewsConfig || window.bookReviewsConfig.standaloneMode);
+    
+    return isStandaloneMode 
+      ? '/story icon.png' 
+      : `/api/BookCoverApi?bookTitle=${encodeURIComponent(book.titleByAuthor)}&bookReviewId=${book.id}`;
+  }, [book.titleByAuthor, book.id]);
 
   return (
     <div 
@@ -70,4 +73,6 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
       </div>
     </div>
   );
-}; 
+});
+
+BookCard.displayName = 'BookCard'; 

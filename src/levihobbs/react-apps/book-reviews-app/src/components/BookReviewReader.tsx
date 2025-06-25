@@ -6,7 +6,7 @@ interface BookReviewReaderProps {
   onClose?: () => void;
 }
 
-export const BookReviewReader: React.FC<BookReviewReaderProps> = ({ book, onClose }) => {
+export const BookReviewReader: React.FC<BookReviewReaderProps> = React.memo(({ book, onClose }) => {
   return (
     <div className="book-review-reader" data-testid="book-review-reader">
       <div className="reader-header">
@@ -62,4 +62,6 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = ({ book, onClos
       </div>
     </div>
   );
-}; 
+});
+
+BookReviewReader.displayName = 'BookReviewReader'; 
