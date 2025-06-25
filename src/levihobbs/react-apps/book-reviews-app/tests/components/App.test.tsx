@@ -71,14 +71,14 @@ describe('App', () => {
       expect(screen.getByTestId('welcome-screen')).toBeInTheDocument();
       expect(screen.getByText('Welcome to Levi\'s suppository of book reviews')).toBeInTheDocument();
       expect(screen.getByText('What would you like to do?')).toBeInTheDocument();
-      expect(screen.getByTestId('find-book-button')).toBeInTheDocument();
-      expect(screen.getByTestId('browse-books-button')).toBeInTheDocument();
+      expect(screen.getByTestId('find-book-review-button')).toBeInTheDocument();
+      expect(screen.getByTestId('browse-book-reviews-button')).toBeInTheDocument();
     });
 
     it('navigates to search mode when "Find a particular book review" is clicked', async () => {
       render(<App />);
       
-      const searchButton = screen.getByTestId('find-book-button');
+      const searchButton = screen.getByTestId('find-book-review-button');
       fireEvent.click(searchButton);
 
       await waitFor(() => {
@@ -90,12 +90,12 @@ describe('App', () => {
     it('navigates to browse mode when "Browse book reviews" is clicked', async () => {
       render(<App />);
       
-      const browseButton = screen.getByTestId('browse-books-button');
+      const browseButton = screen.getByTestId('browse-book-reviews-button');
       fireEvent.click(browseButton);
 
       await waitFor(() => {
         expect(screen.getByTestId('browse-tab')).toHaveClass('active');
-        expect(screen.getByTestId('books-grid')).toBeInTheDocument();
+        expect(screen.getByTestId('book-reviews-grid')).toBeInTheDocument();
       });
     });
   });
@@ -103,7 +103,7 @@ describe('App', () => {
   describe('Search Mode', () => {
     beforeEach(async () => {
       render(<App />);
-      const searchButton = screen.getByTestId('find-book-button');
+      const searchButton = screen.getByTestId('find-book-review-button');
       fireEvent.click(searchButton);
       await waitFor(() => {
         expect(screen.getByTestId('search-bar')).toBeInTheDocument();
@@ -146,8 +146,8 @@ describe('App', () => {
 
       // Wait for search results
       await waitFor(() => {
-        const bookCards = screen.getAllByTestId(/book-card-/);
-        expect(bookCards).toHaveLength(1); // Should show only search result
+        const bookReviewCards = screen.getAllByTestId(/book-review-card-/);
+        expect(bookReviewCards).toHaveLength(1); // Should show only search result
         expect(screen.getByText('Search Result Book')).toBeInTheDocument();
         expect(screen.getByText('by Search Author')).toBeInTheDocument();
       });
@@ -173,7 +173,7 @@ describe('App', () => {
   describe('Browse Mode', () => {
     beforeEach(async () => {
       render(<App />);
-      const browseButton = screen.getByTestId('browse-books-button');
+      const browseButton = screen.getByTestId('browse-book-reviews-button');
       fireEvent.click(browseButton);
       await waitFor(() => {
         expect(screen.getByTestId('browse-tab')).toHaveClass('active');
@@ -182,8 +182,8 @@ describe('App', () => {
 
     it('shows book review cards when browse mode is loaded', async () => {
       await waitFor(() => {
-        const bookCards = screen.getAllByTestId(/book-card-/);
-        expect(bookCards.length).toBeGreaterThan(0);
+        const bookReviewCards = screen.getAllByTestId(/book-review-card-/);
+        expect(bookReviewCards.length).toBeGreaterThan(0);
       });
     });
 
@@ -196,7 +196,7 @@ describe('App', () => {
       // Clear the mock and re-render to trigger the delayed response
       vi.clearAllMocks();
       render(<App />);
-      const browseButton = screen.getByTestId('browse-books-button');
+      const browseButton = screen.getByTestId('browse-book-reviews-button');
       fireEvent.click(browseButton);
 
       // The loading state should be visible immediately after clicking
@@ -207,7 +207,7 @@ describe('App', () => {
   describe('Tab Navigation', () => {
     beforeEach(async () => {
       render(<App />);
-      const searchButton = screen.getByTestId('find-book-button');
+      const searchButton = screen.getByTestId('find-book-review-button');
       fireEvent.click(searchButton);
       await waitFor(() => {
         expect(screen.getByTestId('search-bar')).toBeInTheDocument();
@@ -246,7 +246,7 @@ describe('App', () => {
       );
       
       render(<App />);
-      const browseButton = screen.getByTestId('browse-books-button');
+      const browseButton = screen.getByTestId('browse-book-reviews-button');
       fireEvent.click(browseButton);
       
       expect(screen.getByText('Loading...')).toBeInTheDocument();
@@ -256,7 +256,7 @@ describe('App', () => {
       vi.mocked(bookReviewApi.browseBookReviews).mockRejectedValue(new Error('API Error'));
       
       render(<App />);
-      const browseButton = screen.getByTestId('browse-books-button');
+      const browseButton = screen.getByTestId('browse-book-reviews-button');
       fireEvent.click(browseButton);
       
       await waitFor(() => {

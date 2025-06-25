@@ -44,7 +44,7 @@ const getApiConfig = (): ApiConfig => {
 };
 
 // Memoization cache for search filters
-const searchFilterCache = new Map<string, (book: BookReview) => boolean>();
+const searchFilterCache = new Map<string, (bookReview: BookReview) => boolean>();
 
 /**
  * BookReviewApi - Unified API client for mock and real API calls.
@@ -57,7 +57,7 @@ class BookReviewApi {
   }
   
   /**
-   * Browse functionality - returns books filtered by shelf or grouping
+   * Browse functionality - returns book reviews filtered by shelf or grouping
    */
   async browseBookReviews(grouping?: string, shelf?: string): Promise<BookReviewsViewModel> {
     if (this.config.useMock)
@@ -72,7 +72,7 @@ class BookReviewApi {
   }
   
   /**
-   * Search functionality - returns books matching search term
+   * Search functionality - returns book reviews matching search term
    */
   async searchBookReviews(searchTerm: string): Promise<BookReviewsViewModel> {
     if (this.config.useMock) {
@@ -84,6 +84,7 @@ class BookReviewApi {
         allBookshelfGroupings: mockBookshelfGroupings,
         selectedShelf: undefined,
         selectedGrouping: undefined,
+        showRecentOnly: false,
         useCustomMappings: false,
         bookReviews: searchResults
       };
@@ -100,14 +101,14 @@ class BookReviewApi {
    * Mock implementation for browse functionality
    */
   private getMockBookReviews(grouping?: string, shelf?: string): BookReviewsViewModel {
-    // Start with all books that have review content
+    // Start with all book reviews that have review content
     let results = mockBookReviews.filter(br => br.hasReviewContent === true);
 
     // Apply shelf filter
     if (shelf) {
       const lowerShelf = shelf.toLowerCase();
-      results = results.filter(book => 
-        book.bookshelves.some(bs => bs.name.toLowerCase() === lowerShelf)
+      results = results.filter(bookReview => 
+        bookReview.bookshelves.some(bs => bs.name.toLowerCase() === lowerShelf)
       );
     }
 
@@ -119,8 +120,8 @@ class BookReviewApi {
         .flatMap(bg => bg.bookshelves.map(bs => bs.name.toLowerCase()));
       
       if (groupingBookshelfNames.length > 0) {
-        results = results.filter(book =>
-          book.bookshelves.some(bs => groupingBookshelfNames.includes(bs.name.toLowerCase()))
+        results = results.filter(bookReview =>
+          bookReview.bookshelves.some(bs => groupingBookshelfNames.includes(bs.name.toLowerCase()))
         );
       } else {
         results = []; // Invalid grouping, no results
@@ -130,12 +131,14 @@ class BookReviewApi {
     // Sort by dateRead descending
     results.sort((a, b) => new Date(b.dateRead).getTime() - new Date(a.dateRead).getTime());
     
+    // Return a stable object reference when possible
     return {
       category: undefined,
       allBookshelves: mockBookshelves,
       allBookshelfGroupings: mockBookshelfGroupings,
       selectedShelf: shelf,
       selectedGrouping: grouping,
+      showRecentOnly: false,
       useCustomMappings: false,
       bookReviews: results
     };
@@ -145,12 +148,12 @@ class BookReviewApi {
    * Creates a search filter function based on the provided search term
    * Uses memoization to avoid recreating the same filter function
    */
-  private createSearchFilter(searchTerm: string): (book: BookReview) => boolean {
+  private createSearchFilter(searchTerm: string): (bookReview: BookReview) => boolean {
     // Return memoized filter if available
     if (searchFilterCache.has(searchTerm))
       return searchFilterCache.get(searchTerm)!;
 
-    const filterFunction = (book: BookReview): boolean => {
+    const filterFunction = (bookReview: BookReview): boolean => {
       if (searchTerm.trim().length < 2)
         return false;
 
@@ -170,7 +173,7 @@ class BookReviewApi {
         return false;
 
       // Apply search term filter - all search words must be present in searchableString
-      const searchableString = book.searchableString?.toLowerCase() || '';
+      const searchableString = bookReview.searchableString?.toLowerCase() || '';
       return searchWords.every(word => searchableString.includes(word));
     };
 
@@ -183,14 +186,14 @@ class BookReviewApi {
    * Private method that handles search functionality for mock data.
    */
   private getMockSearchResults(searchTerm: string): BookReview[] {
-    // Start with all books that have review content
-    const allBooks = mockBookReviews.filter(br => br.hasReviewContent === true);
+    // Start with all book reviews that have review content
+    const allBookReviews = mockBookReviews.filter(br => br.hasReviewContent === true);
 
     // Define search filter
     const searchFilter = this.createSearchFilter(searchTerm);
 
     // Apply search filter and sort by dateRead descending
-    return allBooks
+    return allBookReviews
       .filter(searchFilter)
       .sort((a, b) => new Date(b.dateRead).getTime() - new Date(a.dateRead).getTime());
   }

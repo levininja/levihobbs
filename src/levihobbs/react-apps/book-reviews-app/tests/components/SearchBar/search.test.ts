@@ -26,20 +26,20 @@ describe('BookReviewApi - Simplified Test Suite', () => {
   // ===== SEARCH TESTS =====
   describe('searchBookReviews', () => {
     describe('should return matching results', () => {
-      it('should find books by author first name "George"', async () => {
+      it('should find bookreviews for books by author first name "George"', async () => {
         const result = await bookReviewApi.searchBookReviews('George');
         expect(result.bookReviews.length).toBe(2);
-        expect(result.bookReviews.some(book => book.title === '1984')).toBe(true);
-        expect(result.bookReviews.some(book => book.title === 'Tenth of December')).toBe(true);
+        expect(result.bookReviews.some(bookReview => bookReview.title === '1984')).toBe(true);
+        expect(result.bookReviews.some(bookReview => bookReview.title === 'Tenth of December')).toBe(true);
       });
 
-      it('should find books by author last name "Orwell"', async () => {
+      it('should find bookreviews for books by author last name "Orwell"', async () => {
         const result = await bookReviewApi.searchBookReviews('Orwell');
         expect(result.bookReviews.length).toBe(1);
         expect(result.bookReviews[0].title).toBe('1984');
       });
 
-      it('should find books by title "1984"', async () => {
+      it('should find bookreviews for books by title "1984"', async () => {
         const result = await bookReviewApi.searchBookReviews('1984');
         expect(result.bookReviews.length).toBe(1);
         expect(result.bookReviews[0].title).toBe('1984');
@@ -73,20 +73,20 @@ describe('BookReviewApi - Simplified Test Suite', () => {
 
   // ===== BROWSE TESTS =====
   describe('browseBookReviews', () => {
-    describe('should return all books by default', () => {
-      it('should return all books when no filters applied', async () => {
+    describe('should return all bookreviews by default', () => {
+      it('should return all bookreviews when no filters applied', async () => {
         const result = await bookReviewApi.browseBookReviews();
         expect(result.bookReviews.length).toBeGreaterThan(0);
       });
     });
 
     describe('should filter by bookshelf', () => {
-      it('should return books from "favorites" shelf', async () => {
+      it('should return bookreviews from "favorites" shelf', async () => {
         const result = await bookReviewApi.browseBookReviews(undefined, 'favorites');
         expect(result.selectedShelf).toBe('favorites');
         expect(result.bookReviews.length).toBeGreaterThan(0);
-        result.bookReviews.forEach(book => {
-          const hasFavoritesBookshelf = book.bookshelves.some(bs => bs.name === 'favorites');
+        result.bookReviews.forEach(bookReview => {
+          const hasFavoritesBookshelf = bookReview.bookshelves.some(bs => bs.name === 'favorites');
           expect(hasFavoritesBookshelf).toBe(true);
         });
       });
@@ -99,13 +99,13 @@ describe('BookReviewApi - Simplified Test Suite', () => {
     });
 
     describe('should filter by bookshelf grouping', () => {
-      it('should return books from "Science Fiction" grouping', async () => {
+      it('should return bookreviews from "Science Fiction" grouping', async () => {
         const result = await bookReviewApi.browseBookReviews('Science Fiction');
         expect(result.selectedGrouping).toBe('Science Fiction');
         expect(result.bookReviews.length).toBeGreaterThan(0);
         const sfBookshelves = ['sf-classics', 'space-opera', 'epic-sf', 'science-fiction-comps', 'cyberpunk', '2024-science-fiction'];
-        result.bookReviews.forEach(book => {
-          const hasSfBookshelf = book.bookshelves.some(bs => sfBookshelves.includes(bs.name));
+        result.bookReviews.forEach(bookReview => {
+          const hasSfBookshelf = bookReview.bookshelves.some(bs => sfBookshelves.includes(bs.name));
           expect(hasSfBookshelf).toBe(true);
         });
       });

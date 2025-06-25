@@ -1,7 +1,7 @@
 @use './variables' as *;
 @use './common' as *;
 
-.book-card {
+.book-review-card {
   border: 1px solid $color-ui-medium;
   border-radius: $radius-md;
   padding: $spacing-md;
@@ -14,7 +14,7 @@
   }
 }
 
-.book-cover {
+.book-review-cover {
   img {
     width: 100%;
     height: 200px;
@@ -24,7 +24,7 @@
   }
 }
 
-.book-info {
+.book-review-info {
   h3 {
     margin: 0 0 $spacing-xs 0;
     color: $color-text-primary;
@@ -32,13 +32,13 @@
   }
 }
 
-.book-author {
+.book-review-author {
   color: $color-text-secondary;
   margin: 0 0 $spacing-sm 0;
   font-style: italic;
 }
 
-.book-rating {
+.book-review-rating {
   display: flex;
   gap: $spacing-md;
   margin-bottom: $spacing-sm;

@@ -1,6 +1,6 @@
 @use './variables' as *;
 
-// Common bookshelf tag styling (used in both book-card and book-review-reader)
+// Common bookshelf tag styling (used in both book-review-card and book-review-reader)
 .bookshelf-tag {
   display: inline-block;
   background: $color-ui-medium;
@@ -12,7 +12,7 @@
   color: $color-text-secondary;
 }
 
-// Common rating info styling (used in both book-card and book-review-reader)
+// Common rating info styling (used in both book-review-card and book-review-reader)
 .rating-info {
   display: flex;
   gap: $spacing-xl;

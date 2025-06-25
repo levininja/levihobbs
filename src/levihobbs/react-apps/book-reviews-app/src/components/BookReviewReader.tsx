@@ -2,11 +2,11 @@ import React from 'react';
 import type { BookReview } from '../types/BookReview';
 
 interface BookReviewReaderProps {
-  book: BookReview;
+  bookReview: BookReview;
   onClose?: () => void;
 }
 
-export const BookReviewReader: React.FC<BookReviewReaderProps> = React.memo(({ book, onClose }) => {
+export const BookReviewReader: React.FC<BookReviewReaderProps> = React.memo(({ bookReview, onClose }) => {
   return (
     <div className="book-review-reader" data-testid="book-review-reader">
       <div className="reader-header">
@@ -17,34 +17,34 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = React.memo(({ b
         >
           ×
         </button>
-        <h1>{book.title}</h1>
-        <h2>by {book.authorFirstName} {book.authorLastName}</h2>
+        <h1>{bookReview.title}</h1>
+        <h2>by {bookReview.authorFirstName} {bookReview.authorLastName}</h2>
       </div>
       
       <div className="reader-content">
         <div className="book-meta">
           <div className="rating-info">
-            <span>My Rating: {book.myRating}/5</span>
-            <span>Average Rating: {book.averageRating}/5</span>
+            <span>My Rating: {bookReview.myRating}/5</span>
+            <span>Average Rating: {bookReview.averageRating}/5</span>
           </div>
-          {book.originalPublicationYear && (
-            <p>Published: {book.originalPublicationYear}</p>
+          {bookReview.originalPublicationYear && (
+            <p>Published: {bookReview.originalPublicationYear}</p>
           )}
-          <p>Read: {new Date(book.dateRead).toLocaleDateString()}</p>
-          {book.numberOfPages && (
-            <p>Pages: {book.numberOfPages}</p>
+          <p>Read: {new Date(bookReview.dateRead).toLocaleDateString()}</p>
+          {bookReview.numberOfPages && (
+            <p>Pages: {bookReview.numberOfPages}</p>
           )}
         </div>
         
-        {book.myReview && (
+        {bookReview.myReview && (
           <div className="review-content">
             <h3>My Review</h3>
             <div 
               className="review-text"
-              dangerouslySetInnerHTML={{ __html: book.myReview }}
+              dangerouslySetInnerHTML={{ __html: bookReview.myReview }}
             />
             <div className="reading-info">
-              <span>Reading time: {book.readingTimeMinutes} minutes</span>
+              <span>Reading time: {bookReview.readingTimeMinutes} minutes</span>
             </div>
           </div>
         )}
@@ -52,7 +52,7 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = React.memo(({ b
         <div className="bookshelves">
           <h4>Bookshelves:</h4>
           <div className="bookshelf-tags">
-            {book.bookshelves.map(shelf => (
+            {bookReview.bookshelves.map(shelf => (
               <span key={shelf.id} className="bookshelf-tag">
                 {shelf.displayName || shelf.name}
               </span>

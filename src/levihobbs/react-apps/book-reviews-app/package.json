@@ -9,7 +9,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "scss:compile": "sass src/scss:src/css --style compressed",
+    "scss:watch": "sass src/scss:src/css --watch --style compressed"
   },
   "dependencies": {
     "react": "^19.1.0",

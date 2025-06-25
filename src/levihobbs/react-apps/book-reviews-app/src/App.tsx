@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { bookReviewApi } from './services/api';
 import type { BookReview, BookReviewsViewModel } from './types/BookReview';
-import { BookCard } from './components/BookCard';
+import { BookReviewCard } from './components/BookReviewCard';
 import { BookReviewReader } from './components/BookReviewReader';
 import { SearchBar } from './components/SearchBar';
 import { FilterPanel } from './components/FilterPanel';
@@ -18,7 +18,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewModel, setViewModel] = useState<BookReviewsViewModel | null>(null);
-  const [selectedBook, setSelectedBook] = useState<BookReview | null>(null);
+  const [selectedBookReview, setSelectedBookReview] = useState<BookReview | null>(null);
   
   // Search state
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,7 +43,7 @@ function App() {
           if (mode === 'browse')
             setBrowseResults(result.bookReviews || []);
         } catch (err) {
-          setError(err instanceof Error ? err.message : 'Failed to fetch books');
+          setError(err instanceof Error ? err.message : 'Failed to fetch book reviews');
         } finally {
           setLoading(false);
         }
@@ -52,7 +52,7 @@ function App() {
     }
   }, [mode, viewModel]);
 
-  // Memoize lookup maps for filtering
+  // Memoize lookup maps for filtering with better stability
   const lookupMaps = useMemo(() => {
     const allBookshelves = viewModel?.allBookshelves || [];
     const allGroupings = viewModel?.allBookshelfGroupings || [];
@@ -81,7 +81,7 @@ function App() {
       const results = await bookReviewApi.searchBookReviews(term);
       setSearchResults(results.bookReviews || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to search books');
+      setError(err instanceof Error ? err.message : 'Failed to search book reviews');
       setSearchResults([]);
     } finally {
       setIsSearching(false);
@@ -114,26 +114,41 @@ function App() {
       const results = await bookReviewApi.browseBookReviews(grouping, shelf);
       setBrowseResults(results.bookReviews || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to browse books');
+      setError(err instanceof Error ? err.message : 'Failed to browse book reviews');
       setBrowseResults([]);
     } finally {
       setIsBrowsing(false);
     }
   }, [browseFilters, lookupMaps]);
 
-  const handleBookClick = useCallback((book: BookReview) => {
-    setSelectedBook(book);
+  const handleBookReviewClick = useCallback((bookReview: BookReview) => {
+    setSelectedBookReview(bookReview);
   }, []);
 
   const handleCloseReader = useCallback(() => {
-    setSelectedBook(null);
+    setSelectedBookReview(null);
   }, []);
 
-  // Memoize the combined tags list for FilterPanel
+  // Memoize the combined tags list for FilterPanel with better stability
   const allTags = useMemo(() => [
     ...(viewModel?.allBookshelfGroupings || []).map(g => ({ name: g.name, type: 'grouping' as const })),
     ...(viewModel?.allBookshelves || []).map(s => ({ name: s.name, type: 'shelf' as const }))
   ], [viewModel?.allBookshelfGroupings, viewModel?.allBookshelves]);
+
+  // Memoize the current results to prevent unnecessary re-renders
+  const currentResults = useMemo(() => {
+    if (mode === 'search') {
+      return searchResults;
+    } else if (mode === 'browse') {
+      return browseResults;
+    }
+    return [];
+  }, [mode, searchResults, browseResults]);
+
+  // Memoize the loading state
+  const isLoading = useMemo(() => {
+    return isSearching || isBrowsing;
+  }, [isSearching, isBrowsing]);
 
   if (loading)
     return <div className="app">Loading...</div>;
@@ -152,14 +167,14 @@ function App() {
             <button 
               className="welcome-button"
               onClick={() => setMode('search')}
-              data-testid="find-book-button"
+              data-testid="find-book-review-button"
             >
               Find a particular book review
             </button>
             <button 
               className="welcome-button"
               onClick={() => setMode('browse')}
-              data-testid="browse-books-button"
+              data-testid="browse-book-reviews-button"
             >
               Browse book reviews
             </button>
@@ -207,32 +222,25 @@ function App() {
       </header>
       
       <main className="app-main">
-        {selectedBook ? (
+        {selectedBookReview ? (
           <BookReviewReader 
-            book={selectedBook} 
+            bookReview={selectedBookReview} 
             onClose={handleCloseReader}
           />
         ) : (
           <>
-            {(isSearching || isBrowsing) && (
+            {isLoading && (
               <div className="loading" data-testid="loading">
                 <div className="loading-spinner"></div>
                 <p>{isSearching ? 'Searching...' : 'Loading...'}</p>
               </div>
             )}
-            <div className="books-grid" data-testid="books-grid">
-              {mode === 'search' && searchResults.map(book => (
-                <BookCard
-                  key={book.id}
-                  book={book}
-                  onClick={handleBookClick}
-                />
-              ))}
-              {mode === 'browse' && browseResults.map(book => (
-                <BookCard
-                  key={book.id}
-                  book={book}
-                  onClick={handleBookClick}
+            <div className="book-reviews-grid" data-testid="book-reviews-grid">
+              {currentResults.map(bookReview => (
+                <BookReviewCard
+                  key={bookReview.id}
+                  bookReview={bookReview}
+                  onClick={handleBookReviewClick}
                 />
               ))}
             </div>

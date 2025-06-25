@@ -1,8 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { BookCard } from '../../src/components/BookCard';
+import { BookReviewCard } from '../../src/components/BookReviewCard';
 import type { BookReview } from '../../src/types/BookReview';
 
-const mockBook: BookReview = {
+const mockBookReview: BookReview = {
   id: 1,
   title: "Test Book",
   authorFirstName: "John",
@@ -24,9 +24,9 @@ const mockBook: BookReview = {
   ]
 };
 
-describe('BookCard', () => {
-  it('renders book information correctly', () => {
-    render(<BookCard book={mockBook} />);
+describe('BookReviewCard', () => {
+  it('renders book review information correctly', () => {
+    render(<BookReviewCard bookReview={mockBookReview} />);
     
     expect(screen.getByText('Test Book')).toBeInTheDocument();
     expect(screen.getByText('by John Doe')).toBeInTheDocument();
@@ -36,20 +36,20 @@ describe('BookCard', () => {
 
   it('calls onClick when clicked', () => {
     const mockOnClick = vi.fn();
-    render(<BookCard book={mockBook} onClick={mockOnClick} />);
+    render(<BookReviewCard bookReview={mockBookReview} onClick={mockOnClick} />);
     
-    fireEvent.click(screen.getByTestId('book-card-1'));
-    expect(mockOnClick).toHaveBeenCalledWith(mockBook);
+    fireEvent.click(screen.getByTestId('book-review-card-1'));
+    expect(mockOnClick).toHaveBeenCalledWith(mockBookReview);
   });
 
   it('displays bookshelf tags', () => {
-    render(<BookCard book={mockBook} />);
+    render(<BookReviewCard bookReview={mockBookReview} />);
     
     expect(screen.getByText('Test')).toBeInTheDocument();
   });
 
   it('displays reading time when review content exists', () => {
-    render(<BookCard book={mockBook} />);
+    render(<BookReviewCard bookReview={mockBookReview} />);
     
     expect(screen.getByText('3 min read')).toBeInTheDocument();
   });
