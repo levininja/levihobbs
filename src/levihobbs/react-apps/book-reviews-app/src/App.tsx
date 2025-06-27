@@ -52,6 +52,11 @@ function App() {
     }
   }, [mode, viewModel]);
 
+  const getTags = (bookshelves: Bookshelf[], bookshelfGroupings: BookshelfGrouping[], specialtyShelves: SpecialtyShelf[]): string[] => {
+    // TODO: Write logic here to get all tags from bookshelves and bookshelf groupings
+    return [];
+  }
+ 
   // Memoize lookup maps for filtering with better stability
   const lookupMaps = useMemo(() => {
     const allBookshelves = viewModel?.allBookshelves || [];

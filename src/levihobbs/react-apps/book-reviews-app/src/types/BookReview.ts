@@ -22,13 +22,11 @@ export interface BookReview {
 export interface Bookshelf {
   id: number;
   name: string;
-  displayName?: string;
 }
 
 export interface BookshelfGrouping {
   id: number;
   name: string;
-  displayName?: string;
   bookshelves: Bookshelf[];
 }
 

@@ -3,6 +3,14 @@ import type { BookReview } from '../types/BookReview';
 import type { BookshelfGrouping } from '../types/BookReview';
 import { generatePreviewText, calculateReadingTime } from '../utils/textUtils';
 
+export const specialtyShelves: string[] = [
+  "favorites",
+  "featured", 
+  "2025-reading-list",
+  "history-of-lit",
+  "friends"
+];
+
 // Long review content variables to avoid repetition
 const finalEclipseReview = `It is so rare to read science fiction these days that both inspires the imagination and also teaches real science. <br/><br/>This last week I reviewed Three Body Problem, which I raved about because it does just that. Final Eclipse is another of the few. It has a small group of friends using deduction and science to battle against a conspiracy of unseen, sinister extraterrestrials who are hell-bent on conquering the planet.<br/><br/>And best of all (for a worldbuilding sucker like me), along the way you get to learn a lot about physics, history, and a smattering of so many others, from astronomy to sea ice to SOFAR to intriguing military technologies to why Iceland would be the best place on Earth to survive a winter apocalypse.<br/><br/>In addition to all that, this is also a very special book to me personally.<br/><br/>You see, about 6 years ago, I started a writer's group that meets at me and my wife's home. We set out to do one thing really well together: to give high quality constructive feedback regularly that manages to be both highly rigorous and uplifting.<br/><br/>Of the writers in that group, we've covered a lot of ground together over the years. We've struggled together to figure out so many things, encouraged each other in the lows, celebrated together in the highs.<br/>And several novels have gone through our group. But today, the first one is getting published.<br/><br/>I couldn't be more proud, because, as much as this book is definitely the brain-child of Matthew, it also feels a little bit like the child of the whole writer's group, the proverbial village that it takes to raise a child. It's Matthew's biological child, but we all got to participate in a really substantive way, and that's just really cool.<br/><br/>I often call Matthew the world's most fascinating man. He's a physics professor, a world traveler, an astronomer, a voracious reader of science fiction and many other genres, and he's always taking some absolutely epic trip somewhere, kayaking down a river in the Congo to be the first one to film a remote waterfall, or traveling to the Azores Islands to do research for his book, or to Iceland to do research for his book, or…did I mention this guy does some incredible research for his books? Who does that???<br/><br/>He's also just one of those people who are a seemingly infinite treasure trove of interesting information. And a gifted teacher. I've seen him teach complex physics topics to a mixed audience on the spot with ease.<br/><br/>Okay wow, I've gone far afield from talking about the book. The book!<br/><br/>Final Eclipse is epic. The first part is brooding. Our heroes and heroine become privy to the fact that the world as we know it is about to end. But almost no one on the planet knows it yet. People are just going about their days, few of them—outside a small handful of scientists—aware that there's any problem at all. But there is, and it's sinister.<br/><br/>Kevin's father is a top scientist at an agency that monitors satellites. Particular satellites: the ones that monitor the sun. And then one day, all of these satellites mysteriously go dead within a moment of each other.<br/><br/>What could it be? Equipment malfunction? Solar flare? They test out the standard list of theories, but nothing checks out. Until someone comes up with a strange theory.<br/><br/>You see, all of these satellites are at a very special location in space. If you're monitoring the sun, the best place to put your satellites is a location called L1. It's one of the LaGrange points: particular spots around the Earth wherein, if you put a satellite, the forces of gravity all equal out so that it will stay put indefinitely without you having to expend any energy to keep it there. The L1 point is the place partway in a line between the sun and Earth, at just the spot where the gravity of Earth and the gravity of the sun equal out, pulling in two exact opposite directions (obviously much closer to the Earth than the sun to compensate for the fact that the sun is 300,000 times heavier).<br/><br/>Anyways, what's such a big deal about this LaGrange point? Well if you think about it, if you wanted to put something between those two bodies…indefinitely…such as, I don't know, a huge shield to block all sunlight from getting to the Earth…voila.<br/><br/>Someone's out to kill all life on the planet.<br/><br/>The plot progresses along several lines. Without giving too much away, I'll just say that this is about good old fashioned fighting against the alien invaders, plus there's the pandemonium of the masses preparing for impending doom, there's the malice of nations against one another, there's militaries and nations and a bit of politics, but most importantly, there's the mystery unraveling slowly of figuring out: who exactly are these aliens? What kind of people would attack the earth in this way? How can we prepare for them? More is continually revealed as we adventure all over the globe, and it's quite satisfying.<br/><br/>Oh and one other thing. Far from reading like a textbook, this is pretty easy reading. In fact, one of the other writers in our group described it as "YA (young adult) for grown-ups," and I have to agree.<br/><br/>It's fun, but not stupid. I've read my fair share of bad YA. One of the classic YA pitfalls is to make it seem like for some reason, it's just the kids who are capable of doing anything to save the world, and all the adults are idiots…pure wish fulfillment. But this book is refreshing because it doesn't do that. The adults are doing the big plans and everything—much more realistic—but at the same time, our young heroes and heroine have a major part to play, and we get to see the world through their eyes. And it's just a lot more fun that way. I feel like I'm getting the best of both worlds.<br/><br/>Okay, if I talk any more about this book I'm going to give things away. Go out and read it today! It's a fun ride. Final Eclipse is perfect for young adult SF readers who want to learn some real science in their reads, adults who read YA sci-fi, readers who enjoy YA but are sick of the trope where all the adults are morons and only the kids can save the day, and anyone looking for the classic alien invasion story with a novel premise.`;
 const odysseyReview = `I read Samuel Butler's translation, originally published in 1900, which is recommended if you're looking for a prose translation that retains some of the poetic language. I considered the older language that Butler uses to be fitting to me for reading something this ancient.<br/><br/>One of the fascinating things about Samuel Butler's translation is that it includes a preface, written by him, where he explains that he had published a book called The Authoress of the Odyssey in which he claimed that the author of the Odyssey was not in fact Homer (which wasn't so provocative an idea at the time), but was in fact a woman (which was).<br/><br/>Further, he goes on to speculate who the woman was and name a particular woman; he thinks she must have written herself into the story.<br/><br/>I did a little research on his claims, and it seems that scholars are open to the idea that the Odyssey could have in fact been written by a woman. The claims of who that particular woman was are pretty far-reaching, but the idea that it was probably not Homer isn't a stretch at all; there's evidence that it was probably composed hundreds of years after The Iliad.<br/><br/>Butler's theory stuck with me as I read, especially because The Odyssey is so full of domestic detail: food preparation, garments, household routines. There's a quiet authority in those passages, a specificity that feels lived rather than imagined.<br/><br/>As someone who has spent a lot of time with other writers in critique groups, I've come to believe that those unassuming little details—the subconscious ones, the things the author didn't think were important—are the best glimpses into the real person behind the pen. Anyone can write about war or love or loss, but the mundane details are harder to fake. They suggest proximity.<br/><br/>The structure of the story surprised me. Having read an abridged version as a kid, I expected most of the book to focus on Odysseus's island-hopping adventures. Instead, the majority centers on the suitors plot—Odysseus's wife dealing with persistent suitors while he's away, and his eventual return in disguise to deal with them. This storyline dominates the narrative, often feeling static as characters wait around talking while nothing happens. Meanwhile, some of Odysseus's most fascinating adventures get condensed to single paragraphs, which was frustrating.<br/><br/>Despite this structural imbalance, the book delivers moments of genuine power. Butler's translation captures beautiful poetic language throughout, and certain scenes have stayed with me long after reading. Achilles' haunting words from the underworld—I would rather be a paid servant in a poor man's house and be above ground than king of kings among the dead—perfectly encapsulate the Greek view of mortality that made The Iliad so compelling.<br/><br/>The scene with Argos, Odysseus's loyal dog, might be one of the most emotionally effective passages in all of ancient literature. The image of this neglected hound, full of fleas and lying on the heaps of mule and cow dung, who still recognizes his master after twenty years and dies as soon as he sees him, is heartbreaking in its simplicity.<br/><br/>There's also Odysseus's warning to Amphinomus about human vanity and the fickleness of fortune: Man is the vainest of all creatures that have their being upon earth. As long as heaven vouchsafes him health and strength, he thinks that he shall come to no harm hereafter. These philosophical moments elevate the narrative beyond mere adventure story.<br/><br/>The psychological complexity shows through in scenes like Odysseus describing his own clothing to his disguised wife in elaborate detail—the purple wool mantle with its gold brooch showing a dog holding a spotted fawn between his forepaws. It's both touching and slightly absurd, this moment of vanity from a hero in disguise.<br/><br/>Theoclymenus's prophetic vision near the end provides genuine chills: The air is alive with wailing voices; the walls and roof-beams drop blood; the gate of the cloisters and the court beyond them are full of ghosts trooping down into the night of hell. Butler's translation makes this supernatural moment feel appropriately ominous.<br/><br/>The Odyssey is a foundational work that rewards careful reading. Butler's translation, despite being over a century old, felt authentic to the ancient world, although admittedly I haven't compared it to other translations. The domestic details, the psychological complexity, and those moments of startling beauty make this worth the read. This translation of the Odyssey is perfect for lovers of the classics and those looking for a readable translation of the Odyssey.<br/><br/>By the way, when I read the story about Argos the Dog, I felt my heart was yanked about. We're given this sweet moment, but then suddenly the dog dies. Just like that, mentioned in an offhand manner. I thought to myself: what if a story were written from Argos' perspective that was more satisfying? What about a story where it actually makes sense that he dies at the end and it gives you a sense of the story being complete instead of incomplete? So I set out to do just that. If you're interested in reading it, here's my attempt at Odyssey fan fiction:<br/>https://levihobbs.substack.com/p/argos-the-dog`;
@@ -24,58 +32,53 @@ export const mockBookshelfGroupings: BookshelfGrouping[] = [
   {
     id: 7,
     name: "History",
-    displayName: undefined,
     bookshelves: [
-      { id: 202, name: "topical-history", displayName: "topical-history" },
-      { id: 214, name: "ancient-history", displayName: "ancient-history" },
-      { id: 214, name: "renaissance-history", displayName: "renaissance-history" },
-      { id: 227, name: "modern-history", displayName: "modern-history" }
+      { id: 202, name: "topical-history" },
+      { id: 214, name: "ancient-history" },
+      { id: 214, name: "renaissance-history" },
+      { id: 227, name: "modern-history" }
     ]
   },
   {
     id: 8,
     name: "Science Fiction",
-    displayName: undefined,
     bookshelves: [
-      { id: 189, name: "sf-classics", displayName: "sf-classics" },
-      { id: 201, name: "space-opera", displayName: "space-opera" },
-      { id: 203, name: "epic-sf", displayName: "epic-sf" },
-      { id: 204, name: "science-fiction-comps", displayName: "science-fiction-comps" },
-      { id: 205, name: "cyberpunk", displayName: "cyberpunk" },
-      { id: 206, name: "2024-science-fiction", displayName: "2024-science-fiction" }
+      { id: 189, name: "sf-classics" },
+      { id: 201, name: "space-opera" },
+      { id: 203, name: "epic-sf" },
+      { id: 204, name: "science-fiction-comps" },
+      { id: 205, name: "cyberpunk" },
+      { id: 206, name: "2024-science-fiction" }
     ]
   },
   {
     id: 9,
     name: "Fantasy",
-    displayName: undefined,
     bookshelves: [
-      { id: 207, name: "high-fantasy", displayName: "high-fantasy" },
-      { id: 208, name: "modern-fantasy", displayName: "modern-fantasy" },
-      { id: 209, name: "modern-fairy-tales", displayName: "modern-fairy-tales" },
-      { id: 210, name: "folks-and-myths", displayName: "folks-and-myths" }
+      { id: 207, name: "high-fantasy" },
+      { id: 208, name: "modern-fantasy" },
+      { id: 209, name: "modern-fairy-tales" },
+      { id: 210, name: "folks-and-myths" }
     ]
   },
   {
     id: 10,
     name: "Ancient Classics",
-    displayName: undefined,
     bookshelves: [
-      { id: 211, name: "ancient-greek", displayName: "ancient-greek" },
-      { id: 214, name: "ancient-history", displayName: "ancient-history" },
-      { id: 212, name: "ancient-classics", displayName: "ancient-classics" },
-      { id: 213, name: "ancient-roman", displayName: "ancient-roman" }
+      { id: 211, name: "ancient-greek" },
+      { id: 214, name: "ancient-history" },
+      { id: 212, name: "ancient-classics" },
+      { id: 213, name: "ancient-roman" }
     ]
   },
   {
     id: 11,
     name: "Classics",
-    displayName: undefined,
     bookshelves: [
-      { id: 211, name: "ancient-greek", displayName: "ancient-greek" },
-      { id: 213, name: "ancient-roman", displayName: "ancient-roman" },
-      { id: 215, name: "renaissance-classics", displayName: "renaissance-classics" },
-      { id: 216, name: "modern-classics", displayName: "modern-classics" }
+      { id: 211, name: "ancient-greek" },
+      { id: 213, name: "ancient-roman" },
+      { id: 215, name: "renaissance-classics" },
+      { id: 216, name: "modern-classics" }
     ]
   }
 ]; 
@@ -98,7 +101,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(finalEclipseReview),
     readingTimeMinutes: calculateReadingTime(finalEclipseReview),
     coverImageId: null,
-    bookshelves: [{ id: 203, name: "epic-sf", displayName: "epic-sf" },{ id: 194, name: "friends", displayName: "friends" }]
+    bookshelves: [{ id: 203, name: "epic-sf" },{ id: 194, name: "friends" }]
   },
   {
     id: 2,
@@ -117,7 +120,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(odysseyReview),
     readingTimeMinutes: calculateReadingTime(odysseyReview),
     coverImageId: null,
-    bookshelves: [{ id: 192, name: "2025-reading-list", displayName: "2025-reading-list" }, { id: 191, name: "ancient-greek", displayName: "ancient-greek" }, { id: 225, name: "ancient-classics", displayName: "ancient-classics" },{ id: 190, name: "history-of-lit", displayName: "history-of-lit" }]
+    bookshelves: [{ id: 192, name: "2025-reading-list" }, { id: 191, name: "ancient-greek" }, { id: 225, name: "ancient-classics" },{ id: 190, name: "history-of-lit" }]
   },
   {
     id: 3,
@@ -136,7 +139,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(nineteenEightyFourReview),
     readingTimeMinutes: calculateReadingTime(nineteenEightyFourReview),
     coverImageId: null,
-    bookshelves: [{ id: 189, name: "sf-classics", displayName: "sf-classics" },{ id: 212, name: "modern-classics", displayName: "modern-classics" },]
+    bookshelves: [{ id: 189, name: "sf-classics" },{ id: 212, name: "modern-classics" },]
   },
   {
     id: 4,
@@ -155,7 +158,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(tenthOfDecemberReview),
     readingTimeMinutes: calculateReadingTime(tenthOfDecemberReview),
     coverImageId: null,
-    bookshelves: [{ id: 219, name: "featured", displayName: "featured" }, { id: 196, name: "favorites", displayName: "favorites" },{ id: 221, name: "modern-literary-fiction", displayName: "modern-literary-fiction" }, { id: 205, name: "cyberpunk", displayName: "cyberpunk" }]
+    bookshelves: [{ id: 219, name: "featured" }, { id: 196, name: "favorites" },{ id: 221, name: "modern-literary-fiction" }, { id: 205, name: "cyberpunk" }]
   },
   {
     id: 5,
@@ -174,7 +177,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(kingArthurReview),
     readingTimeMinutes: calculateReadingTime(kingArthurReview),
     coverImageId: null,
-    bookshelves: [{ id: 228, name: "childrens", displayName: "childrens" },]
+    bookshelves: [{ id: 228, name: "childrens" },]
   },
   {
     id: 6,
@@ -212,7 +215,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(thelefthandofdarknessReview),
     readingTimeMinutes: calculateReadingTime(thelefthandofdarknessReview),
     coverImageId: null,
-    bookshelves: [{ id: 212, name: "modern-classics", displayName: "modern-classics" },{ id: 189, name: "sf-classics", displayName: "sf-classics" }]
+    bookshelves: [{ id: 212, name: "modern-classics" },{ id: 189, name: "sf-classics" }]
   },
   {
     id: 2138,
@@ -231,7 +234,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(thelordoftheringsReview),
     readingTimeMinutes: calculateReadingTime(thelordoftheringsReview),
     coverImageId: 54,
-    bookshelves: [{ id: 196, name: "favorites", displayName: "favorites" }, { id: 219, name: "featured", displayName: "featured" },{ id: 211, name: "high-fantasy", displayName: "high-fantasy" },{ id: 212, name: "modern-classics", displayName: "modern-classics" },]
+    bookshelves: [{ id: 196, name: "favorites" }, { id: 219, name: "featured" },{ id: 211, name: "high-fantasy" },{ id: 212, name: "modern-classics" },]
   },
   {
     id: 2061,
@@ -250,7 +253,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(twelvestepsandtwelvetraditionsReview),
     readingTimeMinutes: calculateReadingTime(twelvestepsandtwelvetraditionsReview),
     coverImageId: 50,
-    bookshelves: [{ id: 196, name: "favorites", displayName: "favorites" },{ id: 213, name: "psychology", displayName: "psychology" },{ id: 218, name: "spirituality and theology", displayName: "spirituality-and-theology" },]
+    bookshelves: [{ id: 196, name: "favorites" },{ id: 213, name: "psychology" },{ id: 218, name: "spirituality and theology" },]
   },
   {
     id: 1948,
@@ -269,7 +272,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(assassinsapprenticeReview),
     readingTimeMinutes: calculateReadingTime(assassinsapprenticeReview),
     coverImageId: 55,
-    bookshelves: [{ id: 196, name: "favorites", displayName: "favorites" }, { id: 211, name: "high-fantasy", displayName: "high-fantasy" }]
+    bookshelves: [{ id: 196, name: "favorites" }, { id: 211, name: "high-fantasy" }]
   },
   {
     id: 1885,
@@ -288,7 +291,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(frogandtoadarefriendsReview),
     readingTimeMinutes: calculateReadingTime(frogandtoadarefriendsReview),
     coverImageId: 61,
-    bookshelves: [{ id: 196, name: "favorites", displayName: "favorites" }, { id: 228, name: "childrens", displayName: "childrens" },]
+    bookshelves: [{ id: 196, name: "favorites" }, { id: 228, name: "childrens" },]
   },
   {
     id: 1884,
@@ -307,21 +310,21 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(religiousexplanationandscientificideologyReview),
     readingTimeMinutes: calculateReadingTime(religiousexplanationandscientificideologyReview),
     coverImageId: null,
-    bookshelves: [{ id: 192, name: "2025-reading-list", displayName: "2025-reading-list" }, { id: 194, name: "friends", displayName: "friends" }, { id: 195, name: "philosophy", displayName: "philosophy" }, { id: 218, name: "theology-and-spirituality", displayName: "theology-and-spirituality" },]
+    bookshelves: [{ id: 192, name: "2025-reading-list" }, { id: 194, name: "friends" }, { id: 195, name: "philosophy" }, { id: 218, name: "theology-and-spirituality" },]
   }
 ]; 
 
 // Real bookshelves from database
 export const mockBookshelves: Bookshelf[] = [
-  { id: 196, name: "favorites", displayName: "favorites" },
-  { id: 219, name: "featured", displayName: "featured" },
-  { id: 192, name: "2025-reading-list", displayName: "2025-reading-list" },
-  { id: 191, name: "ancient-greek", displayName: "ancient-greek" },
-  { id: 190, name: "history-of-lit", displayName: "history-of-lit" },
-  { id: 211, name: "high-fantasy", displayName: "high-fantasy" },
-  { id: 195, name: "philosophy", displayName: "philosophy" },
-  { id: 194, name: "friends", displayName: "friends" },
-  { id: 228, name: "childrens", displayName: "childrens" }
+  { id: 196, name: "favorites" },
+  { id: 219, name: "featured" },
+  { id: 192, name: "2025-reading-list" },
+  { id: 191, name: "ancient-greek" },
+  { id: 190, name: "history-of-lit" },
+  { id: 211, name: "high-fantasy" },
+  { id: 195, name: "philosophy" },
+  { id: 194, name: "friends" },
+  { id: 228, name: "childrens" }
 ];
 
 // Re-export utility functions for convenience
