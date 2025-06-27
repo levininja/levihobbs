@@ -77,7 +77,11 @@
   flex: 1;
 }
 
-.metadata-item {
+.book-author,
+.book-publication-year,
+.book-rating,
+.book-verdict,
+.book-perfect-for {
   margin-bottom: $spacing-md;
   color: $color-text-primary;
   

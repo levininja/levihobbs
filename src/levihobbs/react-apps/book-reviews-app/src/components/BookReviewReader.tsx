@@ -1,22 +1,49 @@
 import React, { useMemo } from 'react';
 import type { BookReview } from '../types/BookReview';
+import { mockBookshelfGroupings } from '../services/mockData';
 
 interface BookReviewReaderProps {
   bookReview: BookReview;
   onClose?: () => void;
 }
 
-export const BookReviewReader: React.FC<BookReviewReaderProps> = React.memo(({ bookReview, onClose }) => {
+// Helper function to get all valid genres from bookshelf groupings
+const getValidGenres = (): string[] => {
+  const genres = new Set<string>();
+  
+  // Add all grouping names as genres
+  mockBookshelfGroupings.forEach(grouping => {
+    genres.add(grouping.name.toLowerCase());
+  });
+  
+  // Add all shelf names as genres, except those containing numbers
+  mockBookshelfGroupings.forEach(grouping => {
+    grouping.bookshelves.forEach(shelf => {
+      // Skip shelves that contain numbers (like "2024-science-fiction", "2025-reading-list")
+      if (!/\d/.test(shelf.name)) {
+        genres.add(shelf.name.toLowerCase());
+      }
+    });
+  });
+  
+  return Array.from(genres);
+};
+
+export const BookReviewReader: React.FC<BookReviewReaderProps> = ({ bookReview, onClose }) => {
   // Calculate star rating display
   const starRating = useMemo(() => {
-    const filledStars = '★'.repeat(bookReview.myRating);
-    const emptyStars = '☆'.repeat(5 - bookReview.myRating);
+    const rating = bookReview.myRating || 0;
+    // Clamp rating to valid range (0-5)
+    const clampedRating = Math.max(0, Math.min(5, rating));
+    const filledStars = '★'.repeat(clampedRating);
+    const emptyStars = '☆'.repeat(5 - clampedRating);
     return filledStars + emptyStars;
   }, [bookReview.myRating]);
 
   // Calculate verdict based on rating delta
   const verdict = useMemo(() => {
-    const delta = bookReview.myRating - bookReview.averageRating;
+    const rating = bookReview.myRating || 0;
+    const delta = rating - bookReview.averageRating;
     
     if (delta >= 1) {
       return "Underrated!";
@@ -24,9 +51,9 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = React.memo(({ b
       return "Overrated!";
     } else {
       // Delta is between -1 and 1
-      if (bookReview.myRating >= 4) {
+      if (rating >= 4) {
         return "The Hype Is Real!";
-      } else if (bookReview.myRating === 3) {
+      } else if (rating === 3) {
         return "Not bad";
       } else {
         return "Avoid :-(";
@@ -36,22 +63,49 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = React.memo(({ b
 
   // Extract "Perfect For" from review text
   const perfectFor = useMemo(() => {
-    if (!bookReview.myReview) return null;
+    if (!bookReview.myReview) {
+      return null;
+    }
     
-    // Get the last two paragraphs
-    const paragraphs = bookReview.myReview.split('</p>').slice(-2);
-    const lastTwoParagraphs = paragraphs.join('</p>');
+    // First, find the last two paragraphs by looking for <br><br> patterns
+    const brPattern = /<br\s*\/?><br\s*\/?>/gi;
+    const paragraphs = bookReview.myReview.split(brPattern);
+    
+    // Get the last two non-empty paragraphs (if there's only one, use the whole thing)
+    const nonEmptyParagraphs = paragraphs.filter(p => p.trim().length > 0);
+    const lastTwoParagraphs = nonEmptyParagraphs.length >= 2 
+      ? nonEmptyParagraphs.slice(-2).join(' ')
+      : bookReview.myReview;
+    
+    if (!lastTwoParagraphs) {
+      return null;
+    }
     
     // Remove HTML tags for text processing
     const textOnly = lastTwoParagraphs.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ');
     
     // Find sentence containing "perfect for"
     const sentences = textOnly.split(/[.!?]+/);
-    const perfectForSentence = sentences.find(sentence => 
+    const perfectForSentence = sentences.slice().reverse().find((sentence: string) => 
       sentence.toLowerCase().includes('perfect for')
     );
     
-    if (!perfectForSentence) return null;
+    if (!perfectForSentence) {
+      // If no "perfect for" found, use bookshelves as fallback
+      if (bookReview.bookshelves && bookReview.bookshelves.length > 0) {
+        const validGenres = getValidGenres();
+        const primaryGenre = bookReview.bookshelves.find(shelf => 
+          validGenres.includes(shelf.name.toLowerCase())
+        );
+        
+        if (primaryGenre) {
+          // Convert hyphenated names to space-separated for display
+          const displayName = (primaryGenre.displayName || primaryGenre.name).replace(/-/g, ' ');
+          return `readers of ${displayName}`;
+        }
+      }
+      return null;
+    }
     
     // Extract everything after "perfect for"
     const perfectForIndex = perfectForSentence.toLowerCase().indexOf('perfect for');
@@ -60,20 +114,26 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = React.memo(({ b
     // Remove leading articles/prepositions
     extracted = extracted.replace(/^(those who|anyone who|people who|readers who|fans of|lovers of)\s*/i, '$1 ');
     
-    // Remove "and" before the last item if it exists
-    const lastAndIndex = extracted.lastIndexOf(' and ');
-    if (lastAndIndex > 0) {
-      const beforeAnd = extracted.substring(0, lastAndIndex);
-      const afterAnd = extracted.substring(lastAndIndex + 5); // " and ".length
-      
-      // Check if this looks like the last item in a list
-      if (!afterAnd.includes(',') && afterAnd.length < 100) {
-        extracted = beforeAnd + ', ' + afterAnd;
+    // Convert to comma-delimited list
+    // First, look for ", and" and replace with comma
+    if (extracted.includes(', and ')) {
+      extracted = extracted.replace(/, and /g, ', ');
+    } else {
+      // If no ", and" found, find the last " and " and replace with comma
+      const lastAndIndex = extracted.lastIndexOf(' and ');
+      if (lastAndIndex !== -1) {
+        extracted = extracted.substring(0, lastAndIndex) + ', ' + extracted.substring(lastAndIndex + 5);
       }
     }
     
+    // Clean up any extra spaces around commas
+    extracted = extracted.replace(/\s*,\s*/g, ', ');
+    
+    if (!extracted || extracted.trim().length === 0) {
+      return null;
+    }
     return extracted;
-  }, [bookReview.myReview]);
+  }, [bookReview.myReview, bookReview.bookshelves]);
 
   // Generate Amazon search URL
   const amazonUrl = useMemo(() => {
@@ -92,51 +152,52 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = React.memo(({ b
           >
             ×
           </button>
-          <h1>Book Review: {bookReview.title}</h1>
+          <h1 data-testid="book-review-title">Book Review: {bookReview.title}</h1>
         </div>
         
-        <div className="reader-content">
-          <div className="book-header-section">
-            <div className="book-cover">
+        <div className="reader-content" data-testid="reader-content">
+          <div className="book-header-section" data-testid="book-header-section">
+            <div className="book-cover" data-testid="book-cover">
               <img 
                 src={bookReview.coverImageUrl || 'src/assets/story icon.png'} 
                 alt={`Cover of ${bookReview.title}`}
+                data-testid="book-cover-image"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'src/assets/story icon.png';
                 }}
               />
             </div>
             
-            <div className="book-metadata">
-              <div className="metadata-item">
+            <div className="book-metadata" data-testid="book-metadata">
+              <div className="book-author" data-testid="book-author">
                 <strong>Author:</strong> {bookReview.authorFirstName} {bookReview.authorLastName}
               </div>
               
               {bookReview.originalPublicationYear && (
-                <div className="metadata-item">
+                <div className="book-publication-year" data-testid="book-publication-year">
                   <strong>Published:</strong> {bookReview.originalPublicationYear}
                 </div>
               )}
               
-              <div className="metadata-item">
+              <div className="book-rating" data-testid="book-rating">
                 <strong>Rating:</strong> {starRating}
               </div>
               
-              <div className="metadata-item">
+              <div className="book-verdict" data-testid="book-verdict">
                 <strong>Verdict:</strong> {verdict}
               </div>
               
-              {perfectFor && (
-                <div className="metadata-item">
+              {perfectFor ? (
+                <div className="book-perfect-for" data-testid="perfect-for">
                   <strong>Perfect For:</strong> {perfectFor}
                 </div>
-              )}
+              ) : null}
               
-              <div className="bookshelves-section">
+              <div className="bookshelves-section" data-testid="bookshelves-section">
                 <strong>Bookshelves:</strong>
-                <div className="bookshelf-tags">
+                <div className="bookshelf-tags" data-testid="bookshelf-tags">
                   {bookReview.bookshelves.map(shelf => (
-                    <span key={shelf.id} className="bookshelf-tag">
+                    <span key={shelf.id} className="bookshelf-tag" data-testid={`bookshelf-${shelf.name}`}>
                       {shelf.displayName || shelf.name}
                     </span>
                   ))}
@@ -146,20 +207,22 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = React.memo(({ b
           </div>
           
           {bookReview.myReview && (
-            <div className="review-content">
+            <div className="review-content" data-testid="review-content">
               <div 
                 className="review-text"
+                data-testid="review-text"
                 dangerouslySetInnerHTML={{ __html: bookReview.myReview }}
               />
-              <div className="date-read">
+              <div className="date-read" data-testid="date-read">
                 {new Date(bookReview.dateRead).toLocaleDateString()}
               </div>
             </div>
           )}
           
-          <div className="reader-actions">
+          <div className="reader-actions" data-testid="reader-actions">
             <button 
               className="action-button primary"
+              data-testid="read-more-button"
               onClick={onClose}
             >
               Read More Book Reviews
@@ -169,6 +232,7 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = React.memo(({ b
               target="_blank"
               rel="noopener noreferrer"
               className="action-button secondary"
+              data-testid="buy-amazon-button"
             >
               Buy on Amazon
             </a>
@@ -177,6 +241,6 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = React.memo(({ b
       </div>
     </div>
   );
-});
+};
 
 BookReviewReader.displayName = 'BookReviewReader';

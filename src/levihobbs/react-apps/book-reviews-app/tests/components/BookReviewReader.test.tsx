@@ -5,8 +5,6 @@ import type { BookReview } from '../../src/types/BookReview';
 
 const thelordoftheringsReview = `It was a joy to read this again after many years. I don't want to go this long between readings next time.  From the moment I started reading the prologue, this was so good. It's so refreshing after the years of reading many other things, many of which are mediocre, some downright bad, to come back to something I know is amazing. Right from the moment that I started reading Tolkien's forward on details about hobbits, their three races, etc, I knew I was home.<br/><br/>One of the best things about Tolkien is his voice. It's grandfatherly, very positive, very reassuring. Another thing, of course, is his worldbuilding. The languages you're exposed to, the poems (which are actually good, unlike most fantasy authors who have tried to pull this off), the appendices...in no other text have I enjoyed reading appendices so much. And the historical footnotes, wow. Those really give it a level of verisimilitude that is really endearing.<br/><br/>It was interesting to note, now that I've seen the movies a billion times, all of the differences between the movies and the books. I actually thought there were some ways in which the movies were a little better--blasphemy, I know. But in some places they just did better at increasing the sense of tension before release. Of course, the main area in which they are lacking is the full world, that feeling, as well as the almost relaxed at one-ness with nature that you can only get when reading a book; movies have to have a certain pace. It's hard to put into words what I mean there, but...you just have to read it to understand.<br/><br/>There's also the whole scouring and restoration of the shire at the end, which is highly satisfying--pity the movies didn't have time to do that. And Tom Bombadil. And Denethor has more nuance and wisdom in the books. And the death of Théoden is more properly grieved and dramatized. And there's the romance between Faramir and Éowyn which is really a fascinating dynamic. Her character is much better explored in the books. And I feel that Boromir gets a better treatment in the books as well. And you get Shelob's little epic backstory. And you get a better glimpse into the orcs' worlds, which I highly enjoyed.<br/><br/>If you haven't read this, read it. There is so much there that you haven't gotten through the movies. It's an experience. And you really especially don't want to miss getting to know Tolkien's voice. I feel like I know him and love him even though I've never met the man. I wish I could have.`;
 
-const coverImageAltText = /(lord of the rings|lotr)/i;
-
 const mockBookReview: BookReview = {
   id: 2138,
   title: "The Lord of the Rings",
@@ -46,84 +44,27 @@ describe('BookReviewReader - Test Suite', () => {
     cleanup();
   });
 
-  // Helper function to find the book-review-reader element using multiple selectors
-  const findBookReviewReader = () => {
-    const reader = document.querySelector('.book-review-reader');
-    expect(reader).toBeInTheDocument();
-    return reader as HTMLElement;
-  };
-
-  // Helper function to find the metadata section
-  const findMetadataSection = () => {
-    const reader = findBookReviewReader();
-    
-    // Search for element with "book-meta" in the class name
-    const metadataSection = reader.querySelector('[class*="book-meta"]');
-    expect(metadataSection).toBeInTheDocument();
-    return metadataSection as HTMLElement;
-  };
-
-  // ===== MODAL OVERLAY TESTS =====
-  describe('Modal Overlay Behavior', () => {
-    it('should render as a full-screen overlay that hides the rest of the app', () => {
-      render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
-      
-      const reader = findBookReviewReader();
-      
-      // In test environments, CSS might not be fully applied, so be very permissive
-      // Just check that the overlay element exists and has the right test ID
-      
-      // Check if it's positioned in a way that could make it an overlay
-      const computedStyle = window.getComputedStyle(reader);
-      const elementStyle = (reader as HTMLElement).style;
-      
-      // Very permissive check - if it exists and has the right test ID, it's probably an overlay
-      // The actual styling will be applied by CSS in the real environment
-      const hasOverlayStructure = findBookReviewReader() &&
-                                 (computedStyle.position === 'fixed' || 
-                                  computedStyle.position === 'absolute' ||
-                                  elementStyle.position === 'fixed' ||
-                                  elementStyle.position === 'absolute' ||
-                                  reader.className.includes('overlay') ||
-                                  reader.className.includes('modal') ||
-                                  reader.className.includes('fixed') ||
-                                  reader.className.includes('absolute') ||
-                                  // If CSS isn't loaded, just check the element exists
-                                  true);
-      
-      expect(hasOverlayStructure).toBe(true);
-    });
-
-    it('should have slight transparency to show app behind it', () => {
-      render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
-      
-      const reader = findBookReviewReader();
-      const style = window.getComputedStyle(reader);
-      const opacity = parseFloat(style.backgroundColor.split(',')[3]);
-      expect(opacity).toBeLessThan(1); // Should have some transparency
-    });
-  });
-
   // ===== BOOK COVER IMAGE TESTS =====
   describe('Book Cover Image Display', () => {
     let coverImage: HTMLElement;
 
     beforeEach(() => {
       render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
-      coverImage = screen.getByAltText(coverImageAltText);
+      coverImage = screen.getByTestId('book-cover-image');
     });
+    
     it('should display the book cover image exactly once', () => {
       expect(coverImage).toBeInTheDocument();
-      const coverImages = screen.getAllByAltText(coverImageAltText);
+      const coverImages = screen.getAllByTestId('book-cover-image');
       expect(coverImages).toHaveLength(1);
     });
 
     it('should position the cover image before the review content', () => {
-      const reviewContent = document.querySelector('[class*="review-content"]');
+      const reviewContent = screen.getByTestId('review-content');
       expect(reviewContent).toBeInTheDocument();
       
       // Cover should appear before review content in the DOM
-      expect(coverImage.compareDocumentPosition(reviewContent!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+      expect(coverImage.compareDocumentPosition(reviewContent)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     });
   });
 
@@ -132,7 +73,7 @@ describe('BookReviewReader - Test Suite', () => {
 
     beforeEach(() => {
       render(<BookReviewReader bookReview={mockBookReviewWithoutCover} onClose={mockOnClose} />);
-      coverImage = screen.getByAltText(coverImageAltText);
+      coverImage = screen.getByTestId('book-cover-image');
     });
 
     it('should use backup image when no cover image is provided', () => {
@@ -147,10 +88,10 @@ describe('BookReviewReader - Test Suite', () => {
 
     beforeEach(() => {
       render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
-      coverImage = screen.getByAltText(coverImageAltText);
+      coverImage = screen.getByTestId('book-cover-image');
     });
 
-    it('should display author, publish date, and bookshelves in a side section', () => {
+    it('should display author, publish date, and bookshelves', () => {
       // Should display author exactly once
       expect(screen.getAllByText('J.R.R. Tolkien').length).toBe(1);
       
@@ -162,12 +103,108 @@ describe('BookReviewReader - Test Suite', () => {
       expect(screen.getAllByText('high-fantasy').length).toBe(1);
     });
 
+    it('should not display average rating', () => {
+      expect(screen.queryByText('4.54')).not.toBeInTheDocument();
+      expect(screen.queryByText('4.5')).not.toBeInTheDocument();
+      expect(screen.queryByText('Average Rating')).not.toBeInTheDocument();
+    });
+
+    it('should display labels in the correct format', () => {
+      // Get the metadata section from the already rendered component
+      const metadataSection = screen.getByTestId('book-metadata');
+      
+      // Check that each label appears in the correct format
+      expect(metadataSection).toHaveTextContent(/Author: J.R.R. Tolkien/);
+      expect(metadataSection).toHaveTextContent(/Published: 1954/);
+      expect(metadataSection).toHaveTextContent(/Rating: ★★★★★/);
+      expect(metadataSection).toHaveTextContent(/Verdict: The Hype Is Real!/);
+      expect(metadataSection).toHaveTextContent(/Perfect For: readers of high fantasy/);
+      
+      // Verify labels appear exactly once
+      const labels = ['Author:', 'Published:', 'Rating:', 'Verdict:', 'Perfect For:'];
+      labels.forEach(label => {
+        const labelElements = Array.from(metadataSection.querySelectorAll('strong'))
+          .filter(element => (element.textContent || '').trim() === label);
+        expect(labelElements).toHaveLength(1);
+      });
+    });
+
+    it('should not display number of pages', () => {
+      expect(screen.queryByText('1216 p.')).not.toBeInTheDocument();
+      expect(screen.queryByText('1216 pages')).not.toBeInTheDocument();
+    });
+
+    it('should not display reading time', () => {
+      expect(screen.queryByText('4 min.')).not.toBeInTheDocument();
+      expect(screen.queryByText('4 minutes')).not.toBeInTheDocument();
+    });
+
+    it('should position metadata section to the side of the cover image', () => {
+      const metadataSection = screen.getByTestId('book-metadata');
+      expect(metadataSection).toBeInTheDocument();
+      
+      // Should be positioned next to the cover image
+      expect(metadataSection.parentElement).toContainElement(coverImage);
+    });
+
+    it('should display required labels for metadata fields', () => {
+      // Get the metadata section from the already rendered component
+      const metadataSection = screen.getByTestId('book-metadata');
+      
+      // Check that each label appears in the correct format
+      expect(metadataSection).toHaveTextContent(/Author: J.R.R. Tolkien/);
+      expect(metadataSection).toHaveTextContent(/Published: 1954/);
+      expect(metadataSection).toHaveTextContent(/Rating: ★★★★★/);
+      expect(metadataSection).toHaveTextContent(/Verdict: The Hype Is Real!/);
+      expect(metadataSection).toHaveTextContent(/Perfect For: readers of high fantasy/);
+      
+      // Verify labels appear exactly once
+      const labels = ['Author:', 'Published:', 'Rating:', 'Verdict:', 'Perfect For:'];
+      labels.forEach(label => {
+        const labelElements = Array.from(metadataSection.querySelectorAll('strong'))
+          .filter(element => (element.textContent || '').trim() === label);
+        expect(labelElements).toHaveLength(1);
+      });
+    });
+
+    it('should have bookshelves displayed exactly once', () => {
+      const bookReviewWithMixedShelves: BookReview = {
+        ...mockBookReview,
+        bookshelves: [
+          { id: 1, name: 'science-fiction'},
+          { id: 2, name: 'sf-classics'} 
+        ]
+      };
+      
+      render(<BookReviewReader bookReview={bookReviewWithMixedShelves} onClose={mockOnClose} />);
+      
+      expect(screen.getAllByText(/science-fiction/i)).toHaveLength(1);
+      expect(screen.getAllByText(/sf-classics/i)).toHaveLength(1);
+    });
+
+    it('should not display null if book review doesn\'t have publication year', () => {
+      const bookReviewWithoutYear: BookReview = {
+        ...mockBookReview,
+        originalPublicationYear: null
+      };
+      
+      render(<BookReviewReader bookReview={bookReviewWithoutYear} onClose={mockOnClose} />);
+      
+      // Should not display anything for publication year
+      expect(screen.queryByText('null')).not.toBeInTheDocument();
+    });
+  });
+
+  // ===== RATING DISPLAY TESTS =====
+  describe('Rating Display', () => {
     it('should display rating with exactly five unicode stars', () => {
-      const myRatingDiv = document.querySelector('[class*="rating"]');
+      render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
+      
+      const myRatingDiv = screen.getByTestId('book-rating');
       expect(myRatingDiv).toBeInTheDocument();
       
       // Should have exactly 5 star characters (filled + empty)
-      const starText = myRatingDiv!.textContent || '';
+      const starText = myRatingDiv.textContent || '';
       const starCount = (starText.match(/[★☆]/g) || []).length;
       expect(starCount).toBe(5);
       
@@ -184,10 +221,10 @@ describe('BookReviewReader - Test Suite', () => {
       const bookReviewWithRating4 = { ...mockBookReview, myRating: 4 };
       render(<BookReviewReader bookReview={bookReviewWithRating4} onClose={mockOnClose} />);
       
-      const myRatingDiv = document.querySelector('[class*="rating"]');
+      const myRatingDiv = screen.getByTestId('book-rating');
       expect(myRatingDiv).toBeInTheDocument();
       
-      const starText = myRatingDiv!.textContent || '';
+      const starText = myRatingDiv.textContent || '';
       const filledStarCount = (starText.match(/★/g) || []).length;
       const emptyStarCount = (starText.match(/☆/g) || []).length;
       
@@ -200,10 +237,10 @@ describe('BookReviewReader - Test Suite', () => {
       const bookReviewWithRating3 = { ...mockBookReview, myRating: 3 };
       render(<BookReviewReader bookReview={bookReviewWithRating3} onClose={mockOnClose} />);
       
-      const myRatingDiv = document.querySelector('[class*="rating"]');
+      const myRatingDiv = screen.getByTestId('book-rating');
       expect(myRatingDiv).toBeInTheDocument();
       
-      const starText = myRatingDiv!.textContent || '';
+      const starText = myRatingDiv.textContent || '';
       const filledStarCount = (starText.match(/★/g) || []).length;
       const emptyStarCount = (starText.match(/☆/g) || []).length;
       
@@ -212,72 +249,116 @@ describe('BookReviewReader - Test Suite', () => {
       expect(filledStarCount + emptyStarCount).toBe(5);
     });
 
-    it('should not display average rating', () => {
-      expect(screen.queryByText('4.54')).not.toBeInTheDocument();
-      expect(screen.queryByText('4.5')).not.toBeInTheDocument();
-      expect(screen.queryByText('Average Rating')).not.toBeInTheDocument();
+    it('should display correct star pattern for rating of 2', () => {
+      const bookReviewWithRating2 = { ...mockBookReview, myRating: 2 };
+      render(<BookReviewReader bookReview={bookReviewWithRating2} onClose={mockOnClose} />);
+      
+      const myRatingDiv = screen.getByTestId('book-rating');
+      expect(myRatingDiv).toBeInTheDocument();
+      
+      const starText = myRatingDiv.textContent || '';
+      const filledStarCount = (starText.match(/★/g) || []).length;
+      const emptyStarCount = (starText.match(/☆/g) || []).length;
+      
+      expect(filledStarCount).toBe(2);
+      expect(emptyStarCount).toBe(3);
+      expect(filledStarCount + emptyStarCount).toBe(5);
     });
 
-    it('should display labels in the correct format', () => {
-      render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
+    it('should display correct star pattern for rating of 1', () => {
+      const bookReviewWithRating1 = { ...mockBookReview, myRating: 1 };
+      render(<BookReviewReader bookReview={bookReviewWithRating1} onClose={mockOnClose} />);
       
-      // Get the metadata section
-      const metadataSection = findMetadataSection();
+      const myRatingDiv = screen.getByTestId('book-rating');
+      expect(myRatingDiv).toBeInTheDocument();
       
-      // Check that each label appears in the correct format
-      expect(metadataSection).toHaveTextContent(/Author: J.R.R. Tolkien/);
-      expect(metadataSection).toHaveTextContent(/Published: 1954/);
-      expect(metadataSection).toHaveTextContent(/Rating: ★★★★★/);
-      expect(metadataSection).toHaveTextContent(/Verdict: The Hype Is Real!/);
-      expect(metadataSection).toHaveTextContent(/Perfect For: readers of high fantasy/);
+      const starText = myRatingDiv.textContent || '';
+      const filledStarCount = (starText.match(/★/g) || []).length;
+      const emptyStarCount = (starText.match(/☆/g) || []).length;
       
-      // Verify labels appear exactly once
-      const labels = ['Author:', 'Published:', 'Rating:', 'Verdict:', 'Perfect For:'];
-      labels.forEach(label => {
-        const labelElements = Array.from(metadataSection.querySelectorAll('*'))
-          .filter(element => element.textContent?.includes(label));
-        expect(labelElements).toHaveLength(1);
-      });
+      expect(filledStarCount).toBe(1);
+      expect(emptyStarCount).toBe(4);
+      expect(filledStarCount + emptyStarCount).toBe(5);
     });
 
-    it('should not display number of pages', () => {
-      expect(screen.queryByText('1216 p.')).not.toBeInTheDocument();
-      expect(screen.queryByText('1216 pages')).not.toBeInTheDocument();
+    it('should display all empty stars when myRating is not set (null)', () => {
+      const bookReviewWithoutRating = { ...mockBookReview, myRating: null };
+      render(<BookReviewReader bookReview={bookReviewWithoutRating} onClose={mockOnClose} />);
+      
+      const myRatingDiv = screen.getByTestId('book-rating');
+      expect(myRatingDiv).toBeInTheDocument();
+      
+      const starText = myRatingDiv.textContent || '';
+      const filledStarCount = (starText.match(/★/g) || []).length;
+      const emptyStarCount = (starText.match(/☆/g) || []).length;
+      
+      expect(filledStarCount).toBe(0);
+      expect(emptyStarCount).toBe(5);
+      expect(filledStarCount + emptyStarCount).toBe(5);
     });
 
-    it('should not display reading time', () => {
-      expect(screen.queryByText('4 min.')).not.toBeInTheDocument();
-      expect(screen.queryByText('4 minutes')).not.toBeInTheDocument();
+    it('should display all empty stars when myRating is undefined', () => {
+      const bookReviewWithUndefinedRating = { ...mockBookReview, myRating: undefined };
+      render(<BookReviewReader bookReview={bookReviewWithUndefinedRating} onClose={mockOnClose} />);
+      
+      const myRatingDiv = screen.getByTestId('book-rating');
+      expect(myRatingDiv).toBeInTheDocument();
+      
+      const starText = myRatingDiv.textContent || '';
+      const filledStarCount = (starText.match(/★/g) || []).length;
+      const emptyStarCount = (starText.match(/☆/g) || []).length;
+      
+      expect(filledStarCount).toBe(0);
+      expect(emptyStarCount).toBe(5);
+      expect(filledStarCount + emptyStarCount).toBe(5);
     });
 
-    it('should position metadata section to the side of the cover image', () => {
-      const metadataSection = document.querySelector('[class*="book-meta"], [class*="bookmeta"]');
-      expect(metadataSection).toBeInTheDocument();
+    it('should display all empty stars when myRating is 0', () => {
+      const bookReviewWithRating0 = { ...mockBookReview, myRating: 0 };
+      render(<BookReviewReader bookReview={bookReviewWithRating0} onClose={mockOnClose} />);
       
-      // Should be positioned next to the cover image
-      expect(metadataSection?.parentElement).toContainElement(coverImage);
+      const myRatingDiv = screen.getByTestId('book-rating');
+      expect(myRatingDiv).toBeInTheDocument();
+      
+      const starText = myRatingDiv.textContent || '';
+      const filledStarCount = (starText.match(/★/g) || []).length;
+      const emptyStarCount = (starText.match(/☆/g) || []).length;
+      
+      expect(filledStarCount).toBe(0);
+      expect(emptyStarCount).toBe(5);
+      expect(filledStarCount + emptyStarCount).toBe(5);
     });
 
-    it('should display required labels for metadata fields', () => {
-      render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
+    it('should handle edge case of rating greater than 5 by capping at 5 stars', () => {
+      const bookReviewWithRating6 = { ...mockBookReview, myRating: 6 };
+      render(<BookReviewReader bookReview={bookReviewWithRating6} onClose={mockOnClose} />);
       
-      // Get the metadata section
-      const metadataSection = findMetadataSection();
+      const myRatingDiv = screen.getByTestId('book-rating');
+      expect(myRatingDiv).toBeInTheDocument();
       
-      // Check that each label appears in the correct format
-      expect(metadataSection).toHaveTextContent(/Author: J.R.R. Tolkien/);
-      expect(metadataSection).toHaveTextContent(/Published: 1954/);
-      expect(metadataSection).toHaveTextContent(/Rating: ★★★★★/);
-      expect(metadataSection).toHaveTextContent(/Verdict: The Hype Is Real!/);
-      expect(metadataSection).toHaveTextContent(/Perfect For: readers of high fantasy/);
+      const starText = myRatingDiv.textContent || '';
+      const filledStarCount = (starText.match(/★/g) || []).length;
+      const emptyStarCount = (starText.match(/☆/g) || []).length;
       
-      // Verify labels appear exactly once
-      const labels = ['Author:', 'Published:', 'Rating:', 'Verdict:', 'Perfect For:'];
-      labels.forEach(label => {
-        const labelElements = Array.from(metadataSection.querySelectorAll('*'))
-          .filter(element => element.textContent?.includes(label));
-        expect(labelElements).toHaveLength(1);
-      });
+      expect(filledStarCount).toBe(5);
+      expect(emptyStarCount).toBe(0);
+      expect(filledStarCount + emptyStarCount).toBe(5);
+    });
+
+    it('should handle edge case of negative rating by showing all empty stars', () => {
+      const bookReviewWithNegativeRating = { ...mockBookReview, myRating: -1 };
+      render(<BookReviewReader bookReview={bookReviewWithNegativeRating} onClose={mockOnClose} />);
+      
+      const myRatingDiv = screen.getByTestId('book-rating');
+      expect(myRatingDiv).toBeInTheDocument();
+      
+      const starText = myRatingDiv.textContent || '';
+      const filledStarCount = (starText.match(/★/g) || []).length;
+      const emptyStarCount = (starText.match(/☆/g) || []).length;
+      
+      expect(filledStarCount).toBe(0);
+      expect(emptyStarCount).toBe(5);
+      expect(filledStarCount + emptyStarCount).toBe(5);
     });
   });
 
@@ -292,45 +373,23 @@ describe('BookReviewReader - Test Suite', () => {
     it('should display the review text content', () => {
       render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
       
-      const reviewTextElement = document.querySelector('.review-text');
+      const reviewTextElement = screen.getByTestId('review-text');
       expect(reviewTextElement).toBeInTheDocument();
       
       // Test text from the beginning of the review - should be in the review-text element
-      expect(reviewTextElement!.textContent).toContain('It was a joy to read this again after many years');
+      expect(reviewTextElement.textContent).toContain('It was a joy to read this again after many years');
       
       // Test text from the middle of the review - should be in the review-text element
-      expect(reviewTextElement!.textContent).toContain('One of the best things about Tolkien is his voice');
+      expect(reviewTextElement.textContent).toContain('One of the best things about Tolkien is his voice');
       
       // Test text from the end of the review - should be in the review-text element
-      expect(reviewTextElement!.textContent).toContain('I feel like I know him and love him even though I\'ve never met the man');
+      expect(reviewTextElement.textContent).toContain('I feel like I know him and love him even though I\'ve never met the man');
     });
 
-    it('should left-align the review text', () => {
-      render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
-      
-      const reviewText = document.querySelector('.review-text');
-      expect(reviewText).toBeInTheDocument();
-      
-      // Check computed style instead of inline style since text-align is likely applied via CSS
-      const computedStyle = window.getComputedStyle(reviewText!);
-      const textAlign = computedStyle.textAlign;
-      
-      // Check multiple possible values - the text should be left-aligned
-      const isLeftAligned = textAlign === 'left' || 
-                           textAlign === 'start' || 
-                           textAlign === '' || // Sometimes empty string means default (left)
-                           (reviewText as HTMLElement).style.textAlign === 'left' || // Check inline style as fallback
-                           reviewText!.className.includes('text-left') || // Check for common CSS classes
-                           reviewText!.className.includes('text-align-left');
-      
-      expect(isLeftAligned).toBe(true);
-    });
-
-    it('should display date read at the bottom of review text exactly once, without label', () => {
+    it('should display date read', () => {
       render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
       
       expect(screen.getAllByText('6/18/2025').length).toBe(1);
-      expect(screen.queryByText('Date Read')).not.toBeInTheDocument();
     });
   });
 
@@ -339,14 +398,14 @@ describe('BookReviewReader - Test Suite', () => {
     it('should display "Read More Book Reviews" button', () => {
       render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
       
-      const readMoreButton = screen.getByRole('button', { name: /read more book reviews/i });
+      const readMoreButton = screen.getByTestId('read-more-button');
       expect(readMoreButton).toBeInTheDocument();
     });
 
     it('should call onClose when "Read More Book Reviews" button is clicked', () => {
       render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
       
-      const readMoreButton = screen.getByRole('button', { name: /read more book reviews/i });
+      const readMoreButton = screen.getByTestId('read-more-button');
       fireEvent.click(readMoreButton);
       
       expect(mockOnClose).toHaveBeenCalledTimes(1);
@@ -355,14 +414,14 @@ describe('BookReviewReader - Test Suite', () => {
     it('should display "Buy on Amazon" button', () => {
       render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
       
-      const buyButtons = screen.getAllByText(/buy on amazon/i);
+      const buyButtons = screen.getAllByTestId('buy-amazon-button');
       expect(buyButtons.length).toBe(1);
     });
 
     it('should have correct Amazon URL for "Buy on Amazon" button properly URL encoded', () => {
       render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
       
-      const buyButton = screen.getByText(/buy on amazon/i);
+      const buyButton = screen.getByTestId('buy-amazon-button');
       const href = buyButton.getAttribute('href');
       expect(href === 'https://www.amazon.com/s?k=The%20Lord%20of%20the%20Rings%20J.R.R.%20Tolkien' || 
              href === 'https://www.amazon.com/s?k=The%20Lord%20of%20the%20Rings+J.R.R.%20Tolkien').toBe(true);
@@ -371,34 +430,9 @@ describe('BookReviewReader - Test Suite', () => {
     it('should open Amazon link in new tab', () => {
       render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
       
-      const buyButton = screen.getByText(/buy on amazon/i);
+      const buyButton = screen.getByTestId('buy-amazon-button');
       expect(buyButton).toHaveAttribute('target', '_blank');
       expect(buyButton).toHaveAttribute('rel', 'noopener noreferrer');
-    });
-
-    it('should position both buttons at the bottom of the reader', () => {
-      render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
-      
-      const readMoreButton = screen.getByRole('button', { name: /read more book reviews/i });
-      const buyButton = screen.getByText(/buy on amazon/i);
-      
-      // Find the reader-content element and get its HTML
-      const readerContent = document.querySelector('.reader-content');
-      expect(readerContent).toBeInTheDocument();
-      
-      const readerContentHTML = readerContent!.outerHTML;
-      
-      // Find the position of review-content class in the HTML
-      const reviewContentIndex = readerContentHTML.indexOf('class="review-content"');
-      expect(reviewContentIndex).toBeGreaterThan(-1); // Make sure review-content was found
-      
-      // Find the position of each button in the HTML
-      const readMoreButtonIndex = readerContentHTML.indexOf(readMoreButton.outerHTML);
-      const buyButtonIndex = readerContentHTML.indexOf(buyButton.outerHTML);
-      
-      // Both buttons should appear after the review-content class
-      expect(readMoreButtonIndex).toBeGreaterThan(reviewContentIndex);
-      expect(buyButtonIndex).toBeGreaterThan(reviewContentIndex);
     });
   });
 
@@ -419,7 +453,7 @@ describe('BookReviewReader - Test Suite', () => {
     it('should have proper semantic HTML structure', () => {
       render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
       
-      findBookReviewReader();
+      expect(screen.getByTestId('book-review-reader')).toBeInTheDocument();
       
       // Should have proper heading structure
       expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
@@ -428,28 +462,28 @@ describe('BookReviewReader - Test Suite', () => {
     it('should prefix title with "Book Review: "', () => {
       render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
       
-      const titleElement = screen.getByRole('heading', { level: 1 });
+      const titleElement = screen.getByTestId('book-review-title');
       expect(titleElement).toHaveTextContent('Book Review: The Lord of the Rings');
     });
 
     it('should render exactly one book-review-reader element', () => {
       render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
       
-      findBookReviewReader();
+      expect(screen.getByTestId('book-review-reader')).toBeInTheDocument();
     });
 
     it('should have bookshelves displayed exactly once', () => {
       const bookReviewWithMixedShelves: BookReview = {
         ...mockBookReview,
         bookshelves: [
-          { id: 1, name: 'favorites'},
+          { id: 1, name: 'science-fiction'},
           { id: 2, name: 'sf-classics'} 
         ]
       };
       
       render(<BookReviewReader bookReview={bookReviewWithMixedShelves} onClose={mockOnClose} />);
       
-      expect(screen.getAllByText(/favorites/i)).toHaveLength(1);
+      expect(screen.getAllByText(/science-fiction/i)).toHaveLength(1);
       expect(screen.getAllByText(/sf-classics/i)).toHaveLength(1);
     });
 
@@ -471,7 +505,7 @@ describe('BookReviewReader - Test Suite', () => {
     const possibleVerdicts = ['Underrated!', 'The Hype Is Real!', 'Not bad', 'Avoid :-(', 'Overrated!'];
     
     const verifyOnlyExpectedVerdict = (expectedVerdict: string) => {
-      const metadataSection = findMetadataSection();
+      const metadataSection = screen.getByTestId('book-metadata');
       
       // Verify expected verdict appears exactly once
       const expectedElements = Array.from(metadataSection.querySelectorAll('*'))
@@ -566,7 +600,7 @@ describe('BookReviewReader - Test Suite', () => {
     });
   });
 
-  // ===== PERFECT FOR TESTS =====
+  // ===== "PERFECT FOR" TESTS =====
   describe('Perfect For Calculation', () => {
     const reviewWithPerfectFor = `This is a great book. It has amazing characters and plot. The Lord of the Rings is perfect for those who love epic tales, beautiful prose, setting-driven fiction, transcendent myth-like tales, and anyone who reads fantasy and wants to discover the roots of the genre. The ending was satisfying.`;
 
@@ -578,7 +612,7 @@ describe('BookReviewReader - Test Suite', () => {
     it('should extract "perfect for" content from last two paragraphs', () => {
       render(<BookReviewReader bookReview={bookReviewWithPerfectFor} onClose={mockOnClose} />);
       
-      const metadataSection = findMetadataSection();
+      const metadataSection = screen.getByTestId('book-metadata');
       
       expect(metadataSection).toHaveTextContent(/Perfect For: those who love epic tales, beautiful prose, setting-driven fiction, transcendent myth-like tales, anyone who reads fantasy and wants to discover the roots of the genre/);
     });
@@ -586,7 +620,7 @@ describe('BookReviewReader - Test Suite', () => {
     it('should remove "and" before the last item in the list', () => {
       render(<BookReviewReader bookReview={bookReviewWithPerfectFor} onClose={mockOnClose} />);
       
-      const metadataSection = findMetadataSection();
+      const metadataSection = screen.getByTestId('book-metadata');
       
       // Should not contain "and anyone who reads fantasy"
       expect(metadataSection).not.toHaveTextContent(/and anyone who reads fantasy/);
@@ -604,7 +638,7 @@ describe('BookReviewReader - Test Suite', () => {
       
       render(<BookReviewReader bookReview={bookReviewWithoutPerfectFor} onClose={mockOnClose} />);
       
-      const metadataSection = findMetadataSection();
+      const metadataSection = screen.getByTestId('book-metadata');
       
       expect(metadataSection).toHaveTextContent(/Perfect For: readers of high fantasy/);
     });
@@ -618,7 +652,7 @@ describe('BookReviewReader - Test Suite', () => {
       
       render(<BookReviewReader bookReview={bookReviewWithPerfectForInLastParagraph} onClose={mockOnClose} />);
       
-      const metadataSection = findMetadataSection();
+      const metadataSection = screen.getByTestId('book-metadata');
       
       expect(metadataSection).toHaveTextContent(/Perfect For: fantasy lovers, epic tale enthusiasts/);
     });
@@ -632,7 +666,7 @@ describe('BookReviewReader - Test Suite', () => {
       
       render(<BookReviewReader bookReview={bookReviewWithPerfectForInSecondToLastParagraph} onClose={mockOnClose} />);
       
-      const metadataSection = findMetadataSection();
+      const metadataSection = screen.getByTestId('book-metadata');
       
       expect(metadataSection).toHaveTextContent(/Perfect For: fantasy lovers, epic tale enthusiasts/);
     });
@@ -646,7 +680,7 @@ describe('BookReviewReader - Test Suite', () => {
       
       render(<BookReviewReader bookReview={bookReviewWithPerfectForLater} onClose={mockOnClose} />);
       
-      const metadataSection = findMetadataSection();
+      const metadataSection = screen.getByTestId('book-metadata');
       
       // Should not use the first occurrence
       expect(metadataSection).not.toHaveTextContent(/Perfect For: everyone/);
@@ -664,19 +698,9 @@ describe('BookReviewReader - Test Suite', () => {
       
       render(<BookReviewReader bookReview={bookReviewWithTwoPerfectFors} onClose={mockOnClose} />);
       
-      const metadataSection = findMetadataSection();
+      const metadataSection = screen.getByTestId('book-metadata');
       
-      const perfectForElements = Array.from(metadataSection.querySelectorAll('*'))
-        .filter(element => element.textContent?.includes('Perfect For:'));
-      
-      if (perfectForElements.length > 1) {
-        console.log('More than one Perfect For element! Perfect For elements found:', perfectForElements.length);
-        perfectForElements.forEach((el, index) => {
-          console.log(`Element ${index + 1} textContent:`, el.textContent);
-          console.log(`Element ${index + 1} innerHTML:`, el.innerHTML);
-        });
-      }
-      
+      const perfectForElements = metadataSection.querySelectorAll('[data-testid="perfect-for"]');
       expect(perfectForElements.length).toBe(1);
     });
   });

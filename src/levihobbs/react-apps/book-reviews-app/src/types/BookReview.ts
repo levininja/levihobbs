@@ -4,7 +4,7 @@ export interface BookReview {
   authorFirstName: string;
   authorLastName: string;
   titleByAuthor: string;
-  myRating: number;
+  myRating: number | null | undefined;
   averageRating: number;
   numberOfPages: number;
   originalPublicationYear: number | null;
