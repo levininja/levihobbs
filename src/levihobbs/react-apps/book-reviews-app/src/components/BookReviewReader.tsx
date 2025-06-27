@@ -51,12 +51,15 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = ({ bookReview, 
       return "Overrated!";
     } else {
       // Delta is between -1 and 1
-      if (rating >= 4) {
-        return "The Hype Is Real!";
-      } else if (rating === 3) {
-        return "Not bad";
-      } else {
-        return "Avoid :-(";
+      switch (rating) {
+        case 5:
+          return "The Hype Is Real!";
+        case 4:
+          return "Solid";
+        case 3:
+          return "Not bad";
+        default:
+          return "Avoid :-(";
       }
     }
   }, [bookReview.myRating, bookReview.averageRating]);

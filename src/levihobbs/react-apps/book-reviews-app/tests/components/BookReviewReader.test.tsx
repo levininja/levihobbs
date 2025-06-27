@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { BookReviewReader } from '../../src/components/BookReviewReader';
 import type { BookReview } from '../../src/types/BookReview';
+import { mockBookshelfGroupings } from '../../src/services/mockData';
+import type { BookshelfGrouping } from '../../src/types/BookReview';
 
 const thelordoftheringsReview = `It was a joy to read this again after many years. I don't want to go this long between readings next time.  From the moment I started reading the prologue, this was so good. It's so refreshing after the years of reading many other things, many of which are mediocre, some downright bad, to come back to something I know is amazing. Right from the moment that I started reading Tolkien's forward on details about hobbits, their three races, etc, I knew I was home.<br/><br/>One of the best things about Tolkien is his voice. It's grandfatherly, very positive, very reassuring. Another thing, of course, is his worldbuilding. The languages you're exposed to, the poems (which are actually good, unlike most fantasy authors who have tried to pull this off), the appendices...in no other text have I enjoyed reading appendices so much. And the historical footnotes, wow. Those really give it a level of verisimilitude that is really endearing.<br/><br/>It was interesting to note, now that I've seen the movies a billion times, all of the differences between the movies and the books. I actually thought there were some ways in which the movies were a little better--blasphemy, I know. But in some places they just did better at increasing the sense of tension before release. Of course, the main area in which they are lacking is the full world, that feeling, as well as the almost relaxed at one-ness with nature that you can only get when reading a book; movies have to have a certain pace. It's hard to put into words what I mean there, but...you just have to read it to understand.<br/><br/>There's also the whole scouring and restoration of the shire at the end, which is highly satisfying--pity the movies didn't have time to do that. And Tom Bombadil. And Denethor has more nuance and wisdom in the books. And the death of Théoden is more properly grieved and dramatized. And there's the romance between Faramir and Éowyn which is really a fascinating dynamic. Her character is much better explored in the books. And I feel that Boromir gets a better treatment in the books as well. And you get Shelob's little epic backstory. And you get a better glimpse into the orcs' worlds, which I highly enjoyed.<br/><br/>If you haven't read this, read it. There is so much there that you haven't gotten through the movies. It's an experience. And you really especially don't want to miss getting to know Tolkien's voice. I feel like I know him and love him even though I've never met the man. I wish I could have.`;
 
@@ -502,7 +504,7 @@ describe('BookReviewReader - Test Suite', () => {
 
   // ===== VERDICT TESTS =====
   describe('Verdict Calculation', () => {
-    const possibleVerdicts = ['Underrated!', 'The Hype Is Real!', 'Not bad', 'Avoid :-(', 'Overrated!'];
+    const possibleVerdicts = ['Underrated!', 'The Hype Is Real!', 'Solid', 'Not bad', 'Avoid :-(', 'Overrated!'];
     
     const verifyOnlyExpectedVerdict = (expectedVerdict: string) => {
       const metadataSection = screen.getByTestId('book-metadata');
@@ -550,11 +552,11 @@ describe('BookReviewReader - Test Suite', () => {
       verifyOnlyExpectedVerdict('The Hype Is Real!');
     });
 
-    it('should display "The Hype Is Real!" when delta is between -1 and +1 and my rating is 4', () => {
+    it('should display "Solid" when delta is between -1 and +1 and my rating is 4', () => {
       const hypedBook = { ...mockBookReview, myRating: 4, averageRating: 3.8 };
       render(<BookReviewReader bookReview={hypedBook} onClose={mockOnClose} />);
       
-      verifyOnlyExpectedVerdict('The Hype Is Real!');
+      verifyOnlyExpectedVerdict('Solid');
     });
 
     it('should display "Not bad" when delta is between -1 and +1 and my rating is 3', () => {
@@ -702,6 +704,148 @@ describe('BookReviewReader - Test Suite', () => {
       
       const perfectForElements = metadataSection.querySelectorAll('[data-testid="perfect-for"]');
       expect(perfectForElements.length).toBe(1);
+    });
+  });
+
+  // ===== GETVALIDGENRES TESTS =====
+  describe('getValidGenres Function', () => {
+    // Extract the getValidGenres function logic for testing
+    const getValidGenres = (): string[] => {
+      const genres = new Set<string>();
+      
+      // Add all grouping names as genres
+      mockBookshelfGroupings.forEach((grouping: BookshelfGrouping) => {
+        genres.add(grouping.name.toLowerCase());
+      });
+      
+      // Add all shelf names as genres, except those containing numbers
+      mockBookshelfGroupings.forEach((grouping: BookshelfGrouping) => {
+        grouping.bookshelves.forEach((shelf) => {
+          // Skip shelves that contain numbers (like "2024-science-fiction", "2025-reading-list")
+          if (!/\d/.test(shelf.name)) {
+            genres.add(shelf.name.toLowerCase());
+          }
+        });
+      });
+      
+      return Array.from(genres);
+    };
+
+    it('should include Science Fiction and Fantasy as genres', () => {
+      const genres = getValidGenres();
+      
+      expect(genres).toContain('science fiction');
+      expect(genres).toContain('fantasy');
+    });
+
+    it('should not include shelves with numbers like 2025-reading-list', () => {
+      const genres = getValidGenres();
+      
+      expect(genres).not.toContain('2025-reading-list');
+      expect(genres).not.toContain('2024-science-fiction');
+      expect(genres).not.toContain('2025 reading list');
+    });
+
+    it('should not include friends or Friends', () => {
+      const genres = getValidGenres();
+      
+      expect(genres).not.toContain('friends');
+      expect(genres).not.toContain('Friends');
+    });
+
+    it('should convert hyphenated names to lowercase', () => {
+      const genres = getValidGenres();
+      
+      // Check that hyphenated names are included in lowercase
+      expect(genres).toContain('high-fantasy');
+      expect(genres).toContain('sf-classics');
+      expect(genres).toContain('space-opera');
+      expect(genres).toContain('epic-sf');
+      expect(genres).toContain('science-fiction-comps');
+      expect(genres).toContain('cyberpunk');
+      expect(genres).toContain('modern-fantasy');
+      expect(genres).toContain('modern-fairy-tales');
+      expect(genres).toContain('folks-and-myths');
+      expect(genres).toContain('ancient-greek');
+      expect(genres).toContain('ancient-history');
+      expect(genres).toContain('ancient-classics');
+      expect(genres).toContain('ancient-roman');
+      expect(genres).toContain('renaissance-classics');
+      expect(genres).toContain('modern-classics');
+      expect(genres).toContain('topical-history');
+      expect(genres).toContain('renaissance-history');
+      expect(genres).toContain('modern-history');
+    });
+
+    it('should include all grouping names as genres', () => {
+      const genres = getValidGenres();
+      
+      expect(genres).toContain('history');
+      expect(genres).toContain('science fiction');
+      expect(genres).toContain('fantasy');
+      expect(genres).toContain('ancient classics');
+      expect(genres).toContain('classics');
+    });
+
+    it('should return a unique list of genres (no duplicates)', () => {
+      const genres = getValidGenres();
+      const uniqueGenres = new Set(genres);
+      
+      expect(genres.length).toBe(uniqueGenres.size);
+    });
+
+    it('should handle empty bookshelf groupings gracefully', () => {
+      const emptyGroupings: BookshelfGrouping[] = [];
+      
+      const getValidGenresEmpty = (): string[] => {
+        const genres = new Set<string>();
+        
+        emptyGroupings.forEach((grouping: BookshelfGrouping) => {
+          genres.add(grouping.name.toLowerCase());
+        });
+        
+        emptyGroupings.forEach((grouping: BookshelfGrouping) => {
+          grouping.bookshelves.forEach((shelf) => {
+            if (!/\d/.test(shelf.name)) {
+              genres.add(shelf.name.toLowerCase());
+            }
+          });
+        });
+        
+        return Array.from(genres);
+      };
+      
+      const genres = getValidGenresEmpty();
+      expect(genres).toEqual([]);
+    });
+
+    it('should filter out all numeric shelves correctly', () => {
+      const genres = getValidGenres();
+      
+      // Check that no genre contains numbers
+      const numericGenres = genres.filter(genre => /\d/.test(genre));
+      expect(numericGenres).toHaveLength(0);
+    });
+
+    it('should include specific expected genres from the mock data', () => {
+      const genres = getValidGenres();
+      
+      // Test specific genres that should be included
+      expect(genres).toContain('cyberpunk');
+      expect(genres).toContain('space-opera');
+      expect(genres).toContain('epic-sf');
+      expect(genres).toContain('high-fantasy');
+      expect(genres).toContain('modern-fantasy');
+      expect(genres).toContain('ancient-greek');
+      expect(genres).toContain('modern-classics');
+    });
+
+    it('should exclude specific numeric shelves from the mock data', () => {
+      const genres = getValidGenres();
+      
+      // Test specific shelves that should be excluded
+      expect(genres).not.toContain('2024-science-fiction');
+      expect(genres).not.toContain('2025-reading-list');
     });
   });
 }); 
