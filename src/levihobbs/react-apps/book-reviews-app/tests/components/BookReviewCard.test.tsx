@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BookReviewCard } from '../../src/components/BookReviewCard';
-import type { BookReview } from '../../src/types/BookReview';
+import type { BookReview } from '../../src/types/BookReviewTypes';
 
 const mockBookReview: BookReview = {
   id: 1,

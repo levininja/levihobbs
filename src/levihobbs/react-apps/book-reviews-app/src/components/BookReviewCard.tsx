@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import type { BookReview } from '../types/BookReview';
+import type { BookReview } from '../types/BookReviewTypes';
 import storyIcon from '../assets/story icon.png';
 
 interface BookReviewCardProps {

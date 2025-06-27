@@ -1,6 +1,6 @@
-import type { Bookshelf } from '../types/BookReview';
-import type { BookReview } from '../types/BookReview';
-import type { BookshelfGrouping } from '../types/BookReview';
+import type { Bookshelf } from '../types/BookReviewTypes';
+import type { BookReview } from '../types/BookReviewTypes';
+import type { BookshelfGrouping } from '../types/BookReviewTypes';
 import { generatePreviewText, calculateReadingTime } from '../utils/textUtils';
 
 // Long review content variables to avoid repetition

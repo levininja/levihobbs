@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { bookReviewApi } from './services/api';
-import type { BookReview, BookReviewsViewModel } from './types/BookReview';
+import type { BookReview, BookReviewsViewModel } from './types/BookReviewTypes';
 import { BookReviewCard } from './components/BookReviewCard';
 import { BookReviewReader } from './components/BookReviewReader';
 import { SearchBar } from './components/SearchBar';

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { BookReview } from '../types/BookReview';
+import type { BookReview } from '../types/BookReviewTypes';
 import { mockBookshelfGroupings } from '../services/mockData';
 
 interface BookReviewReaderProps {
