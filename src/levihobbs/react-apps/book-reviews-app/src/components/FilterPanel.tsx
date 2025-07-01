@@ -1,44 +1,57 @@
 import React, { useCallback } from 'react';
-
-interface Tag {
-  name: string;
-  type: 'shelf' | 'grouping';
-}
+import type { Tag } from '../types/BookReview';
 
 interface FilterPanelProps {
-  availableTags: Tag[];
-  selectedTags: string[];
-  onFiltersChange: (filters: { selectedTags?: string[]; }) => void;
+  tags: Tag[];
+  selectedTag: string | null;
+  onTagChange: (tagName: string | null) => void;
 }
 
 export const FilterPanel: React.FC<FilterPanelProps> = React.memo(({
-  availableTags,
-  selectedTags,
-  onFiltersChange
+  tags,
+  selectedTag,
+  onTagChange
 }) => {
   const handleTagToggle = useCallback((tagName: string) => {
-    const newSelectedTags = selectedTags.includes(tagName)
-      ? [] // Deselect if already selected
-      : [tagName]; // Select only this tag (single selection)
-    
-    onFiltersChange({ selectedTags: newSelectedTags });
-  }, [selectedTags, onFiltersChange]);
+    const newSelectedTag = selectedTag === tagName ? null : tagName;
+    onTagChange(newSelectedTag);
+  }, [selectedTag, onTagChange]);
 
   const clearAllFilters = useCallback(() => {
-    onFiltersChange({ selectedTags: [] });
-  }, [onFiltersChange]);
+    onTagChange(null);
+  }, [onTagChange]);
 
-  const hasActiveFilters = selectedTags.length > 0;
+  const hasActiveFilters = selectedTag !== null;
+
+  // Separate tags by type
+  const genreTags = tags.filter(tag => tag.type === 'Genre');
+  const specialtyTags = tags.filter(tag => tag.type === 'Specialty');
 
   return (
     <div className="filter-panel" data-testid="filter-panel">
       <div className="filter-section">
-        <h4>Tags</h4>
+        <h4>Genres</h4>
         <div className="tags-container">
-          {availableTags.map(tag => (
+          {genreTags.map(tag => (
             <button
               key={tag.name}
-              className={`tag-button ${selectedTags.includes(tag.name) ? 'selected' : ''}`}
+              className={`tag-button ${selectedTag === tag.name ? 'selected' : ''}`}
+              onClick={() => handleTagToggle(tag.name)}
+              data-testid={`tag-${tag.name}`}
+            >
+              {tag.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="filter-section">
+        <h4>Levi's Lists</h4>
+        <div className="tags-container">
+          {specialtyTags.map(tag => (
+            <button
+              key={tag.name}
+              className={`tag-button ${selectedTag === tag.name ? 'selected' : ''}`}
               onClick={() => handleTagToggle(tag.name)}
               data-testid={`tag-${tag.name}`}
             >

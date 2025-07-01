@@ -1,17 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { bookReviewApi } from './services/api';
-import type { BookReview, BookReviewsViewModel } from './types/BookReview';
+import type { BookReview, BookReviewsViewModel, Tag, Bookshelf, BookshelfGrouping } from './types/BookReview';
 import { BookReviewCard } from './components/BookReviewCard';
 import { BookReviewReader } from './components/BookReviewReader';
-import { SearchBar } from './components/SearchBar';
-import { FilterPanel } from './components/FilterPanel';
+import { SearchBookReviews } from './components/SearchBookReviews';
+import { BrowseBookReviews } from './components/BrowseBookReviews';
+import { specialtyShelves } from './services/mockData';
 import './App.scss';
 
 type AppMode = 'welcome' | 'search' | 'browse';
-
-interface BrowseFilters {
-  selectedTags: string[];
-}
 
 function App() {
   const [mode, setMode] = useState<AppMode>('welcome');
@@ -19,18 +16,11 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [viewModel, setViewModel] = useState<BookReviewsViewModel | null>(null);
   const [selectedBookReview, setSelectedBookReview] = useState<BookReview | null>(null);
+  const [tags, setTags] = useState<Tag[]>([]);
   
-  // Search state
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<BookReview[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  
-  // Browse state
-  const [browseFilters, setBrowseFilters] = useState<BrowseFilters>({
-    selectedTags: []
-  });
-  const [browseResults, setBrowseResults] = useState<BookReview[]>([]);
-  const [isBrowsing, setIsBrowsing] = useState(false);
+  // Current results and loading state for both search and browse
+  const [currentResults, setCurrentResults] = useState<BookReview[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Load initial data when switching to search or browse mode
   useEffect(() => {
@@ -40,8 +30,9 @@ function App() {
           setLoading(true);
           const result = await bookReviewApi.browseBookReviews();
           setViewModel(result);
-          if (mode === 'browse')
-            setBrowseResults(result.bookReviews || []);
+          if (mode === 'browse') {
+            setCurrentResults(result.bookReviews || []);
+          }
         } catch (err) {
           setError(err instanceof Error ? err.message : 'Failed to fetch book reviews');
         } finally {
@@ -52,79 +43,44 @@ function App() {
     }
   }, [mode, viewModel]);
 
-  const getTags = (bookshelves: Bookshelf[], bookshelfGroupings: BookshelfGrouping[], specialtyShelves: SpecialtyShelf[]): string[] => {
-    // TODO: Write logic here to get all tags from bookshelves and bookshelf groupings
-    return [];
-  }
- 
-  // Memoize lookup maps for filtering with better stability
-  const lookupMaps = useMemo(() => {
-    const allBookshelves = viewModel?.allBookshelves || [];
-    const allGroupings = viewModel?.allBookshelfGroupings || [];
+  const getTags = (bookshelves: Bookshelf[], bookshelfGroupings: BookshelfGrouping[], specialtyShelves: string[]): Tag[] => {
+    const tags: Tag[] = [];
     
-    const groupingMap = new Map(
-      allGroupings.map(g => [g.name.toLowerCase(), g.name])
-    );
-    const shelfMap = new Map(
-      allBookshelves.map(s => [s.name.toLowerCase(), s.name])
-    );
+    // Create Genre tags from bookshelf groupings
+    bookshelfGroupings.forEach(grouping => {
+      tags.push({
+        name: grouping.name,
+        type: 'Genre',
+        bookshelfGrouping: grouping
+      });
+    });
     
-    return { groupingMap, shelfMap };
-  }, [viewModel?.allBookshelves, viewModel?.allBookshelfGroupings]);
-
-  const handleSearchChange = useCallback(async (term: string) => {
-    setSearchTerm(term);
-    
-    if (term.trim().length < 2) {
-      setSearchResults([]);
-      setIsSearching(false);
-      return;
-    }
-
-    try {
-      setIsSearching(true);
-      const results = await bookReviewApi.searchBookReviews(term);
-      setSearchResults(results.bookReviews || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to search book reviews');
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
-    }
-  }, []);
-
-  const handleBrowseFiltersChange = useCallback(async (newFilters: Partial<BrowseFilters>) => {
-    const updatedFilters = { ...browseFilters, ...newFilters };
-    setBrowseFilters(updatedFilters);
-
-    try {
-      setIsBrowsing(true);
-      const { groupingMap, shelfMap } = lookupMaps;
-      
-      let shelf: string | undefined;
-      let grouping: string | undefined;
-      
-      // Only allow one shelf or grouping at a time - prioritize grouping if both exist
-      for (const tag of updatedFilters.selectedTags) {
-        const tagLower = tag.toLowerCase();
-        if (groupingMap.has(tagLower)) {
-          grouping = groupingMap.get(tagLower);
-          break;
-        } else if (shelfMap.has(tagLower)) {
-          shelf = shelfMap.get(tagLower);
-          break;
-        }
+    // Create Specialty tags from specialty shelves
+    specialtyShelves.forEach(specialtyShelfName => {
+      const matchingBookshelf = bookshelves.find(shelf => shelf.name === specialtyShelfName);
+      if (matchingBookshelf) {
+        tags.push({
+          name: matchingBookshelf.name,
+          type: 'Specialty',
+          bookshelf: matchingBookshelf
+        });
       }
-      
-      const results = await bookReviewApi.browseBookReviews(grouping, shelf);
-      setBrowseResults(results.bookReviews || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to browse book reviews');
-      setBrowseResults([]);
-    } finally {
-      setIsBrowsing(false);
+    });
+    
+    return tags;
+  };
+
+  // Memoize tags initialization - only run once when viewModel is first loaded
+  useEffect(() => {
+    if (viewModel && tags.length === 0) {
+      const allTags = getTags(
+        viewModel.allBookshelves,
+        viewModel.allBookshelfGroupings,
+        specialtyShelves
+      );
+      setTags(allTags);
     }
-  }, [browseFilters, lookupMaps]);
+  }, [viewModel, tags.length]);
 
   const handleBookReviewClick = useCallback((bookReview: BookReview) => {
     setSelectedBookReview(bookReview);
@@ -134,26 +90,17 @@ function App() {
     setSelectedBookReview(null);
   }, []);
 
-  // Memoize the combined tags list for FilterPanel with better stability
-  const allTags = useMemo(() => [
-    ...(viewModel?.allBookshelfGroupings || []).map(g => ({ name: g.name, type: 'grouping' as const })),
-    ...(viewModel?.allBookshelves || []).map(s => ({ name: s.name, type: 'shelf' as const }))
-  ], [viewModel?.allBookshelfGroupings, viewModel?.allBookshelves]);
+  const handleResults = useCallback((results: BookReview[]) => {
+    setCurrentResults(results);
+  }, []);
 
-  // Memoize the current results to prevent unnecessary re-renders
-  const currentResults = useMemo(() => {
-    if (mode === 'search') {
-      return searchResults;
-    } else if (mode === 'browse') {
-      return browseResults;
-    }
-    return [];
-  }, [mode, searchResults, browseResults]);
+  const handleLoadingChange = useCallback((loading: boolean) => {
+    setIsLoading(loading);
+  }, []);
 
-  // Memoize the loading state
-  const isLoading = useMemo(() => {
-    return isSearching || isBrowsing;
-  }, [isSearching, isBrowsing]);
+  const handleError = useCallback((error: string | null) => {
+    setError(error);
+  }, []);
 
   if (loading)
     return <div className="app">Loading...</div>;
@@ -211,17 +158,19 @@ function App() {
         </div>
         
         {mode === 'search' && (
-          <SearchBar 
-            searchTerm={searchTerm}
-            onSearchChange={handleSearchChange}
+          <SearchBookReviews 
+            onResults={handleResults}
+            onLoading={handleLoadingChange}
+            onError={handleError}
           />
         )}
         
         {mode === 'browse' && (
-          <FilterPanel
-            availableTags={allTags}
-            selectedTags={browseFilters.selectedTags}
-            onFiltersChange={handleBrowseFiltersChange}
+          <BrowseBookReviews
+            tags={tags}
+            onResults={handleResults}
+            onLoading={handleLoadingChange}
+            onError={handleError}
           />
         )}
       </header>
@@ -237,7 +186,7 @@ function App() {
             {isLoading && (
               <div className="loading" data-testid="loading">
                 <div className="loading-spinner"></div>
-                <p>{isSearching ? 'Searching...' : 'Loading...'}</p>
+                <p>Loading...</p>
               </div>
             )}
             <div className="book-reviews-grid" data-testid="book-reviews-grid">

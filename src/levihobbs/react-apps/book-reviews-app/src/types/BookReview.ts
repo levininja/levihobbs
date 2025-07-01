@@ -46,3 +46,10 @@ export interface BookCoverImage {
   imageData: string;
   fileType: string;
 } 
+
+export interface Tag {
+  name: string;
+  type: 'Genre' | 'Specialty';
+  bookshelf?: Bookshelf;
+  bookshelfGrouping?: BookshelfGrouping;
+}
