@@ -42,6 +42,19 @@
   color: $color-text-muted;
 }
 
+// Title alignment classes
+.title-left {
+  text-align: left;
+}
+
+.title-center {
+  text-align: center;
+}
+
+.title-right {
+  text-align: right;
+}
+
 // Common border/divider pattern
 .divider {
   border-top: 1px solid $color-ui-medium;

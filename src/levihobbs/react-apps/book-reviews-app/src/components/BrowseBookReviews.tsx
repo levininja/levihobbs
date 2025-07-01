@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { FilterPanel } from './FilterPanel';
+import { BookReviewsFilterPanel } from './BookReviewsFilterPanel';
 import { bookReviewApi } from '../services/api';
 import type { BookReview, Tag } from '../types/BookReview';
 
@@ -82,10 +82,10 @@ export const BrowseBookReviews: React.FC<BrowseBookReviewsProps> = ({
   }, [lookupMaps, onResults, onLoading, onError]);
 
   return (
-    <FilterPanel
-      tags={tags}
-      selectedTag={selectedTag}
-      onTagChange={handleTagChange}
-    />
+            <BookReviewsFilterPanel
+          tags={tags}
+          selectedTag={selectedTag}
+          onTagChange={handleTagChange}
+        />
   );
 };

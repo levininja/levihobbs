@@ -1,0 +1,88 @@
+@use './variables' as *;
+
+.book-reviews-filter-panel {
+  margin-bottom: $spacing-lg;
+  
+  .filter-section {
+    margin-bottom: $spacing-md;
+    
+    h4 {
+      margin-bottom: $spacing-sm;
+      font-size: $size-base;
+      font-weight: $weight-medium;
+      color: $color-text-primary;
+    }
+    
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-xs;
+    }
+    
+    .tag-button {
+      background: $color-ui-light;
+      border: 1px solid $color-ui-medium;
+      border-radius: $radius-md;
+      padding: $spacing-xs $spacing-sm;
+      font-size: $size-sm;
+      color: $color-text-secondary;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: $color-ui-medium;
+        color: $color-text-primary;
+      }
+      
+      &.selected {
+        background: $color-brand-primary;
+        border-color: $color-brand-primary;
+        color: white;
+      }
+    }
+  }
+  
+  .clear-filters-button {
+    background: $color-ui-light;
+    border: 1px solid $color-ui-medium;
+    border-radius: $radius-md;
+    padding: $spacing-sm $spacing-md;
+    font-size: $size-sm;
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: $spacing-sm;
+    
+    &:hover {
+      background: $color-ui-medium;
+      color: $color-text-primary;
+    }
+  }
+}
+
+// Mobile-first responsive design
+// On larger screens, display filter sections side by side
+@media (min-width: 768px) {
+  .book-reviews-filter-panel {
+    display: flex;
+    gap: $spacing-xl;
+    align-items: flex-start;
+    
+    .filter-section {
+      flex: 1;
+      margin-bottom: 0;
+    }
+    
+    .clear-filters-button {
+      align-self: flex-end;
+      margin-top: 0;
+    }
+  }
+}
+
+// On even larger screens, add more spacing
+@media (min-width: 1024px) {
+  .book-reviews-filter-panel {
+    gap: $spacing-2xl;
+  }
+} 
