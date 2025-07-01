@@ -1,7 +1,65 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { BookReviewsFilterPanel } from './BookReviewsFilterPanel';
 import { bookReviewApi } from '../services/api';
 import type { BookReview, Tag } from '../types/BookReview';
+
+interface BookReviewsFilterPanelProps {
+  tags: Tag[];
+  selectedTag: string | null;
+  onTagChange: (tagName: string | null) => void;
+}
+
+const BookReviewsFilterPanel: React.FC<BookReviewsFilterPanelProps> = React.memo(({
+  tags,
+  selectedTag,
+  onTagChange
+}) => {
+  const handleTagToggle = useCallback((tagName: string) => {
+    const newSelectedTag = selectedTag === tagName ? null : tagName;
+    onTagChange(newSelectedTag);
+  }, [selectedTag, onTagChange]);
+
+  // Separate tags by type
+  const genreTags = tags.filter(tag => tag.type === 'Genre');
+  const specialtyTags = tags.filter(tag => tag.type === 'Specialty');
+
+  return (
+    <div className="book-reviews-filter-panel" data-testid="book-reviews-filter-panel">
+      <div className="filter-section">
+        <h4 className='title-left'>Genres</h4>
+        <div className="tags-container">
+          {genreTags.map(tag => (
+            <button
+              key={tag.name}
+              className={`tag-button ${selectedTag === tag.name ? 'selected' : ''}`}
+              onClick={() => handleTagToggle(tag.name)}
+              data-testid={`tag-${tag.name}`}
+            >
+              {tag.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="filter-section">
+        <h4 className='title-left'>Levi's Lists</h4>
+        <div className="tags-container">
+          {specialtyTags.map(tag => (
+            <button
+              key={tag.name}
+              className={`tag-button ${selectedTag === tag.name ? 'selected' : ''}`}
+              onClick={() => handleTagToggle(tag.name)}
+              data-testid={`tag-${tag.name}`}
+            >
+              {tag.name}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+BookReviewsFilterPanel.displayName = 'BookReviewsFilterPanel';
 
 interface BrowseBookReviewsProps {
   tags: Tag[];
@@ -82,10 +140,10 @@ export const BrowseBookReviews: React.FC<BrowseBookReviewsProps> = ({
   }, [lookupMaps, onResults, onLoading, onError]);
 
   return (
-            <BookReviewsFilterPanel
-          tags={tags}
-          selectedTag={selectedTag}
-          onTagChange={handleTagChange}
-        />
+    <BookReviewsFilterPanel
+      tags={tags}
+      selectedTag={selectedTag}
+      onTagChange={handleTagChange}
+    />
   );
 };
