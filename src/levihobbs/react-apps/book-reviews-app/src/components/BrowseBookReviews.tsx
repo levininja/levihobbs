@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { FilterPanel } from './FilterPanel';
 import { bookReviewApi } from '../services/api';
 import type { BookReview, Tag } from '../types/BookReview';
@@ -23,6 +23,24 @@ export const BrowseBookReviews: React.FC<BrowseBookReviewsProps> = ({
     const tagMap = new Map(tags.map(tag => [tag.name.toLowerCase(), tag]));
     return { tagMap };
   }, [tags]);
+
+  // Load initial data when component mounts
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        onLoading(true);
+        const result = await bookReviewApi.browseBookReviews();
+        onResults(result.bookReviews || []);
+      } catch (err) {
+        onError(err instanceof Error ? err.message : 'Failed to load book reviews');
+        onResults([]);
+      } finally {
+        onLoading(false);
+      }
+    };
+
+    loadInitialData();
+  }, [onResults, onLoading, onError]);
 
   const handleTagChange = useCallback(async (tagName: string | null) => {
     setSelectedTag(tagName);

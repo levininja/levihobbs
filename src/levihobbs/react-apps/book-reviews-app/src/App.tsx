@@ -6,6 +6,7 @@ import { BookReviewReader } from './components/BookReviewReader';
 import { SearchBookReviews } from './components/SearchBookReviews';
 import { BrowseBookReviews } from './components/BrowseBookReviews';
 import { specialtyShelves } from './services/mockData';
+import { formatGoodreadsBookshelfName } from './utils/caseConverter';
 import './App.scss';
 
 type AppMode = 'welcome' | 'search' | 'browse';
@@ -16,13 +17,12 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [viewModel, setViewModel] = useState<BookReviewsViewModel | null>(null);
   const [selectedBookReview, setSelectedBookReview] = useState<BookReview | null>(null);
-  const [tags, setTags] = useState<Tag[]>([]);
   
   // Current results and loading state for both search and browse
   const [currentResults, setCurrentResults] = useState<BookReview[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Load initial data when switching to search or browse mode
+  // Load viewModel data when switching to search or browse mode
   useEffect(() => {
     if (mode !== 'welcome' && !viewModel) {
       const fetchData = async () => {
@@ -30,9 +30,6 @@ function App() {
           setLoading(true);
           const result = await bookReviewApi.browseBookReviews();
           setViewModel(result);
-          if (mode === 'browse') {
-            setCurrentResults(result.bookReviews || []);
-          }
         } catch (err) {
           setError(err instanceof Error ? err.message : 'Failed to fetch book reviews');
         } finally {
@@ -45,11 +42,10 @@ function App() {
 
   const getTags = (bookshelves: Bookshelf[], bookshelfGroupings: BookshelfGrouping[], specialtyShelves: string[]): Tag[] => {
     const tags: Tag[] = [];
-    
     // Create Genre tags from bookshelf groupings
     bookshelfGroupings.forEach(grouping => {
       tags.push({
-        name: grouping.name,
+        name: formatGoodreadsBookshelfName(grouping.name),
         type: 'Genre',
         bookshelfGrouping: grouping
       });
@@ -60,27 +56,28 @@ function App() {
       const matchingBookshelf = bookshelves.find(shelf => shelf.name === specialtyShelfName);
       if (matchingBookshelf) {
         tags.push({
-          name: matchingBookshelf.name,
+          name: formatGoodreadsBookshelfName(matchingBookshelf.name),
           type: 'Specialty',
           bookshelf: matchingBookshelf
         });
+      } else {
+        console.error(`Specialty shelf not found: ${specialtyShelfName}`);
       }
     });
     
     return tags;
   };
 
-  // Memoize tags initialization - only run once when viewModel is first loaded
-  useEffect(() => {
-    if (viewModel && tags.length === 0) {
-      const allTags = getTags(
-        viewModel.allBookshelves,
-        viewModel.allBookshelfGroupings,
-        specialtyShelves
-      );
-      setTags(allTags);
-    }
-  }, [viewModel, tags.length]);
+  // Memoize tags initialization - only run when viewModel changes
+  const tags = useMemo(() => {
+    if (!viewModel) return [];
+    
+    return getTags(
+      viewModel.allBookshelves,
+      viewModel.allBookshelfGroupings,
+      specialtyShelves
+    );
+  }, [viewModel]);
 
   const handleBookReviewClick = useCallback((bookReview: BookReview) => {
     setSelectedBookReview(bookReview);

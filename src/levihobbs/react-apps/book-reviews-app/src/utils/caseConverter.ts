@@ -45,4 +45,16 @@ export function convertBookReviewsViewModel(data: unknown): unknown {
  */
 export function convertBookReviews(data: unknown[]): unknown[] {
   return convertToCamelCase(data);
+}
+
+/**
+ * Formats Goodreads bookshelf names from hyphenated format to display format.
+ * Converts names like "2025-reading-list" to "2025 Reading List"
+ */
+export function formatGoodreadsBookshelfName(name: string): string {
+  return name
+    .replace(/-/g, ' ')
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 } 

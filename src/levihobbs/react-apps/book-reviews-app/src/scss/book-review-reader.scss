@@ -1,5 +1,6 @@
 @use './variables' as *;
 @use './common' as *;
+@use 'sass:color';
 
 .book-review-reader-overlay {
   position: fixed;
@@ -153,7 +154,7 @@
     color: $color-text-primary;
     
     &:hover {
-      background: darken($color-brand-primary, 10%);
+      background: color.adjust($color-brand-primary, $lightness: -10%);
     }
   }
   
@@ -162,7 +163,7 @@
     color: $color-text-light;
     
     &:hover {
-      background: darken($color-brand-secondary, 10%);
+      background: color.adjust($color-brand-secondary, $lightness: -10%);
     }
   }
 }

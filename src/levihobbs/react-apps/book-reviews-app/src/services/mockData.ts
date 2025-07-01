@@ -1,7 +1,7 @@
 import type { Bookshelf } from '../types/BookReview';
 import type { BookReview } from '../types/BookReview';
 import type { BookshelfGrouping } from '../types/BookReview';
-import { generatePreviewText, calculateReadingTime } from '../utils/textUtils';
+import { generatePreviewText, calculateReadingTime } from '../utils/bookReviewUtils';
 
 export const specialtyShelves: string[] = [
   "favorites",

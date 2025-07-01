@@ -194,7 +194,7 @@ describe('App', () => {
       fireEvent.change(searchInput, { target: { value: 'search' } });
 
       expect(screen.getByTestId('loading')).toBeInTheDocument();
-      expect(screen.getByText('Searching...')).toBeInTheDocument();
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
     });
   });
 
