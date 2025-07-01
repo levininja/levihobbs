@@ -101,7 +101,8 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(finalEclipseReview),
     readingTimeMinutes: calculateReadingTime(finalEclipseReview),
     coverImageId: null,
-    bookshelves: [{ id: 203, name: "epic-sf" },{ id: 194, name: "friends" }]
+    bookshelves: [{ id: 203, name: "epic-sf" },{ id: 194, name: "friends" }],
+    toneTags: ["gritty", "mystical", "bittersweet", "playful", "surreal", "heroic"]
   },
   {
     id: 2,
@@ -120,7 +121,8 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(odysseyReview),
     readingTimeMinutes: calculateReadingTime(odysseyReview),
     coverImageId: null,
-    bookshelves: [{ id: 192, name: "2025-reading-list" }, { id: 191, name: "ancient-greek" }, { id: 225, name: "ancient-classics" },{ id: 190, name: "history-of-lit" }]
+    bookshelves: [{ id: 192, name: "2025-reading-list" }, { id: 191, name: "ancient-greek" }, { id: 225, name: "ancient-classics" },{ id: 190, name: "history-of-lit" }],
+    toneTags: ["fast-paced", "grotesque", "hopeful", "sweet", "philosophical", "tragic"]
   },
   {
     id: 3,
@@ -139,7 +141,8 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(nineteenEightyFourReview),
     readingTimeMinutes: calculateReadingTime(nineteenEightyFourReview),
     coverImageId: null,
-    bookshelves: [{ id: 189, name: "sf-classics" },{ id: 212, name: "modern-classics" },]
+    bookshelves: [{ id: 189, name: "sf-classics" },{ id: 212, name: "modern-classics" },],
+    toneTags: ["melancholic", "haunting", "cozy", "hard-boiled", "dramatic", "suspenseful"]
   },
   {
     id: 4,
@@ -158,7 +161,8 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(tenthOfDecemberReview),
     readingTimeMinutes: calculateReadingTime(tenthOfDecemberReview),
     coverImageId: null,
-    bookshelves: [{ id: 219, name: "featured" }, { id: 196, name: "favorites" },{ id: 221, name: "modern-literary-fiction" }, { id: 205, name: "cyberpunk" }]
+    bookshelves: [{ id: 219, name: "featured" }, { id: 196, name: "favorites" },{ id: 221, name: "modern-literary-fiction" }, { id: 205, name: "cyberpunk" }],
+    toneTags: ["dark", "futuristic", "surreal", "philosophical", "haunting", "melancholic"]
   },
   {
     id: 5,
@@ -177,7 +181,8 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(kingArthurReview),
     readingTimeMinutes: calculateReadingTime(kingArthurReview),
     coverImageId: null,
-    bookshelves: [{ id: 228, name: "childrens" },]
+    bookshelves: [{ id: 228, name: "childrens" },],
+    toneTags: ["angsty", "uplifting", "macabre", "epic", "psychological", "romantic"]
   },
   {
     id: 6,
@@ -196,7 +201,8 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(dontYouJustHateThatReview),
     readingTimeMinutes: calculateReadingTime(dontYouJustHateThatReview),
     coverImageId: null,
-    bookshelves: []
+    bookshelves: [],
+    toneTags: ["flirty", "bleak", "detached", "steamy", "intense", "whimsical"]
   },
   {
     id: 2159,
@@ -215,7 +221,8 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(thelefthandofdarknessReview),
     readingTimeMinutes: calculateReadingTime(thelefthandofdarknessReview),
     coverImageId: null,
-    bookshelves: [{ id: 212, name: "modern-classics" },{ id: 189, name: "sf-classics" }]
+    bookshelves: [{ id: 212, name: "modern-classics" },{ id: 189, name: "sf-classics" }],
+    toneTags: ["dark", "lyrical", "tragic", "playful", "gritty", "romantic"]
   },
   {
     id: 2138,
@@ -234,7 +241,8 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(thelordoftheringsReview),
     readingTimeMinutes: calculateReadingTime(thelordoftheringsReview),
     coverImageId: 54,
-    bookshelves: [{ id: 196, name: "favorites" }, { id: 219, name: "featured" },{ id: 211, name: "high-fantasy" },{ id: 212, name: "modern-classics" },]
+    bookshelves: [{ id: 196, name: "favorites" }, { id: 219, name: "featured" },{ id: 211, name: "high-fantasy" },{ id: 212, name: "modern-classics" },],
+    toneTags: ["suspenseful", "mystical", "tragic", "claustrophobic", "sweet", "disturbing"]
   },
   {
     id: 2061,
@@ -272,7 +280,8 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(assassinsapprenticeReview),
     readingTimeMinutes: calculateReadingTime(assassinsapprenticeReview),
     coverImageId: 55,
-    bookshelves: [{ id: 196, name: "favorites" }, { id: 211, name: "high-fantasy" }]
+    bookshelves: [{ id: 196, name: "favorites" }, { id: 211, name: "high-fantasy" }],
+    toneTags: ["dramatic", "macabre", "heroic", "cynical", "cozy", "uplifting"]
   },
   {
     id: 1885,
@@ -291,7 +300,8 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(frogandtoadarefriendsReview),
     readingTimeMinutes: calculateReadingTime(frogandtoadarefriendsReview),
     coverImageId: 61,
-    bookshelves: [{ id: 196, name: "favorites" }, { id: 228, name: "childrens" },]
+    bookshelves: [{ id: 196, name: "favorites" }, { id: 228, name: "childrens" },],
+    toneTags: ["surreal", "grotesque", "psychological", "bleak", "hopeful", "atmospheric"]
   },
   {
     id: 1884,
@@ -310,7 +320,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(religiousexplanationandscientificideologyReview),
     readingTimeMinutes: calculateReadingTime(religiousexplanationandscientificideologyReview),
     coverImageId: null,
-    bookshelves: [{ id: 192, name: "2025-reading-list" }, { id: 194, name: "friends" }, { id: 195, name: "philosophy" }, { id: 218, name: "theology-and-spirituality" },]
+    bookshelves: [{ id: 192, name: "2025-reading-list" }, { id: 194, name: "friends" }, { id: 195, name: "philosophy" }, { id: 218, name: "theology-and-spirituality" },]  
   }
 ]; 
 
