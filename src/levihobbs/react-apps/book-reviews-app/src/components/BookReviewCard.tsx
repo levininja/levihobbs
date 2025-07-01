@@ -11,9 +11,8 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
   const [imageError, setImageError] = useState(false);
   
   const handleClick = useCallback(() => {
-    if (onClick) {
+    if (onClick)
       onClick(bookReview);
-    }
   }, [onClick, bookReview]);
 
   const handleImageError = useCallback(() => {
@@ -23,9 +22,8 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
   // Memoize the image source with better stability
   const imageSrc = useMemo(() => {
     // If we've already had an error, use fallback
-    if (imageError) {
+    if (imageError)
       return storyIcon;
-    }
     
     // In standalone mode, use the fallback image directly
     // In integrated mode, try to load from the API

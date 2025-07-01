@@ -20,9 +20,8 @@ const getValidGenres = (): string[] => {
   mockBookshelfGroupings.forEach(grouping => {
     grouping.bookshelves.forEach(shelf => {
       // Skip shelves that contain numbers (like "2024-science-fiction", "2025-reading-list")
-      if (!/\d/.test(shelf.name)) {
+      if (!/\d/.test(shelf.name))
         genres.add(shelf.name.toLowerCase());
-      }
     });
   });
   
@@ -45,11 +44,11 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = ({ bookReview, 
     const rating = bookReview.myRating || 0;
     const delta = rating - bookReview.averageRating;
     
-    if (delta >= 1) {
+    if (delta >= 1)
       return "Underrated!";
-    } else if (delta <= -1) {
+    else if (delta <= -1)
       return "Overrated!";
-    } else {
+    else {
       // Delta is between -1 and 1
       switch (rating) {
         case 5:
@@ -66,9 +65,8 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = ({ bookReview, 
 
   // Extract "Perfect For" from review text
   const perfectFor = useMemo(() => {
-    if (!bookReview.myReview) {
+    if (!bookReview.myReview)
       return null;
-    }
     
     // First, find the last two paragraphs by looking for <br><br> patterns
     const brPattern = /<br\s*\/?><br\s*\/?>/gi;
@@ -80,9 +78,8 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = ({ bookReview, 
       ? nonEmptyParagraphs.slice(-2).join(' ')
       : bookReview.myReview;
     
-    if (!lastTwoParagraphs) {
+    if (!lastTwoParagraphs)
       return null;
-    }
     
     // Remove HTML tags for text processing
     const textOnly = lastTwoParagraphs.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ');
@@ -119,22 +116,20 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = ({ bookReview, 
     
     // Convert to comma-delimited list
     // First, look for ", and" and replace with comma
-    if (extracted.includes(', and ')) {
+    if (extracted.includes(', and '))
       extracted = extracted.replace(/, and /g, ', ');
-    } else {
+    else {
       // If no ", and" found, find the last " and " and replace with comma
       const lastAndIndex = extracted.lastIndexOf(' and ');
-      if (lastAndIndex !== -1) {
+      if (lastAndIndex !== -1)
         extracted = extracted.substring(0, lastAndIndex) + ', ' + extracted.substring(lastAndIndex + 5);
-      }
     }
     
     // Clean up any extra spaces around commas
     extracted = extracted.replace(/\s*,\s*/g, ', ');
     
-    if (!extracted || extracted.trim().length === 0) {
+    if (!extracted || extracted.trim().length === 0)
       return null;
-    }
     return extracted;
   }, [bookReview.myReview, bookReview.bookshelves]);
 

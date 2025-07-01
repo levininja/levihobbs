@@ -722,9 +722,8 @@ describe('BookReviewReader - Test Suite', () => {
       mockBookshelfGroupings.forEach((grouping: BookshelfGrouping) => {
         grouping.bookshelves.forEach((shelf) => {
           // Skip shelves that contain numbers (like "2024-science-fiction", "2025-reading-list")
-          if (!/\d/.test(shelf.name)) {
+          if (!/\d/.test(shelf.name))
             genres.add(shelf.name.toLowerCase());
-          }
         });
       });
       
@@ -806,9 +805,8 @@ describe('BookReviewReader - Test Suite', () => {
         
         emptyGroupings.forEach((grouping: BookshelfGrouping) => {
           grouping.bookshelves.forEach((shelf) => {
-            if (!/\d/.test(shelf.name)) {
+            if (!/\d/.test(shelf.name))
               genres.add(shelf.name.toLowerCase());
-            }
           });
         });
         
