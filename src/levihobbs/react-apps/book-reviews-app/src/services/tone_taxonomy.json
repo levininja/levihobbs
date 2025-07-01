@@ -1,0 +1,89 @@
+{
+    "Poignant": {
+        "description": "Evokes a deep emotional response \u2014 beauty, sadness, longing, or emotional catharsis.",
+        "subtones": {
+            "Melancholic": "Wistful sadness, emotional heaviness",
+            "Bittersweet": "Happy-sad blend; joy tinged with sorrow",
+            "Gut-wrenching": "Overwhelming grief, devastation, or emotional agony",
+            "Heartwarming": "Deeply joyful, comforting, emotionally uplifting",
+            "Haunting": "Emotionally lingering; either mournful or eerie"
+        }
+    },
+    "Dark": {
+        "description": "Bleak, grim, disturbing, negative emotional or thematic tone.",
+        "subtones": {
+            "Bleak": "Hopeless, emotionally barren, devoid of comfort",
+            "Gritty": "Harsh realism; physical or moral ugliness",
+            "Cynical": "Distrustful of humanity, institutions, or motives",
+            "Macabre": "Focused on death, decay, and mortality",
+            "Grotesque": "Distorted, deformed, or unsettling in physical, thematic, or psychological ways",
+            "Disturbing": "Provokes discomfort or dread; often through horror, depravity, or existential tension",
+            "Unsettling": "Subtly discomforting; leaves the reader emotionally off balance",
+            "Claustrophobic": "Oppressive, trapped, suffocating, whether emotionally or physically",
+            "Hard-boiled": "Cynical, terse, emotionally detached tone, often in crime or noir fiction",
+            "Grimdark": "A form of dark fiction that is bleak, gritty, cynical, and devoid of moral clarity"
+        }
+    },
+    "Intense": {
+        "description": "High emotional pressure, tension, or stress \u2014 internal or external.",
+        "subtones": {
+            "Suspenseful": "Driven by tension, uncertainty, and anticipation",
+            "Fast-paced": "Intensity expressed through rapid, relentless plot movement"
+        }
+    },
+    "Atmospheric": {
+        "description": "Immersive mood and sensory presence.",
+        "subtones": {
+            "Haunting": "Emotionally or psychologically lingering; mournful or eerie",
+            "Lyrical": "Beautiful, poetic, stylized language that drives the emotional tone",
+            "Surreal": "Dreamlike, bizarre, reality-bending tone",
+            "Mystical": "Numinous, transcendent, spiritual, or magical in tone"
+        }
+    },
+    "Dramatic": {
+        "description": "High emotional stakes, emotional display, conflict, and heightened energy.",
+        "subtones": {
+            "Heroic": "Dramatization of courage, valor, sacrifice, grand quests",
+            "Tragic": "Dramatization of downfall, loss, failure, sorrow"
+        }
+    },
+    "Romantic": {
+        "description": "Focused on love, passion, and relationship-driven emotional tone.",
+        "subtones": {
+            "Steamy": "Erotic, sensual, sexually charged tone",
+            "Sweet": "Wholesome, tender, gentle, and emotionally innocent romance",
+            "Angsty": "Emotional turmoil, yearning, heartbreak, tension before resolution",
+            "Flirty": "Playful, teasing, often lighthearted romantic tension"
+        }
+    },
+    "Hopeful": {
+        "description": "Oriented toward optimism, progress, or the possibility of good outcomes.",
+        "subtones": {
+            "Uplifting": "Specifically designed to make the reader feel joyful, encouraged, or inspired"
+        }
+    },
+    "Realistic": {
+        "description": "Grounded in plausibility, the mundane, the ordinary; downplays melodrama or artifice.",
+        "subtones": {
+            "Detached": "Emotionally neutral, clinical, observational; understated affect within realism"
+        }
+    },
+    "Playful": {
+        "description": "Light, humorous, self-aware, witty, or tongue-in-cheek tone."
+    },
+    "Whimsical": {
+        "description": "Fanciful, quirky, imaginative, often magical or surreal but lighthearted."
+    },
+    "Cozy": {
+        "description": "Safe, comforting, low-stress, emotionally gentle."
+    },
+    "Philosophical": {
+        "description": "Focused on intellectual or existential exploration; abstract or contemplative."
+    },
+    "Psychological": {
+        "description": "Focused on internal tension, mind games, emotional instability, or mental complexity."
+    },
+    "Epic": {
+        "description": "Grand in scope, high-stakes, large-scale storytelling."
+    }
+}
