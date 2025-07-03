@@ -50,7 +50,7 @@ export interface BookCoverImage {
 
 export interface Tag {
   name: string;
-  type: 'Genre' | 'Specialty';
+  type: 'Genre' | 'Specialty' | 'Tone';
   bookshelf?: Bookshelf;
   bookshelfGrouping?: BookshelfGrouping;
 }

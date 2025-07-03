@@ -6,8 +6,10 @@ import { BookReviewReader } from './components/BookReviewReader';
 import { SearchBookReviews } from './components/SearchBookReviews';
 import { BrowseBookReviews } from './components/BrowseBookReviews';
 import { specialtyShelves } from './services/mockData';
+import { toneTaxonomy } from './services/mockToneTaxonomyData';
 import { formatGoodreadsBookshelfName } from './utils/caseConverter';
 import './App.scss';
+
 
 type AppMode = 'welcome' | 'search' | 'browse';
 
@@ -62,6 +64,25 @@ function App() {
         });
       } else {
         console.error(`Specialty shelf not found: ${specialtyShelfName}`);
+      }
+    });
+    
+    // Create Tone tags from tone taxonomy (only bottom-level tones)
+    toneTaxonomy.forEach(tone => {
+      if (tone.subtones && tone.subtones.length > 0) {
+        // Add subtones instead of parent tone
+        tone.subtones.forEach(subtone => {
+          tags.push({
+            name: subtone.name,
+            type: 'Tone'
+          });
+        });
+      } else {
+        // Add tone that has no subtones
+        tags.push({
+          name: tone.name,
+          type: 'Tone'
+        });
       }
     });
     

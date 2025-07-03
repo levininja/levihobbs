@@ -49,6 +49,18 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
     ));
   }, [bookReview.bookshelves]);
 
+  // Memoize tone tags to prevent unnecessary re-renders
+  const toneTagElements = useMemo(() => {
+    if (!bookReview.toneTags || bookReview.toneTags.length === 0) {
+      return null;
+    }
+    return bookReview.toneTags.map(tone => (
+      <span key={tone} className="tone-tag">
+        {tone}
+      </span>
+    ));
+  }, [bookReview.toneTags]);
+
   return (
     <div 
       className="book-review-card" 
@@ -82,6 +94,11 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
         <div className="bookshelves">
           {bookshelfElements}
         </div>
+        {toneTagElements && (
+          <div className="tone-tags">
+            {toneTagElements}
+          </div>
+        )}
       </div>
     </div>
   );
