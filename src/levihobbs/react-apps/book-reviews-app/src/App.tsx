@@ -56,22 +56,21 @@ function App() {
     // Create Specialty tags from specialty shelves
     specialtyShelves.forEach(specialtyShelfName => {
       const matchingBookshelf = bookshelves.find(shelf => shelf.name === specialtyShelfName);
-      if (matchingBookshelf) {
+      if (matchingBookshelf)
         tags.push({
           name: convertKebabCaseToDisplayCase(matchingBookshelf.name),
           type: 'Specialty',
           bookshelf: matchingBookshelf
         });
-      } else {
+      else
         console.error(`Specialty shelf not found: ${specialtyShelfName}`);
-      }
     });
     
     // Helper function to add tone tag if not duplicate
     const addToneTagIfUnique = (toneName: string, existingToneNames: Set<string>) => {
-      if (existingToneNames.has(toneName)) {
+      if (existingToneNames.has(toneName))
         console.error(`Duplicate tone found; skipping import: ${toneName}`);
-      } else {
+      else{
         existingToneNames.add(toneName);
         tags.push({
           name: toneName,
@@ -84,17 +83,13 @@ function App() {
     const existingToneNames = new Set<string>();
     
     toneTaxonomy.forEach(tone => {
-      if (tone.subtones && tone.subtones.length > 0) {
-        // Add tag for each subtone but not parent tone
+      if (tone.subtones && tone.subtones.length > 0)
         tone.subtones.forEach(subtone => {
           const toneName = convertLowerCaseKebabToUpperCaseKebab(subtone.name);
           addToneTagIfUnique(toneName, existingToneNames);
         });
-      } else {
-        // Add tone tag that has no subtones
-        const toneName = tone.name;
-        addToneTagIfUnique(toneName, existingToneNames);
-      }
+      else
+        addToneTagIfUnique(tone.name, existingToneNames);
     });
     
     return tags;
@@ -102,7 +97,8 @@ function App() {
 
   // Memoize tags initialization - only run when viewModel changes
   const tags = useMemo(() => {
-    if (!viewModel) return [];
+    if (!viewModel) 
+      return [];
     
     return getTags(
       viewModel.allBookshelves,
@@ -138,7 +134,7 @@ function App() {
     return <div className="app">Error: {error}</div>;
 
   // Welcome screen
-  if (mode === 'welcome') {
+  if (mode === 'welcome')
     return (
       <div className="app welcome-screen" data-testid="welcome-screen">
         <div className="welcome-content">
@@ -163,7 +159,6 @@ function App() {
         </div>
       </div>
     );
-  }
 
   return (
     <div className="app" data-testid="app">

@@ -51,9 +51,8 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
 
   // Memoize tone tags to prevent unnecessary re-renders
   const toneTagElements = useMemo(() => {
-    if (!bookReview.toneTags || bookReview.toneTags.length === 0) {
+    if (!bookReview.toneTags || bookReview.toneTags.length === 0)
       return null;
-    }
     return bookReview.toneTags.map(toneTag => (
       <span key={toneTag} className="tone-tag">
         {toneTag}

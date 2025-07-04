@@ -91,10 +91,6 @@ export const toneTaxonomy = [
         description: "Immersive mood and sensory presence.",
         subtones: [
             {
-                name: "Haunting",
-                description: "Emotionally or psychologically lingering; mournful or eerie"
-            },
-            {
                 name: "Lyrical",
                 description: "Beautiful, poetic, stylized language that drives the emotional tone"
             },

@@ -70,11 +70,10 @@ export const BrowseBookReviews: React.FC<BrowseBookReviewsProps> = ({
         const tag = tagMap.get(tagName.toLowerCase());
         
         if (tag) {
-          if (tag.bookshelfGrouping) {
+          if (tag.bookshelfGrouping)
             grouping = tag.bookshelfGrouping.name;
-          } else if (tag.bookshelf) {
+          else if (tag.bookshelf)
             shelf = tag.bookshelf.name;
-          }
         }
       }
       
@@ -84,9 +83,8 @@ export const BrowseBookReviews: React.FC<BrowseBookReviewsProps> = ({
       // Apply tone filtering if tone tags are selected
       if (toneTags.length > 0) {
         filteredResults = filteredResults.filter(bookReview => {
-          if (!bookReview.toneTags || bookReview.toneTags.length === 0) {
+          if (!bookReview.toneTags || bookReview.toneTags.length === 0)
             return false;
-          }
           // OR logic: book must have at least one of the selected tone tags
           return toneTags.some(selectedToneTag => 
             bookReview.toneTags!.some(bookToneTag => 
