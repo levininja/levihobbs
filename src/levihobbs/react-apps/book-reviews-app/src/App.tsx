@@ -67,22 +67,33 @@ function App() {
       }
     });
     
+    // Helper function to add tone tag if not duplicate
+    const addToneTagIfUnique = (toneName: string, existingToneNames: Set<string>) => {
+      if (existingToneNames.has(toneName)) {
+        console.error(`Duplicate tone found; skipping import: ${toneName}`);
+      } else {
+        existingToneNames.add(toneName);
+        tags.push({
+          name: toneName,
+          type: 'Tone'
+        });
+      }
+    };
+    
     // Create Tone tags from tone taxonomy (only bottom-level tones)
+    const existingToneNames = new Set<string>();
+    
     toneTaxonomy.forEach(tone => {
       if (tone.subtones && tone.subtones.length > 0) {
         // Add tag for each subtone but not parent tone
         tone.subtones.forEach(subtone => {
-          tags.push({
-            name: convertLowerCaseKebabToUpperCaseKebab(subtone.name),
-            type: 'Tone'
-          });
+          const toneName = convertLowerCaseKebabToUpperCaseKebab(subtone.name);
+          addToneTagIfUnique(toneName, existingToneNames);
         });
       } else {
         // Add tone tag that has no subtones
-        tags.push({
-          name: tone.name,
-          type: 'Tone'
-        });
+        const toneName = tone.name;
+        addToneTagIfUnique(toneName, existingToneNames);
       }
     });
     
