@@ -102,7 +102,7 @@ export const mockBookReviews: BookReview[] = [
     readingTimeMinutes: calculateReadingTime(finalEclipseReview),
     coverImageId: null,
     bookshelves: [{ id: 203, name: "epic-sf" },{ id: 194, name: "friends" }],
-    toneTags: ["gritty", "mystical", "bittersweet", "playful", "surreal", "heroic"]
+    toneTags: ["gritty", "mystical", "bittersweet", "playful", "surreal", "heroic", "dramatic"]
   },
   {
     id: 2,
@@ -122,7 +122,7 @@ export const mockBookReviews: BookReview[] = [
     readingTimeMinutes: calculateReadingTime(odysseyReview),
     coverImageId: null,
     bookshelves: [{ id: 192, name: "2025-reading-list" }, { id: 191, name: "ancient-greek" }, { id: 225, name: "ancient-classics" },{ id: 190, name: "history-of-lit" }],
-    toneTags: ["fast-paced", "grotesque", "hopeful", "sweet", "philosophical", "tragic"]
+    toneTags: ["fast-paced", "grotesque", "hopeful", "sweet", "philosophical", "tragic", "romantic"]
   },
   {
     id: 3,
@@ -142,7 +142,7 @@ export const mockBookReviews: BookReview[] = [
     readingTimeMinutes: calculateReadingTime(nineteenEightyFourReview),
     coverImageId: null,
     bookshelves: [{ id: 189, name: "sf-classics" },{ id: 212, name: "modern-classics" },],
-    toneTags: ["melancholic", "haunting", "cozy", "hard-boiled", "dramatic", "suspenseful"]
+    toneTags: ["melancholic", "haunting", "cozy", "hard-boiled", "dramatic", "suspenseful", "realistic"]
   },
   {
     id: 4,
@@ -162,7 +162,7 @@ export const mockBookReviews: BookReview[] = [
     readingTimeMinutes: calculateReadingTime(tenthOfDecemberReview),
     coverImageId: null,
     bookshelves: [{ id: 219, name: "featured" }, { id: 196, name: "favorites" },{ id: 221, name: "modern-literary-fiction" }, { id: 205, name: "cyberpunk" }],
-    toneTags: ["dark", "futuristic", "surreal", "philosophical", "haunting", "melancholic"]
+    toneTags: ["dark", "futuristic", "surreal", "philosophical", "haunting", "melancholic", "hopeful"]
   },
   {
     id: 5,
@@ -182,7 +182,7 @@ export const mockBookReviews: BookReview[] = [
     readingTimeMinutes: calculateReadingTime(kingArthurReview),
     coverImageId: null,
     bookshelves: [{ id: 228, name: "childrens" },],
-    toneTags: ["angsty", "uplifting", "macabre", "epic", "psychological", "romantic"]
+    toneTags: ["angsty", "uplifting", "macabre", "epic", "psychological", "romantic", "poignant"]
   },
   {
     id: 6,
@@ -202,7 +202,7 @@ export const mockBookReviews: BookReview[] = [
     readingTimeMinutes: calculateReadingTime(dontYouJustHateThatReview),
     coverImageId: null,
     bookshelves: [],
-    toneTags: ["flirty", "bleak", "detached", "steamy", "intense", "whimsical"]
+    toneTags: ["flirty", "bleak", "detached", "steamy", "intense", "whimsical", "dark"]
   },
   {
     id: 2159,
@@ -222,7 +222,7 @@ export const mockBookReviews: BookReview[] = [
     readingTimeMinutes: calculateReadingTime(thelefthandofdarknessReview),
     coverImageId: null,
     bookshelves: [{ id: 212, name: "modern-classics" },{ id: 189, name: "sf-classics" }],
-    toneTags: ["dark", "lyrical", "tragic", "playful", "gritty", "romantic"]
+    toneTags: ["dark", "lyrical", "tragic", "playful", "gritty", "romantic", "intense"]
   },
   {
     id: 2138,
@@ -242,7 +242,7 @@ export const mockBookReviews: BookReview[] = [
     readingTimeMinutes: calculateReadingTime(thelordoftheringsReview),
     coverImageId: 54,
     bookshelves: [{ id: 196, name: "favorites" }, { id: 219, name: "featured" },{ id: 211, name: "high-fantasy" },{ id: 212, name: "modern-classics" },],
-    toneTags: ["suspenseful", "mystical", "tragic", "claustrophobic", "sweet", "disturbing"]
+    toneTags: ["suspenseful", "mystical", "tragic", "claustrophobic", "sweet", "disturbing", "atmospheric"]
   },
   {
     id: 2061,
@@ -281,7 +281,7 @@ export const mockBookReviews: BookReview[] = [
     readingTimeMinutes: calculateReadingTime(assassinsapprenticeReview),
     coverImageId: 55,
     bookshelves: [{ id: 196, name: "favorites" }, { id: 211, name: "high-fantasy" }],
-    toneTags: ["dramatic", "macabre", "heroic", "cynical", "cozy", "uplifting"]
+    toneTags: ["dramatic", "macabre", "heroic", "cynical", "cozy", "uplifting", "dark"]
   },
   {
     id: 1885,
