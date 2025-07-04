@@ -48,13 +48,23 @@ export function convertBookReviews(data: unknown[]): unknown[] {
 }
 
 /**
- * Formats Goodreads bookshelf names from hyphenated format to display format.
- * Converts names like "2025-reading-list" to "2025 Reading List"
+ * Converts names like "2025-reading-list" to "2025 Reading List".
  */
-export function formatGoodreadsBookshelfName(name: string): string {
+export function convertKebabCaseToDisplayCase(name: string): string {
   return name
     .replace(/-/g, ' ')
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
-} 
+}
+
+/**
+ * Converts lowercase kebab-case to uppercase kebab-case,
+ * like "heart-warming" to "Heart-Warming".
+ */
+export function convertLowerCaseKebabToUpperCaseKebab(name: string): string {
+  return name
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join('-');
+}

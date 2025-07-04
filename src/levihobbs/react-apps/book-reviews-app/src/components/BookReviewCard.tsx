@@ -54,9 +54,9 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
     if (!bookReview.toneTags || bookReview.toneTags.length === 0) {
       return null;
     }
-    return bookReview.toneTags.map(tone => (
-      <span key={tone} className="tone-tag">
-        {tone}
+    return bookReview.toneTags.map(toneTag => (
+      <span key={toneTag} className="tone-tag">
+        {toneTag}
       </span>
     ));
   }, [bookReview.toneTags]);

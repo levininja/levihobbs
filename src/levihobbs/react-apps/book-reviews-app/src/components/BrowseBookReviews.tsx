@@ -16,7 +16,7 @@ export const BrowseBookReviews: React.FC<BrowseBookReviewsProps> = ({
   onError
 }) => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [selectedTones, setSelectedTones] = useState<string[]>([]);
+  const [selectedToneTags, setSelectedToneTags] = useState<string[]>([]);
 
   // Create lookup maps for filtering
   const lookupMaps = useMemo(() => {
@@ -44,19 +44,19 @@ export const BrowseBookReviews: React.FC<BrowseBookReviewsProps> = ({
 
   const handleTagChange = useCallback(async (tagName: string | null) => {
     setSelectedTag(tagName);
-    await applyFilters(tagName, selectedTones);
-  }, [selectedTones]);
+    await applyFilters(tagName, selectedToneTags);
+  }, [selectedToneTags]);
 
-  const handleTonesChange = useCallback(async (tones: string[]) => {
-    setSelectedTones(tones);
-    await applyFilters(selectedTag, tones);
+  const handleToneTagsChange = useCallback(async (toneTags: string[]) => {
+    setSelectedToneTags(toneTags);
+    await applyFilters(selectedTag, toneTags);
   }, [selectedTag]);
 
-  const applyFilters = useCallback(async (tagName: string | null, tones: string[]) => {
+  const applyFilters = useCallback(async (tagName: string | null, toneTags: string[]) => {
     try {
       onLoading(true);
       
-      if (!tagName && tones.length === 0) {
+      if (!tagName && toneTags.length === 0) {
         const results = await bookReviewApi.browseBookReviews();
         onResults(results.bookReviews || []);
         return;
@@ -81,16 +81,16 @@ export const BrowseBookReviews: React.FC<BrowseBookReviewsProps> = ({
       const results = await bookReviewApi.browseBookReviews(grouping, shelf);
       let filteredResults = results.bookReviews || [];
       
-      // Apply tone filtering if tones are selected
-      if (tones.length > 0) {
+      // Apply tone filtering if tone tags are selected
+      if (toneTags.length > 0) {
         filteredResults = filteredResults.filter(bookReview => {
           if (!bookReview.toneTags || bookReview.toneTags.length === 0) {
             return false;
           }
-          // OR logic: book must have at least one of the selected tones
-          return tones.some(selectedTone => 
-            bookReview.toneTags!.some(bookTone => 
-              bookTone.toLowerCase() === selectedTone.toLowerCase()
+          // OR logic: book must have at least one of the selected tone tags
+          return toneTags.some(selectedToneTag => 
+            bookReview.toneTags!.some(bookToneTag => 
+              bookToneTag.toLowerCase() === selectedToneTag.toLowerCase()
             )
           );
         });
@@ -109,9 +109,9 @@ export const BrowseBookReviews: React.FC<BrowseBookReviewsProps> = ({
     <BookReviewsFilterPanel
       tags={tags}
       selectedTag={selectedTag}
-      selectedTones={selectedTones}
+      selectedToneTags={selectedToneTags}
       onTagChange={handleTagChange}
-      onTonesChange={handleTonesChange}
+      onToneTagsChange={handleToneTagsChange}
     />
   );
 };
@@ -119,29 +119,29 @@ export const BrowseBookReviews: React.FC<BrowseBookReviewsProps> = ({
 interface BookReviewsFilterPanelProps {
   tags: Tag[];
   selectedTag: string | null;
-  selectedTones: string[];
+  selectedToneTags: string[];
   onTagChange: (tagName: string | null) => void;
-  onTonesChange: (tones: string[]) => void;
+  onToneTagsChange: (toneTags: string[]) => void;
 }
 
 const BookReviewsFilterPanel: React.FC<BookReviewsFilterPanelProps> = React.memo(({
   tags,
   selectedTag,
-  selectedTones,
+  selectedToneTags,
   onTagChange,
-  onTonesChange
+  onToneTagsChange
 }) => {
   const handleTagToggle = useCallback((tagName: string) => {
     const newSelectedTag = selectedTag === tagName ? null : tagName;
     onTagChange(newSelectedTag);
   }, [selectedTag, onTagChange]);
 
-  const handleToneToggle = useCallback((toneName: string) => {
-    const newSelectedTones = selectedTones.includes(toneName)
-      ? selectedTones.filter(tone => tone !== toneName)
-      : [...selectedTones, toneName];
-    onTonesChange(newSelectedTones);
-  }, [selectedTones, onTonesChange]);
+  const handleToneTagToggle = useCallback((toneTagName: string) => {
+    const newSelectedToneTags = selectedToneTags.includes(toneTagName)
+      ? selectedToneTags.filter(toneTag => toneTag !== toneTagName)
+      : [...selectedToneTags, toneTagName];
+    onToneTagsChange(newSelectedToneTags);
+  }, [selectedToneTags, onToneTagsChange]);
 
   // Separate tags by type
   const genreTags = tags.filter(tag => tag.type === 'Genre');
@@ -182,15 +182,15 @@ const BookReviewsFilterPanel: React.FC<BookReviewsFilterPanelProps> = React.memo
         </div>
       </div>
 
-      <div className="filter-section">
-        <h4 className='title-left'>Tones</h4>
+      <div className="filter-section tone-tags">
+        <h4 className='title-left'>Tone Tags</h4>
         <div className="tags-container">
           {toneTags.map(tag => (
             <button
               key={tag.name}
-              className={`tag-button ${selectedTones.includes(tag.name) ? 'selected' : ''}`}
-              onClick={() => handleToneToggle(tag.name)}
-              data-testid={`tone-${tag.name}`}
+              className={`tag-button ${selectedToneTags.includes(tag.name) ? 'selected' : ''}`}
+              onClick={() => handleToneTagToggle(tag.name)}
+              data-testid={`tone-tag-${tag.name}`}
             >
               {tag.name}
             </button>

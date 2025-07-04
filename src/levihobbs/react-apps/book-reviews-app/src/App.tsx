@@ -7,7 +7,7 @@ import { SearchBookReviews } from './components/SearchBookReviews';
 import { BrowseBookReviews } from './components/BrowseBookReviews';
 import { specialtyShelves } from './services/mockData';
 import { toneTaxonomy } from './services/mockToneTaxonomyData';
-import { formatGoodreadsBookshelfName } from './utils/caseConverter';
+import { convertKebabCaseToDisplayCase, convertLowerCaseKebabToUpperCaseKebab } from './utils/caseConverter';
 import './App.scss';
 
 
@@ -47,7 +47,7 @@ function App() {
     // Create Genre tags from bookshelf groupings
     bookshelfGroupings.forEach(grouping => {
       tags.push({
-        name: formatGoodreadsBookshelfName(grouping.name),
+        name: convertKebabCaseToDisplayCase(grouping.name),
         type: 'Genre',
         bookshelfGrouping: grouping
       });
@@ -58,7 +58,7 @@ function App() {
       const matchingBookshelf = bookshelves.find(shelf => shelf.name === specialtyShelfName);
       if (matchingBookshelf) {
         tags.push({
-          name: formatGoodreadsBookshelfName(matchingBookshelf.name),
+          name: convertKebabCaseToDisplayCase(matchingBookshelf.name),
           type: 'Specialty',
           bookshelf: matchingBookshelf
         });
@@ -70,15 +70,15 @@ function App() {
     // Create Tone tags from tone taxonomy (only bottom-level tones)
     toneTaxonomy.forEach(tone => {
       if (tone.subtones && tone.subtones.length > 0) {
-        // Add subtones instead of parent tone
+        // Add tag for each subtone but not parent tone
         tone.subtones.forEach(subtone => {
           tags.push({
-            name: subtone.name,
+            name: convertLowerCaseKebabToUpperCaseKebab(subtone.name),
             type: 'Tone'
           });
         });
       } else {
-        // Add tone that has no subtones
+        // Add tone tag that has no subtones
         tags.push({
           name: tone.name,
           type: 'Tone'

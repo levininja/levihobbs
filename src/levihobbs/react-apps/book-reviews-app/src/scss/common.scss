@@ -1,15 +1,20 @@
 @use './variables' as *;
 
 // Common bookshelf tag styling (used in both book-review-card and book-review-reader)
-.bookshelf-tag {
+.bookshelf-tag, .tone-tag {
   display: inline-block;
-  background: $color-ui-medium;
   padding: 2px $spacing-sm;
   border-radius: $radius-full;
   font-size: $size-xs;
   margin-right: $spacing-xs;
   margin-bottom: $spacing-xs;
   color: $color-text-secondary;
+}
+.bookshelf-tag{
+  background: $color-accent-1;
+}
+.tone-tag {
+  background: $color-accent-2;
 }
 
 // Common rating info styling (used in both book-review-card and book-review-reader)
