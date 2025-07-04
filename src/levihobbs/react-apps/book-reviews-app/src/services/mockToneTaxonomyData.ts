@@ -79,10 +79,6 @@ export const toneTaxonomy = [
             {
                 name: "Suspenseful",
                 description: "Driven by tension, uncertainty, and anticipation"
-            },
-            {
-                name: "Fast-paced",
-                description: "Intensity expressed through rapid, relentless plot movement"
             }
         ]
     },
