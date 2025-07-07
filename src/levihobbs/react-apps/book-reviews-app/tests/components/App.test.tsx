@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/re
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import App from '../../src/App';
 import { bookReviewApi } from '../../src/services/api';
-import type { BookReview, BookReviewsViewModel } from '../../src/types/BookReview';
+import type { BookReview, BookReviewsViewModel } from '../../src/types/BookReviewTypes';
 import { mockBookReviews } from '../../src/services/mockData';
 
 // Mock the API module

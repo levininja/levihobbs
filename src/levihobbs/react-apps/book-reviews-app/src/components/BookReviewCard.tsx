@@ -1,13 +1,15 @@
+
 import React, { useCallback, useMemo, useState } from 'react';
-import type { BookReview } from '../types/BookReview';
+import type { BookReview } from '../types/BookReviewTypes';
 import storyIcon from '../assets/story icon.png';
 
 interface BookReviewCardProps {
   bookReview: BookReview;
   onClick?: (bookReview: BookReview) => void;
+  toneDescriptions: Map<string, string>;
 }
 
-export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookReview, onClick }) => {
+export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookReview, onClick, toneDescriptions }) => {
   const [imageError, setImageError] = useState(false);
   
   const handleClick = useCallback(() => {
@@ -44,21 +46,25 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
   const bookshelfElements = useMemo(() => {
     return bookReview.bookshelves.map(shelf => (
       <span key={shelf.id} className="bookshelf-tag">
-        {shelf.displayName || shelf.name}
+        {shelf.name}
       </span>
     ));
   }, [bookReview.bookshelves]);
 
-  // Memoize tone tags to prevent unnecessary re-renders
+  // Memoize tone tags with descriptions to prevent unnecessary re-renders
   const toneTagElements = useMemo(() => {
     if (!bookReview.toneTags || bookReview.toneTags.length === 0)
       return null;
     return bookReview.toneTags.map(toneTag => (
-      <span key={toneTag} className="tone-tag">
+      <span 
+        key={toneTag} 
+        className="tone-tag"
+        title={toneDescriptions.get(toneTag) || ''}
+      >
         {toneTag}
       </span>
     ));
-  }, [bookReview.toneTags]);
+  }, [bookReview.toneTags, toneDescriptions]);
 
   return (
     <div 
@@ -103,4 +109,4 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
   );
 });
 
-BookReviewCard.displayName = 'BookReviewCard'; 
+BookReviewCard.displayName = 'BookReviewCard';

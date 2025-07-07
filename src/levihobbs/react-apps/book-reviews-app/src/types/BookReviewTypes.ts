@@ -54,3 +54,8 @@ export interface Tag {
   bookshelf?: Bookshelf;
   bookshelfGrouping?: BookshelfGrouping;
 }
+
+export interface Tone {
+  name: string;
+  description?: string;
+}

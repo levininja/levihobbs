@@ -1,4 +1,4 @@
-import type { BookReview, BookReviewsViewModel } from '../types/BookReview';
+import type { BookReview, BookReviewsViewModel } from '../types/BookReviewTypes';
 import { convertToCamelCase } from '../utils/caseConverter';
 import { mockBookReviews, mockBookshelves, mockBookshelfGroupings } from './mockData';
 

@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { bookReviewApi } from './services/api';
-import type { BookReview, BookReviewsViewModel, Tag, Bookshelf, BookshelfGrouping } from './types/BookReview';
+import type { BookReview, BookReviewsViewModel } from './types/BookReviewTypes';
 import { BookReviewCard } from './components/BookReviewCard';
 import { BookReviewReader } from './components/BookReviewReader';
 import { SearchBookReviews } from './components/SearchBookReviews';
 import { BrowseBookReviews } from './components/BrowseBookReviews';
 import { specialtyShelves } from './services/mockData';
 import { toneTaxonomy } from './services/mockToneTaxonomyData';
-import { convertKebabCaseToDisplayCase, convertLowerCaseKebabToUpperCaseKebab } from './utils/caseConverter';
+import { convertLowerCaseKebabToUpperCaseKebab } from './utils/caseConverter';
+import { addToneDescription, getTags } from './utils/appFunctions';
 import './App.scss';
-
 
 type AppMode = 'welcome' | 'search' | 'browse';
 
@@ -23,6 +23,34 @@ function App() {
   // Current results and loading state for both search and browse
   const [currentResults, setCurrentResults] = useState<BookReview[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Tone descriptions dictionary loaded at app startup
+  const [toneDescriptions, setToneDescriptions] = useState<Map<string, string>>(new Map());
+
+
+
+  // Load tone descriptions when app starts
+  useEffect(() => {
+    const loadToneDescriptions = () => {
+      const descriptions = new Map<string, string>();
+      const importedToneNames = new Set<string>();
+      
+      toneTaxonomy.forEach(tone => {
+        // Add parent tone description
+        addToneDescription(descriptions, tone, false, importedToneNames);
+        
+        // Add subtone descriptions
+        if (tone.subtones && tone.subtones.length > 0)
+          tone.subtones.forEach(subtone => {
+            addToneDescription(descriptions, subtone, true, importedToneNames);
+          });
+      });
+      
+      setToneDescriptions(descriptions);
+    };
+
+    loadToneDescriptions();
+  }, []);
 
   // Load viewModel data when switching to search or browse mode
   useEffect(() => {
@@ -42,58 +70,7 @@ function App() {
     }
   }, [mode, viewModel]);
 
-  const getTags = (bookshelves: Bookshelf[], bookshelfGroupings: BookshelfGrouping[], specialtyShelves: string[]): Tag[] => {
-    const tags: Tag[] = [];
-    // Create Genre tags from bookshelf groupings
-    bookshelfGroupings.forEach(grouping => {
-      tags.push({
-        name: convertKebabCaseToDisplayCase(grouping.name),
-        type: 'Genre',
-        bookshelfGrouping: grouping
-      });
-    });
-    
-    // Create Specialty tags from specialty shelves
-    specialtyShelves.forEach(specialtyShelfName => {
-      const matchingBookshelf = bookshelves.find(shelf => shelf.name === specialtyShelfName);
-      if (matchingBookshelf)
-        tags.push({
-          name: convertKebabCaseToDisplayCase(matchingBookshelf.name),
-          type: 'Specialty',
-          bookshelf: matchingBookshelf
-        });
-      else
-        console.error(`Specialty shelf not found: ${specialtyShelfName}`);
-    });
-    
-    // Helper function to add tone tag if not duplicate
-    const addToneTagIfUnique = (toneName: string, existingToneNames: Set<string>) => {
-      if (existingToneNames.has(toneName))
-        console.error(`Duplicate tone found; skipping import: ${toneName}`);
-      else{
-        existingToneNames.add(toneName);
-        tags.push({
-          name: toneName,
-          type: 'Tone'
-        });
-      }
-    };
-    
-    // Create Tone tags from tone taxonomy (only bottom-level tones)
-    const existingToneNames = new Set<string>();
-    
-    toneTaxonomy.forEach(tone => {
-      if (tone.subtones && tone.subtones.length > 0)
-        tone.subtones.forEach(subtone => {
-          const toneName = convertLowerCaseKebabToUpperCaseKebab(subtone.name);
-          addToneTagIfUnique(toneName, existingToneNames);
-        });
-      else
-        addToneTagIfUnique(tone.name, existingToneNames);
-    });
-    
-    return tags;
-  };
+
 
   // Memoize tags initialization - only run when viewModel changes
   const tags = useMemo(() => {
@@ -116,7 +93,12 @@ function App() {
   }, []);
 
   const handleResults = useCallback((results: BookReview[]) => {
-    setCurrentResults(results);
+    const processedResults = results.map(review => ({
+      ...review,
+      // Convert tone tags from "heart-warming" to "Heart-Warming" etc.
+      toneTags: review.toneTags?.map(tag => convertLowerCaseKebabToUpperCaseKebab(tag)) || []
+    }));
+    setCurrentResults(processedResults);
   }, []);
 
   const handleLoadingChange = useCallback((loading: boolean) => {
@@ -160,73 +142,74 @@ function App() {
       </div>
     );
 
-  return (
-    <div className="app" data-testid="app">
-      <header className="app-header">
-        <h1>Book Reviews</h1>
-        <div className="tab-navigation">
-          <button 
-            className={`tab-button ${mode === 'search' ? 'active' : ''}`}
-            onClick={() => setMode('search')}
-            data-testid="search-tab"
-          >
-            Search
-          </button>
-          <button 
-            className={`tab-button ${mode === 'browse' ? 'active' : ''}`}
-            onClick={() => setMode('browse')}
-            data-testid="browse-tab"
-          >
-            Browse
-          </button>
-        </div>
+    return (
+      <div className="app" data-testid="app">
+        <header className="app-header">
+          <h1>Book Reviews</h1>
+          <div className="tab-navigation">
+            <button 
+              className={`tab-button ${mode === 'search' ? 'active' : ''}`}
+              onClick={() => setMode('search')}
+              data-testid="search-tab"
+            >
+              Search
+            </button>
+            <button 
+              className={`tab-button ${mode === 'browse' ? 'active' : ''}`}
+              onClick={() => setMode('browse')}
+              data-testid="browse-tab"
+            >
+              Browse
+            </button>
+          </div>
+          
+          {mode === 'search' && (
+            <SearchBookReviews 
+              onResults={handleResults}
+              onLoading={handleLoadingChange}
+              onError={handleError}
+            />
+          )}
+          
+          {mode === 'browse' && (
+            <BrowseBookReviews
+              tags={tags}
+              onResults={handleResults}
+              onLoading={handleLoadingChange}
+              onError={handleError}
+            />
+          )}
+        </header>
         
-        {mode === 'search' && (
-          <SearchBookReviews 
-            onResults={handleResults}
-            onLoading={handleLoadingChange}
-            onError={handleError}
-          />
-        )}
-        
-        {mode === 'browse' && (
-          <BrowseBookReviews
-            tags={tags}
-            onResults={handleResults}
-            onLoading={handleLoadingChange}
-            onError={handleError}
-          />
-        )}
-      </header>
-      
-      <main className="app-main">
-        {selectedBookReview ? (
-          <BookReviewReader 
-            bookReview={selectedBookReview} 
-            onClose={handleCloseReader}
-          />
-        ) : (
-          <>
-            {isLoading && (
-              <div className="loading" data-testid="loading">
-                <div className="loading-spinner"></div>
-                <p>Loading...</p>
+        <main className="app-main">
+          {selectedBookReview ? (
+            <BookReviewReader 
+              bookReview={selectedBookReview} 
+              onClose={handleCloseReader}
+            />
+          ) : (
+            <>
+              {isLoading && (
+                <div className="loading" data-testid="loading">
+                  <div className="loading-spinner"></div>
+                  <p>Loading...</p>
+                </div>
+              )}
+              <div className="book-reviews-grid" data-testid="book-reviews-grid">
+                {currentResults.map(bookReview => (
+                  <BookReviewCard
+                    key={bookReview.id}
+                    bookReview={bookReview}
+                    onClick={handleBookReviewClick}
+                    toneDescriptions={toneDescriptions}
+                  />
+                ))}
               </div>
-            )}
-            <div className="book-reviews-grid" data-testid="book-reviews-grid">
-              {currentResults.map(bookReview => (
-                <BookReviewCard
-                  key={bookReview.id}
-                  bookReview={bookReview}
-                  onClick={handleBookReviewClick}
-                />
-              ))}
-            </div>
-          </>
-        )}
-      </main>
-    </div>
-  );
+            </>
+          )}
+        </main>
+      </div>
+    );
 }
 
 export default App;

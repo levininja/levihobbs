@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BookReviewCard } from '../../src/components/BookReviewCard';
-import type { BookReview } from '../../src/types/BookReview';
+import type { BookReview } from '../../src/types/BookReviewTypes';
 
 const mockBookReview: BookReview = {
   id: 1,
@@ -20,13 +20,15 @@ const mockBookReview: BookReview = {
   readingTimeMinutes: 3,
   coverImageId: 1,
   bookshelves: [
-    { id: 1, name: "test", displayName: "Test" }
+    { id: 1, name: "test" }
   ]
 };
 
 describe('BookReviewCard', () => {
+  const mockToneDescriptions = new Map<string, string>();
+
   it('renders book review information correctly', () => {
-    render(<BookReviewCard bookReview={mockBookReview} />);
+    render(<BookReviewCard bookReview={mockBookReview} toneDescriptions={mockToneDescriptions} />);
     
     expect(screen.getByText('Test Book')).toBeInTheDocument();
     expect(screen.getByText('by John Doe')).toBeInTheDocument();
@@ -36,20 +38,20 @@ describe('BookReviewCard', () => {
 
   it('calls onClick when clicked', () => {
     const mockOnClick = vi.fn();
-    render(<BookReviewCard bookReview={mockBookReview} onClick={mockOnClick} />);
+    render(<BookReviewCard bookReview={mockBookReview} onClick={mockOnClick} toneDescriptions={mockToneDescriptions} />);
     
     fireEvent.click(screen.getByTestId('book-review-card-1'));
     expect(mockOnClick).toHaveBeenCalledWith(mockBookReview);
   });
 
   it('displays bookshelf tags', () => {
-    render(<BookReviewCard bookReview={mockBookReview} />);
+    render(<BookReviewCard bookReview={mockBookReview} toneDescriptions={mockToneDescriptions} />);
     
-    expect(screen.getByText('Test')).toBeInTheDocument();
+    expect(screen.getByText('test')).toBeInTheDocument();
   });
 
   it('displays reading time when review content exists', () => {
-    render(<BookReviewCard bookReview={mockBookReview} />);
+    render(<BookReviewCard bookReview={mockBookReview} toneDescriptions={mockToneDescriptions} />);
     
     expect(screen.getByText('3 min read')).toBeInTheDocument();
   });

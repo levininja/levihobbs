@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { SearchBar } from './SearchBar';
 import { bookReviewApi } from '../services/api';
-import type { BookReview } from '../types/BookReview';
+import type { BookReview } from '../types/BookReviewTypes';
 
 interface SearchBookReviewsProps {
   onResults: (results: BookReview[]) => void;
