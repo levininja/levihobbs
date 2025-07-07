@@ -1,6 +1,12 @@
 @use './variables' as *;
 
 // Common bookshelf tag styling (used in both book-review-card and book-review-reader)
+.bookshelf-tags, .tone-tags{
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
 .bookshelf-tag, .tone-tag {
   display: inline-block;
   padding: 2px $spacing-sm;
@@ -82,12 +88,6 @@
 // Common bookshelves container
 .bookshelves {
   margin-top: $spacing-sm;
-}
-
-.bookshelf-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-sm;
 }
 
 // Search loading indicator

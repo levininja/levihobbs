@@ -71,11 +71,6 @@
     .filter-section {
       flex: 1;
       margin-bottom: 0;
-      
-      // Make the tone tags section wider (last filter section)
-      &.tone-tags {
-        flex: 2;
-      }
     }
     
     .clear-filters-button {

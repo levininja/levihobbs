@@ -76,6 +76,7 @@
 
 .book-metadata {
   flex: 1;
+  text-align: left;
 }
 
 .book-author,
@@ -85,6 +86,7 @@
 .book-perfect-for {
   margin-bottom: $spacing-md;
   color: $color-text-primary;
+  text-align: left;
   
   strong {
     color: $color-text-primary;
@@ -92,39 +94,31 @@
   }
 }
 
-.bookshelves-section {
-  margin-top: $spacing-lg;
-  
+.gold-stars {
+  color: #FFD700;
+  font-size: 1.1em;
+}
+
+.tag-cloud-section {
+  text-align: left;
+  margin-bottom: $spacing-sm;
+
   strong {
     display: block;
     margin-bottom: $spacing-sm;
   }
 }
 
-.bookshelf-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-sm;
-}
-
-
-
-.review-content {
-  margin-bottom: $spacing-2xl;
-}
-
 .review-text {
   text-align: left;
   font-size: $size-base;
   line-height: 1.7;
-  margin-bottom: $spacing-lg;
 }
 
 .date-read {
   text-align: right;
   color: $color-text-secondary;
   font-style: italic;
-  margin-bottom: $spacing-xl;
 }
 
 .reader-actions {
@@ -132,7 +126,6 @@
   gap: $spacing-md;
   justify-content: center;
   padding-top: $spacing-xl;
-  border-top: 1px solid $color-ui-medium;
 }
 
 .action-button {

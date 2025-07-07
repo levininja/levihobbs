@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { BookReview, BookshelfGrouping } from '../types/BookReviewTypes';
+import type { BookReview } from '../types/BookReviewTypes';
 import { mockBookshelfGroupings } from '../services/mockData';
 
 interface BookReviewReaderProps {
@@ -100,7 +100,7 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = ({ bookReview, 
         
         if (primaryGenre) {
           // Convert hyphenated names to space-separated for display
-          const displayName = (primaryGenre.displayName || primaryGenre.name).replace(/-/g, ' ');
+          const displayName = primaryGenre.name.replace(/-/g, ' ');
           return `readers of ${displayName}`;
         }
       }
@@ -178,7 +178,7 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = ({ bookReview, 
               )}
               
               <div className="book-rating" data-testid="book-rating">
-                <strong>Rating:</strong> {starRating}
+                <strong>Rating:</strong> <span className="gold-stars">{starRating}</span>
               </div>
               
               <div className="book-verdict" data-testid="book-verdict">
@@ -190,17 +190,6 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = ({ bookReview, 
                   <strong>Perfect For:</strong> {perfectFor}
                 </div>
               ) : null}
-              
-              <div className="bookshelves-section" data-testid="bookshelves-section">
-                <strong>Bookshelves:</strong>
-                <div className="bookshelf-tags" data-testid="bookshelf-tags">
-                  {bookReview.bookshelves.map(shelf => (
-                    <span key={shelf.id} className="bookshelf-tag" data-testid={`bookshelf-${shelf.name}`}>
-                      {shelf.displayName || shelf.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
           
@@ -212,7 +201,29 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = ({ bookReview, 
                 dangerouslySetInnerHTML={{ __html: bookReview.myReview }}
               />
               <div className="date-read" data-testid="date-read">
-                {new Date(bookReview.dateRead).toLocaleDateString()}
+                Review written {new Date(bookReview.dateRead).toLocaleDateString()}
+              </div>
+            </div>
+          )}
+          
+          <div className="bookshelves-section tag-cloud-section" data-testid="bookshelves-section">
+            <div className="bookshelf-tags" data-testid="bookshelf-tags">
+              {bookReview.bookshelves.map(shelf => (
+                <span key={shelf.id} className="bookshelf-tag" data-testid={`bookshelf-${shelf.name}`}>
+                  {shelf.name}
+                </span>
+              ))}
+            </div>
+          </div>
+          
+          {bookReview.toneTags && bookReview.toneTags.length > 0 && (
+            <div className="tone-tags-section tag-cloud-section" data-testid="tone-tags-section">
+              <div className="tone-tags" data-testid="tone-tags">
+                {bookReview.toneTags.map((tag, index) => (
+                  <span key={index} className="tone-tag" data-testid={`tone-tag-${tag}`}>
+                    {tag}
+                  </span>
+                ))}
               </div>
             </div>
           )}
