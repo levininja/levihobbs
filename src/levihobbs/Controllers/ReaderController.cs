@@ -34,7 +34,7 @@ public class ReaderController : Controller
     public async Task<IActionResult> Read(string? category, string? shelf)
     {
         if (string.IsNullOrEmpty(category))
-            return await BookReviews(category, shelf, null);
+            return RedirectToAction("Index", "BookReviews");
 
         // Convert URL-friendly category to display category
         string displayCategory = category?.Replace("-", " ") ?? string.Empty;
@@ -45,101 +45,12 @@ public class ReaderController : Controller
     
     
         if (String.Equals(displayCategory, "Book Reviews", StringComparison.OrdinalIgnoreCase))
-            return await BookReviews(displayCategory, shelf, null);
+            return RedirectToAction("Index", "BookReviews");
         else
             return await Stories(displayCategory, shelf);
     }
 
-    public async Task<IActionResult> BookReviews(string? displayCategory, string? shelf, string? grouping, bool recent = false)
-    {
-        // Check if custom mappings are enabled
-        bool useCustomMappings = await _dbContext.Bookshelves.AnyAsync(bs => bs.Display.HasValue);
-        
-        // Get bookshelves and groupings based on custom mapping settings
-        List<Bookshelf> allBookshelves;
-        List<BookshelfGrouping> allBookshelfGroupings = new List<BookshelfGrouping>();
-        
-        if (useCustomMappings)
-        {
-            // Only show bookshelves that are marked for display and not in any grouping
-            var bookshelvesInGroupings = await _dbContext.BookshelfGroupings
-                .SelectMany(bg => bg.Bookshelves.Select(bs => bs.Id))
-                .ToListAsync();
-                
-            allBookshelves = await _dbContext.Bookshelves
-                .Where(bs => bs.Display == true && !bookshelvesInGroupings.Contains(bs.Id))
-                .OrderBy(bs => bs.DisplayName ?? bs.Name)
-                .ToListAsync();
-                
-            allBookshelfGroupings = await _dbContext.BookshelfGroupings
-                .Include(bg => bg.Bookshelves)
-                .OrderBy(bg => bg.DisplayName ?? bg.Name)
-                .ToListAsync();
-        }
-        else
-        {
-            // Show all bookshelves as before
-            allBookshelves = await _dbContext.Bookshelves
-                .OrderBy(bs => bs.DisplayName ?? bs.Name)
-                .ToListAsync();
-        }
-        
-        // Default to "favorites" shelf if no shelf/grouping is specified and not showing recent
-        if (string.IsNullOrEmpty(shelf) && string.IsNullOrEmpty(grouping) && !recent)
-            shelf = "favorites";
-        
-        // Build the query for book reviews - only include reviews with content
-        var bookReviewsQuery = _dbContext.BookReviews
-            .Include(br => br.Bookshelves)
-            .Include(br => br.CoverImage)
-            .Where(br => br.HasReviewContent == true)
-            .AsQueryable();
-        
-        // Apply filters
-        if (recent)
-        {
-            bookReviewsQuery = bookReviewsQuery
-                .OrderByDescending(r => r.DateRead)
-                .Take(10);
-        }
-        else if (!string.IsNullOrEmpty(grouping))
-        {
-            // Filter by grouping - get all bookshelves in the grouping
-            var groupingBookshelfNames = await _dbContext.BookshelfGroupings
-                .Where(bg => bg.Name.ToLower() == grouping.ToLower())
-                .SelectMany(bg => bg.Bookshelves.Select(bs => bs.Name))
-                .ToListAsync();
-                
-            bookReviewsQuery = bookReviewsQuery
-                .Where(br => br.Bookshelves.Any(bs => groupingBookshelfNames.Contains(bs.Name)));
-        }
-        else if (!string.IsNullOrEmpty(shelf))
-        {
-            // Filter by individual shelf
-            bookReviewsQuery = bookReviewsQuery
-                .Where(br => br.Bookshelves.Any(bs => bs.Name.ToLower() == shelf.ToLower()));
-        }
-        
-        if (!recent)
-        {
-            bookReviewsQuery = bookReviewsQuery.OrderByDescending(r => r.DateRead);
-        }
-        
-        var bookReviews = await bookReviewsQuery.ToListAsync();
-        BookReviewsViewModel viewModel = new BookReviewsViewModel
-        {
-            Category = displayCategory,
-            AllBookshelves = allBookshelves,
-            AllBookshelfGroupings = allBookshelfGroupings,
-            SelectedShelf = shelf,
-            SelectedGrouping = grouping,
-            ShowRecentOnly = recent,
-            UseCustomMappings = useCustomMappings,
-            BookReviews = bookReviews
-        };
-        
-        return View("BookReviews", viewModel);
-    }
+
     
     public async Task<IActionResult> Stories(string? displayCategory, string? shelf)
     {        

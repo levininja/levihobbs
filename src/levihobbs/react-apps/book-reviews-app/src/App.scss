@@ -84,6 +84,15 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: $spacing-xl;
+
+  .tag-cloud {
+    gap: $spacing-xs;
+  }
+
+  .tag {
+    margin-right: $spacing-xs;
+    margin-bottom: $spacing-xs;
+  }
 }
 
 .no-results-message {

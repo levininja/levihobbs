@@ -1,13 +1,21 @@
 @use './variables' as *;
 
-// Common bookshelf tag styling (used in both book-review-card and book-review-reader)
-.bookshelf-tags, .tone-tags{
+// Common tag cloud styling (used in both book-review-card and book-review-reader)
+.tag-cloud {
   display: flex;
   flex-wrap: wrap;
   gap: $spacing-sm;
+  text-align: left;
+  margin-bottom: $spacing-sm;
+
+  strong {
+    display: block;
+    margin-bottom: $spacing-sm;
+  }
 }
 
-.bookshelf-tag, .tone-tag {
+// Common tag styling (used in both book-review-card and book-review-reader)
+.tag {
   display: inline-block;
   padding: 2px $spacing-sm;
   border-radius: $radius-full;
@@ -15,12 +23,14 @@
   margin-right: $spacing-xs;
   margin-bottom: $spacing-xs;
   color: $color-text-secondary;
-}
-.bookshelf-tag{
-  background: $color-accent-1;
-}
-.tone-tag {
-  background: $color-accent-2;
+  
+  &.bookshelf {
+    background: $color-accent-1;
+  }
+  
+  &.tone {
+    background: $color-accent-2;
+  }
 }
 
 // Common rating info styling (used in both book-review-card and book-review-reader)
@@ -40,6 +50,12 @@
   color: $color-text-secondary;
 }
 
+// Common gold stars styling (used in both book-review-card and book-review-reader)
+.gold-stars {
+  color: #FFD700;
+  font-size: 1.1em;
+}
+
 // Common text styling patterns
 .text-primary {
   color: $color-text-primary;
@@ -53,16 +69,16 @@
   color: $color-text-muted;
 }
 
-// Title alignment classes
-.title-left {
+// Text alignment classes
+.text-left {
   text-align: left;
 }
 
-.title-center {
+.text-center {
   text-align: center;
 }
 
-.title-right {
+.text-right {
   text-align: right;
 }
 
@@ -85,10 +101,7 @@
   color: $color-text-secondary;
 }
 
-// Common bookshelves container
-.bookshelves {
-  margin-top: $spacing-sm;
-}
+
 
 // Search loading indicator
 .search-loading {

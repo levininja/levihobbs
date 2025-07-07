@@ -114,13 +114,12 @@ namespace levihobbs.Controllers
                 var result = new
                 {
                     Category = displayCategory,
-                    AllBookshelves = allBookshelves.Select(bs => new { bs.Id, bs.Name, bs.DisplayName }).ToList(),
+                    AllBookshelves = allBookshelves.Select(bs => new { bs.Id, bs.Name }).ToList(),
                     AllBookshelfGroupings = allBookshelfGroupings.Select(bg => new 
                     { 
                         bg.Id, 
-                        bg.Name, 
-                        bg.DisplayName,
-                        Bookshelves = bg.Bookshelves.Select(bs => new { bs.Id, bs.Name, bs.DisplayName }).ToList()
+                        bg.Name,
+                        Bookshelves = bg.Bookshelves.Select(bs => new { bs.Id, bs.Name }).ToList()
                     }).ToList(),
                     SelectedShelf = shelf,
                     SelectedGrouping = grouping,
@@ -144,7 +143,7 @@ namespace levihobbs.Controllers
                         PreviewText = br.PreviewText,
                         ReadingTimeMinutes = br.ReadingTimeMinutes,
                         CoverImageId = br.CoverImageId,
-                        Bookshelves = br.Bookshelves.Select(bs => new { bs.Id, bs.Name, bs.DisplayName }).ToList()
+                        Bookshelves = br.Bookshelves.Select(bs => new { bs.Id, bs.Name }).ToList()
                     }).ToList()
                 };
                 
@@ -197,13 +196,12 @@ namespace levihobbs.Controllers
                 var result = new
                 {
                     Category = displayCategory,
-                    AllBookshelves = allBookshelves.Select(bs => new { bs.Id, bs.Name, bs.DisplayName }).ToList(),
+                    AllBookshelves = allBookshelves.Select(bs => new { bs.Id, bs.Name }).ToList(),
                     AllBookshelfGroupings = allBookshelfGroupings.Select(bg => new 
                     { 
                         bg.Id, 
-                        bg.Name, 
-                        bg.DisplayName,
-                        Bookshelves = bg.Bookshelves.Select(bs => new { bs.Id, bs.Name, bs.DisplayName }).ToList()
+                        bg.Name,
+                        Bookshelves = bg.Bookshelves.Select(bs => new { bs.Id, bs.Name }).ToList()
                     }).ToList(),
                     SelectedShelf = shelf,
                     SelectedGrouping = grouping,

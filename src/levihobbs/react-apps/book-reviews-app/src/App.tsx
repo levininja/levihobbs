@@ -14,7 +14,15 @@ import './App.scss';
 type AppMode = 'welcome' | 'search' | 'browse';
 
 function App() {
-  const [mode, setMode] = useState<AppMode>('welcome');
+  // Check for startMode configuration from C# web app
+  const getInitialMode = (): AppMode => {
+    if (typeof window !== 'undefined' && window.bookReviewsConfig?.startMode) {
+      return window.bookReviewsConfig.startMode as AppMode;
+    }
+    return 'welcome';
+  };
+
+  const [mode, setMode] = useState<AppMode>(getInitialMode());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewModel, setViewModel] = useState<BookReviewsViewModel | null>(null);
@@ -26,8 +34,6 @@ function App() {
 
   // Tone descriptions dictionary loaded at app startup
   const [toneDescriptions, setToneDescriptions] = useState<Map<string, string>>(new Map());
-
-
 
   // Load tone descriptions when app starts
   useEffect(() => {
@@ -69,8 +75,6 @@ function App() {
       fetchData();
     }
   }, [mode, viewModel]);
-
-
 
   // Memoize tags initialization - only run when viewModel changes
   const tags = useMemo(() => {

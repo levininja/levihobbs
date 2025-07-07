@@ -11,6 +11,7 @@ declare global {
   interface Window {
     bookReviewsConfig?: {
       standaloneMode: boolean;
+      startMode?: 'welcome' | 'search' | 'browse';
     };
   }
 }

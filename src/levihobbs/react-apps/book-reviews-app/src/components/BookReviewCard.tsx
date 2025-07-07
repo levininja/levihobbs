@@ -42,10 +42,20 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
     return new Date(bookReview.dateRead).toLocaleDateString();
   }, [bookReview.dateRead]);
 
+  // Calculate star rating display
+  const starRating = useMemo(() => {
+    const rating = bookReview.myRating || 0;
+    // Clamp rating to valid range (0-5)
+    const clampedRating = Math.max(0, Math.min(5, rating));
+    const filledStars = '★'.repeat(clampedRating);
+    const emptyStars = '☆'.repeat(5 - clampedRating);
+    return filledStars + emptyStars;
+  }, [bookReview.myRating]);
+
   // Memoize bookshelves to prevent unnecessary re-renders
   const bookshelfElements = useMemo(() => {
     return bookReview.bookshelves.map(shelf => (
-      <span key={shelf.id} className="bookshelf-tag">
+      <span key={shelf.id} className="tag bookshelf">
         {shelf.name}
       </span>
     ));
@@ -58,7 +68,7 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
     return bookReview.toneTags.map(toneTag => (
       <span 
         key={toneTag} 
-        className="tone-tag"
+        className="tag tone"
         title={toneDescriptions.get(toneTag) || ''}
       >
         {toneTag}
@@ -83,24 +93,21 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
         <h3 className="book-review-title">{bookReview.title}</h3>
         <p className="book-review-author">by {bookReview.authorFirstName} {bookReview.authorLastName}</p>
         <div className="book-review-rating">
-          <span className="my-rating">My Rating: {bookReview.myRating}/5</span>
-          <span className="avg-rating">Average: {bookReview.averageRating}/5</span>
+          <span className="gold-stars">{starRating}</span>
         </div>
-        {bookReview.originalPublicationYear && (
-          <p className="publication-year">Published: {bookReview.originalPublicationYear}</p>
-        )}
-        <p className="date-read">Read: {formattedDateRead}</p>
         {bookReview.hasReviewContent && (
           <div className="review-preview">
             <p>{bookReview.previewText}</p>
+            <span className="read-more">Read More</span>
+            <br/>
             <span className="reading-time">{bookReview.readingTimeMinutes} min read</span>
           </div>
         )}
-        <div className="bookshelves">
+        <div className="tag-cloud">
           {bookshelfElements}
         </div>
         {toneTagElements && (
-          <div className="tone-tags">
+          <div className="tag-cloud">
             {toneTagElements}
           </div>
         )}

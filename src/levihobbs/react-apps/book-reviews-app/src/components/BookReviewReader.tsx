@@ -206,25 +206,21 @@ export const BookReviewReader: React.FC<BookReviewReaderProps> = ({ bookReview, 
             </div>
           )}
           
-          <div className="bookshelves-section tag-cloud-section" data-testid="bookshelves-section">
-            <div className="bookshelf-tags" data-testid="bookshelf-tags">
-              {bookReview.bookshelves.map(shelf => (
-                <span key={shelf.id} className="bookshelf-tag" data-testid={`bookshelf-${shelf.name}`}>
-                  {shelf.name}
-                </span>
-              ))}
-            </div>
+          <div className="tag-cloud" data-testid="bookshelves-section">
+            {bookReview.bookshelves.map(shelf => (
+              <span key={shelf.id} className="tag bookshelf" data-testid={`bookshelf-${shelf.name}`}>
+                {shelf.name}
+              </span>
+            ))}
           </div>
           
           {bookReview.toneTags && bookReview.toneTags.length > 0 && (
-            <div className="tone-tags-section tag-cloud-section" data-testid="tone-tags-section">
-              <div className="tone-tags" data-testid="tone-tags">
-                {bookReview.toneTags.map((tag, index) => (
-                  <span key={index} className="tone-tag" data-testid={`tone-tag-${tag}`}>
-                    {tag}
-                  </span>
-                ))}
-              </div>
+            <div className="tag-cloud" data-testid="tone-tags-section">
+              {bookReview.toneTags.map((tag, index) => (
+                <span key={index} className="tag tone" data-testid={`tone-tag-${tag}`}>
+                  {tag}
+                </span>
+              ))}
             </div>
           )}
           

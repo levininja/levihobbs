@@ -43,6 +43,7 @@
   gap: $spacing-md;
   margin-bottom: $spacing-sm;
   font-size: $size-sm;
+  justify-content: center;
 }
 
 .my-rating {
@@ -70,6 +71,21 @@
     font-size: $size-sm;
     color: $color-text-secondary;
     line-height: 1.4;
+  }
+
+  .read-more {
+    display: inline-block;
+    color: $color-brand-primary;
+    font-size: $size-sm;
+    font-weight: $weight-medium;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-bottom: $spacing-xs;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: darken($color-brand-primary, 10%);
+    }
   }
 }
 

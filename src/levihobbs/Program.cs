@@ -113,6 +113,12 @@ namespace levihobbs
 
             app.UseAuthorization();
 
+            // Specific route for book reviews React app
+            app.MapControllerRoute(
+                name: "book-reviews-react",
+                pattern: "read/book-reviews",
+                defaults: new { controller = "BookReviews", action = "Index" });
+
             // Custom routes for reader categories
             app.MapControllerRoute(
                 name: "read",

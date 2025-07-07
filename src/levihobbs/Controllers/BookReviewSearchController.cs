@@ -48,7 +48,7 @@ namespace levihobbs.Controllers
                     PreviewText = br.PreviewText,
                     ReadingTimeMinutes = br.ReadingTimeMinutes,
                     CoverImageId = br.CoverImageId,
-                    Bookshelves = br.Bookshelves.Select(bs => new { bs.Id, bs.Name, bs.DisplayName }).ToList()
+                    Bookshelves = br.Bookshelves.Select(bs => new { bs.Id, bs.Name }).ToList()
                 }).ToList();
                 
                 return Ok(searchResults);
