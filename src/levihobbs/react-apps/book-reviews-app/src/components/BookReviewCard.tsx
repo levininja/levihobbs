@@ -1,6 +1,7 @@
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import type { BookReview } from '../types/BookReviewTypes';
+import { bookCoverApi } from '../services/api';
 import storyIcon from '../assets/story icon.png';
 
 interface BookReviewCardProps {
@@ -11,6 +12,7 @@ interface BookReviewCardProps {
 
 export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookReview, onClick, toneDescriptions }) => {
   const [imageError, setImageError] = useState(false);
+  const [mockImageSrc, setMockImageSrc] = useState<string | null>(null);
   
   const handleClick = useCallback(() => {
     if (onClick)
@@ -21,21 +23,42 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
     setImageError(true);
   }, []);
 
+  // Load mock image in standalone mode
+  useEffect(() => {
+    const isStandaloneMode = typeof window !== 'undefined' && 
+      (!window.bookReviewsConfig || window.bookReviewsConfig.standaloneMode);
+    
+    if (isStandaloneMode && !imageError) {
+      const loadMockImage = async () => {
+        try {
+          const mockImage = await bookCoverApi.getBookCover(bookReview.titleByAuthor, bookReview.id);
+          setMockImageSrc(mockImage);
+        } catch (error) {
+          console.warn('Failed to load mock book cover:', error);
+          setMockImageSrc(null);
+        }
+      };
+      
+      loadMockImage();
+    }
+  }, [bookReview.id, imageError]);
+
   // Memoize the image source with better stability
   const imageSrc = useMemo(() => {
     // If we've already had an error, use fallback
     if (imageError)
       return storyIcon;
     
-    // In standalone mode, use the fallback image directly
-    // In integrated mode, try to load from the API
+    // In standalone mode, use the mock image if available
     const isStandaloneMode = typeof window !== 'undefined' && 
       (!window.bookReviewsConfig || window.bookReviewsConfig.standaloneMode);
     
-    return isStandaloneMode 
-      ? storyIcon 
-      : `/api/BookCoverApi?bookTitle=${encodeURIComponent(bookReview.titleByAuthor)}&bookReviewId=${bookReview.id}`;
-  }, [bookReview.titleByAuthor, bookReview.id, imageError]);
+    if (isStandaloneMode)
+      return mockImageSrc || storyIcon;
+    
+    // In integrated mode, try to load from the API
+    return `/api/BookCoverApi?bookTitle=${encodeURIComponent(bookReview.titleByAuthor)}&bookReviewId=${bookReview.id}`;
+  }, [bookReview.titleByAuthor, bookReview.id, imageError, mockImageSrc]);
 
   // Memoize the formatted date to prevent recalculation
   const formattedDateRead = useMemo(() => {
