@@ -581,7 +581,7 @@ namespace levihobbs.Controllers
             {
                 _logger.LogError(ex, "Error saving tone configuration");
                 ModelState.AddModelError("", "An error occurred while saving the tone configuration.");
-                return ToneConfiguration();
+                return await ToneConfiguration();
             }
         }
         #endregion
