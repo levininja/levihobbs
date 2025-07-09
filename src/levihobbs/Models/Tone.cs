@@ -1,6 +1,6 @@
 namespace levihobbs.Models
 {
-    public class Tone
+    public class Tone : ITone
     {
         public int Id { get; set; }
         public required string Name { get; set; }

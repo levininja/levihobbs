@@ -68,6 +68,7 @@ namespace levihobbs.Controllers
             }
         }
         
+        [HttpGet]
         public async Task<IActionResult> BookshelfConfiguration()
         {
             var bookshelves = await _context.Bookshelves
@@ -207,16 +208,17 @@ namespace levihobbs.Controllers
             
             return await BookshelfConfiguration();
         }
-                
+        
+        [HttpGet]
         public async Task<IActionResult> ToneConfiguration()
         {
             var tones = await _context.Tones
                 .Include(t => t.Subtones)
-                .Where(t => t.ParentId == null) // Only get root tones
+                .Where(t => t.ParentId == null) // This way you don't get subtones twice in the structure
                 .OrderBy(t => t.Name)
                 .ToListAsync();
                 
-            var viewModel = new ToneConfigurationViewModel
+            ToneConfigurationViewModel viewModel = new ToneConfigurationViewModel
             {
                 Tones = tones.Select(t => new ToneItem
                 {

@@ -5,7 +5,7 @@ namespace levihobbs.Models
         public List<ToneItem> Tones { get; set; } = new List<ToneItem>();
     }
     
-    public class ToneItem
+    public class ToneItem : ITone
     {
         public int Id { get; set; }
         public string Name { get; set; } = "";
