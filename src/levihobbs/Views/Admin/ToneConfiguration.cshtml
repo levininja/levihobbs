@@ -4,65 +4,7 @@
 }
 
 @section Styles {
-<style>
-    .config-section {
-        margin-bottom: 2rem;
-        padding: 1.5rem;
-        border: 1px solid #dee2e6;
-        border-radius: 0.5rem;
-        background-color: #f8f9fa;
-    }
-    
-    .tone-item {
-        background-color: white;
-        padding: 1rem;
-        border: 1px solid #dee2e6;
-        border-radius: 0.25rem;
-        margin-bottom: 1rem;
-    }
-    
-    .subtone-item {
-        background-color: #f8f9fa;
-        padding: 0.75rem;
-        border: 1px solid #e9ecef;
-        border-radius: 0.25rem;
-        margin-bottom: 0.5rem;
-        margin-left: 2rem;
-        position: relative;
-    }
-    
-    .subtone-item::before {
-        content: "└─";
-        position: absolute;
-        left: -1.5rem;
-        color: #6c757d;
-    }
-    
-    .btn-remove {
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.25rem;
-        font-size: 0.8rem;
-    }
-    
-    .btn-add-subtone {
-        background-color: #28a745;
-        color: white;
-        border: none;
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.25rem;
-        font-size: 0.8rem;
-        margin-top: 0.5rem;
-    }
-    
-    .tone-controls {
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid #dee2e6;
-    }
-</style>
+    <link rel="stylesheet" href="~/css/admin.css" />
 }
 
 @section Scripts {
@@ -111,10 +53,9 @@
             shouldRemoveInput.value = 'true';
             toneItem.appendChild(shouldRemoveInput);
             toneItem.style.display = 'none';
-        } else {
-            // For new tones, just remove from DOM
-            toneItem.remove();
         }
+        else    
+            toneItem.remove(); // For new tones, just remove from DOM
     }
     
     function removeSubtone(button) {
@@ -129,10 +70,9 @@
             shouldRemoveInput.value = 'true';
             subtoneItem.appendChild(shouldRemoveInput);
             subtoneItem.style.display = 'none';
-        } else {
-            // For new subtones, just remove from DOM
-            subtoneItem.remove();
-        }
+        } 
+        else
+            subtoneItem.remove(); // For new subtones, just remove from DOM
     }
 </script>
 }

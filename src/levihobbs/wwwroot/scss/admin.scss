@@ -1,0 +1,63 @@
+.config-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    background-color: #f8f9fa;
+
+    .btn{
+        color: white;
+        border: none;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+
+
+        &.btn-remove {
+            background-color: #dc3545;
+        }
+        
+        &.btn-add-subtone {
+            background-color: #28a745;
+        }
+    }
+
+    .tone-item {
+        background-color: white;
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        margin-bottom: 1rem;
+    }
+    .subtones-container{
+        margin-top: .5rem;
+
+        .subtone-item {
+            background-color: #f8f9fa;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+            margin-left: 2rem;
+            position: relative;
+            
+            &::before {
+                content: "└─";
+                position: absolute;
+                left: -1.5rem;
+                color: #6c757d;
+            }
+
+            .btn{
+                margin-top: 1.75rem;
+            }
+        }
+    }
+
+    .tone-controls {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #dee2e6;
+    } 
+}
