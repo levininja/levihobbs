@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<BookReview> BookReviews { get; set; } = null!;
     public DbSet<Bookshelf> Bookshelves { get; set; } = null!;
     public DbSet<BookshelfGrouping> BookshelfGroupings { get; set; } = null!;
+    public DbSet<Tone> Tones { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -80,5 +81,18 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<BookshelfGrouping>()
             .HasIndex(bg => bg.Name)
             .IsUnique();
+            
+        // Configure self-referencing relationship for Tone
+        modelBuilder.Entity<Tone>(entity =>
+        {
+            entity.HasOne(t => t.Parent)
+                .WithMany(t => t.Subtones)
+                .HasForeignKey(t => t.ParentId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete to avoid orphaned records
+                
+            entity.HasIndex(t => t.Name)
+                .IsUnique();
+        });
     }
 } 
