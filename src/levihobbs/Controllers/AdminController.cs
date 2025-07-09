@@ -34,6 +34,8 @@ namespace levihobbs.Controllers
         {
             return View(ModelState);
         }
+
+        #region Book Review Import
         
         [HttpPost]
         [RequestSizeLimit(10 * 1024 * 1024)] // 10MB limit
@@ -209,130 +211,6 @@ namespace levihobbs.Controllers
             return await BookshelfConfiguration();
         }
         
-        [HttpGet]
-        public async Task<IActionResult> ToneConfiguration()
-        {
-            var tones = await _context.Tones
-                .Include(t => t.Subtones)
-                .Where(t => t.ParentId == null) // This way you don't get subtones twice in the structure
-                .OrderBy(t => t.Name)
-                .ToListAsync();
-                
-            ToneConfigurationViewModel viewModel = new ToneConfigurationViewModel
-            {
-                Tones = tones.Select(t => new ToneItem
-                {
-                    Id = t.Id,
-                    Name = t.Name,
-                    Description = t.Description,
-                    Subtones = t.Subtones.Select(st => new ToneItem
-                    {
-                        Id = st.Id,
-                        Name = st.Name,
-                        Description = st.Description,
-                        ParentId = st.ParentId
-                    }).OrderBy(st => st.Name).ToList()
-                }).ToList()
-            };
-            
-            return View(viewModel);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> ToneConfiguration(ToneConfigurationViewModel model)
-        {
-            try
-            {
-                _logger.LogInformation("POST to ToneConfiguration received. Model has {ToneCount} tones", model.Tones.Count);
-                
-                // Get all existing tones
-                var existingTones = await _context.Tones
-                    .Include(t => t.Subtones)
-                    .ToListAsync();
-                
-                // Handle tone removals
-                var tonesToRemove = existingTones
-                    .Where(et => model.Tones.Any(mt => mt.Id == et.Id && mt.ShouldRemove))
-                    .ToList();
-                
-                // Also remove subtones of removed parent tones
-                var subtonesToRemove = existingTones
-                    .Where(et => et.ParentId.HasValue && tonesToRemove.Any(tr => tr.Id == et.ParentId))
-                    .ToList();
-                
-                _context.Tones.RemoveRange(tonesToRemove);
-                _context.Tones.RemoveRange(subtonesToRemove);
-                
-                // Process each tone in the model
-                foreach (var toneModel in model.Tones.Where(t => !t.ShouldRemove))
-                {
-                    Tone tone;
-                    
-                    if (toneModel.Id > 0)
-                    {
-                        // Update existing tone
-                        tone = existingTones.First(et => et.Id == toneModel.Id);
-                        tone.Name = toneModel.Name;
-                        tone.Description = toneModel.Description;
-                    }
-                    else
-                    {
-                        // Create new tone
-                        tone = new Tone
-                        {
-                            Name = toneModel.Name,
-                            Description = toneModel.Description
-                        };
-                        _context.Tones.Add(tone);
-                    }
-                    
-                    // Handle subtones
-                    var existingSubtones = existingTones.Where(et => et.ParentId == tone.Id).ToList();
-                    
-                    // Remove subtones marked for removal
-                    var subtonesToRemoveForThisTone = existingSubtones
-                        .Where(es => toneModel.Subtones.Any(st => st.Id == es.Id && st.ShouldRemove))
-                        .ToList();
-                    _context.Tones.RemoveRange(subtonesToRemoveForThisTone);
-                    
-                    // Process remaining subtones
-                    foreach (var subtoneModel in toneModel.Subtones.Where(st => !st.ShouldRemove))
-                    {
-                        if (subtoneModel.Id > 0)
-                        {
-                            // Update existing subtone
-                            var subtone = existingSubtones.First(es => es.Id == subtoneModel.Id);
-                            subtone.Name = subtoneModel.Name;
-                            subtone.Description = subtoneModel.Description;
-                        }
-                        else
-                        {
-                            // Create new subtone
-                            var subtone = new Tone
-                            {
-                                Name = subtoneModel.Name,
-                                Description = subtoneModel.Description,
-                                Parent = tone
-                            };
-                            _context.Tones.Add(subtone);
-                        }
-                    }
-                }
-                
-                await _context.SaveChangesAsync();
-                ViewBag.SuccessMessage = "Tone configuration saved successfully.";
-                
-                // Redirect to refresh the page and get updated IDs
-                return RedirectToAction(nameof(ToneConfiguration));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error saving tone configuration");
-                ModelState.AddModelError("", "An error occurred while saving the configuration.");
-                return await ToneConfiguration();
-            }
-        }
-
         /// <summary>
         /// Process the CSV file and import the book reviews into the database
         /// </summary>
@@ -567,5 +445,146 @@ namespace levihobbs.Controllers
             if (missingColumns.Any())
                 throw new Exception($"CSV file is missing required columns: {string.Join(", ", missingColumns)}");
         }
+
+
+        #endregion
+
+
+        #region Tone Administration
+        
+        /// <summary>
+        /// Retrieves the tone configuration data from the database and prepares it for display in the view.
+        /// Loads parent tones with their subtones and maps them to view models for the configuration UI.
+        /// Limitation: the way to change the parent tone of a subtone is just deleting and re-adding it.
+        /// </summary>
+        /// <returns>The tone configuration view with the populated view model</returns>
+        [HttpGet]
+        public async Task<IActionResult> ToneConfiguration()
+        {
+            var tones = await _context.Tones
+                .Include(t => t.Subtones)
+                .Where(t => t.ParentId == null) // This way you don't get subtones twice in the structure
+                .OrderBy(t => t.Name)
+                .ToListAsync();
+                
+            ToneConfigurationViewModel viewModel = new ToneConfigurationViewModel
+            {
+                Tones = tones.Select(t => new ToneItem
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Description = t.Description,
+                    Subtones = t.Subtones.Select(st => new ToneItem
+                    {
+                        Id = st.Id,
+                        Name = st.Name,
+                        Description = st.Description,
+                        ParentId = st.ParentId
+                    }).OrderBy(st => st.Name).ToList()
+                }).OrderBy(t => t.Name).ToList()
+            };
+            
+            return View(viewModel);
+        }
+        /// <summary>
+        /// Handles POST requests for tone configuration updates, including creating, updating, and removing tones and subtones.
+        /// </summary>
+        /// <param name="model">The view model containing tone configuration data from the form submission</param>
+        /// <returns>Redirects back to the tone configuration page after saving to update DOM with IDs of newly created tones</returns>
+        [HttpPost]
+        public async Task<IActionResult> ToneConfiguration(ToneConfigurationViewModel model)
+        {
+            try
+            {
+                // Get all existing tones
+                var existingTones = await _context.Tones
+                    .Include(t => t.Subtones)
+                    .ToListAsync();
+                
+                // Handle tone removals...
+                var tonesToRemove = existingTones
+                    .Where(et => model.Tones.Any(mt => mt.Id == et.Id && mt.ShouldRemove))
+                    .ToList();
+                
+                // Also remove subtones of removed parent tones
+                var subtonesToRemove = existingTones
+                    .Where(et => et.ParentId.HasValue && tonesToRemove.Any(tr => tr.Id == et.ParentId))
+                    .ToList();
+                
+                _context.Tones.RemoveRange(tonesToRemove);
+                _context.Tones.RemoveRange(subtonesToRemove);
+                
+                // Process each tone in the model that isn't marked for removal
+                foreach (ToneItem toneModel in model.Tones.Where(t => !t.ShouldRemove))
+                {
+                    Tone tone;
+                    
+                    if (toneModel.Id > 0)
+                    {
+                        // Update existing tone
+                        tone = existingTones.First(et => et.Id == toneModel.Id);
+                        tone.Name = toneModel.Name;
+                        tone.Description = toneModel.Description;
+                    }
+                    else
+                    {
+                        // Create new tone
+                        tone = new Tone
+                        {
+                            Name = toneModel.Name,
+                            Description = toneModel.Description
+                        };
+                        _context.Tones.Add(tone);
+                    }
+                    
+                    // Handle subtones...
+                    var existingSubtones = existingTones.Where(et => et.ParentId == tone.Id).ToList();
+                    
+                    // Remove subtones marked for removal
+                    var subtonesToRemoveForThisTone = existingSubtones
+                        .Where(es => toneModel.Subtones.Any(st => st.Id == es.Id && st.ShouldRemove))
+                        .ToList();
+                    _context.Tones.RemoveRange(subtonesToRemoveForThisTone);
+                    
+                    // Process remaining subtones
+                    foreach (ToneItem subtoneModel in toneModel.Subtones.Where(st => !st.ShouldRemove))
+                    {
+                        if (subtoneModel.Id > 0)
+                        {
+                            // Update existing subtone
+                            Tone subtone = existingSubtones.First(es => es.Id == subtoneModel.Id);
+                            subtone.Name = subtoneModel.Name;
+                            subtone.Description = subtoneModel.Description;
+                        }
+                        else
+                        {
+                            // Create new subtone
+                            Tone subtone = new Tone
+                            {
+                                Name = subtoneModel.Name,
+                                Description = subtoneModel.Description,
+                                Parent = tone
+                            };
+                            _context.Tones.Add(subtone);
+                        }
+                    }
+                }
+                
+                // Save all changes to the database in one fell swoop
+                await _context.SaveChangesAsync();
+                ViewBag.SuccessMessage = "Tone configuration saved successfully.";
+                
+                // Redirect to refresh the page so it gets updated IDs
+                return RedirectToAction(nameof(ToneConfiguration));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving tone configuration");
+                ModelState.AddModelError("", "An error occurred while saving the tone configuration.");
+                return ToneConfiguration();
+            }
+        }
+        #endregion
+
     }
 }
