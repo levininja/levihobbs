@@ -1,0 +1,261 @@
+@model levihobbs.Models.ToneConfigurationViewModel
+@{
+    ViewData["Title"] = "Tone Configuration";
+}
+
+@section Styles {
+<style>
+    .config-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        background-color: #f8f9fa;
+    }
+    
+    .tone-item {
+        background-color: white;
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .subtone-item {
+        background-color: #f8f9fa;
+        padding: 0.75rem;
+        border: 1px solid #e9ecef;
+        border-radius: 0.25rem;
+        margin-bottom: 0.5rem;
+        margin-left: 2rem;
+        position: relative;
+    }
+    
+    .subtone-item::before {
+        content: "└─";
+        position: absolute;
+        left: -1.5rem;
+        color: #6c757d;
+    }
+    
+    .btn-remove {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.8rem;
+    }
+    
+    .btn-add-subtone {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+    }
+    
+    .tone-controls {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #dee2e6;
+    }
+</style>
+}
+
+@section Scripts {
+<script>
+    let toneCounter = @Model.Tones.Count;
+    let subtoneCounters = {};
+    
+    // Initialize subtone counters
+    @for (int i = 0; i < Model.Tones.Count; i++)
+    {
+        <text>subtoneCounters[@i] = @Model.Tones[i].Subtones.Count;</text>
+    }
+    
+    function addTone() {
+        const container = document.getElementById('tones-container');
+        const template = document.getElementById('tone-template').innerHTML;
+        const html = template.replace(/\[INDEX\]/g, toneCounter);
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        container.appendChild(tempDiv.firstElementChild);
+        subtoneCounters[toneCounter] = 0;
+        toneCounter++;
+    }
+    
+    function addSubtone(button) {
+        const toneItem = button.closest('.tone-item');
+        const toneIndex = parseInt(toneItem.querySelector('input[name$="].Id"]').name.match(/\[(\d+)\]/)[1]);
+        const subtonesContainer = toneItem.querySelector('.subtones-container');
+        const template = document.getElementById('subtone-template').innerHTML;
+        const html = template.replace(/\[TONE_INDEX\]/g, toneIndex).replace(/\[SUBTONE_INDEX\]/g, subtoneCounters[toneIndex]);
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        subtonesContainer.appendChild(tempDiv.firstElementChild);
+        subtoneCounters[toneIndex]++;
+    }
+    
+    function removeTone(button) {
+        const toneItem = button.closest('.tone-item');
+        const idInput = toneItem.querySelector('input[name$="].Id"]');
+        
+        if (idInput && idInput.value !== '0') {
+            // For existing tones, mark for removal
+            const shouldRemoveInput = document.createElement('input');
+            shouldRemoveInput.type = 'hidden';
+            shouldRemoveInput.name = idInput.name.replace('Id', 'ShouldRemove');
+            shouldRemoveInput.value = 'true';
+            toneItem.appendChild(shouldRemoveInput);
+            toneItem.style.display = 'none';
+        } else {
+            // For new tones, just remove from DOM
+            toneItem.remove();
+        }
+    }
+    
+    function removeSubtone(button) {
+        const subtoneItem = button.closest('.subtone-item');
+        const idInput = subtoneItem.querySelector('input[name$="].Id"]');
+        
+        if (idInput && idInput.value !== '0') {
+            // For existing subtones, mark for removal
+            const shouldRemoveInput = document.createElement('input');
+            shouldRemoveInput.type = 'hidden';
+            shouldRemoveInput.name = idInput.name.replace('Id', 'ShouldRemove');
+            shouldRemoveInput.value = 'true';
+            subtoneItem.appendChild(shouldRemoveInput);
+            subtoneItem.style.display = 'none';
+        } else {
+            // For new subtones, just remove from DOM
+            subtoneItem.remove();
+        }
+    }
+</script>
+}
+
+<div class="container">
+    <h1>Tone Configuration</h1>
+    
+    @if (ViewBag.SuccessMessage != null)
+    {
+        <div class="alert alert-success">@ViewBag.SuccessMessage</div>
+    }
+    
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div>@error.ErrorMessage</div>
+            }
+        </div>
+    }
+    
+    <form asp-action="ToneConfiguration" method="post">
+        <div class="config-section">
+            <h3>Manage Tones</h3>
+            <p>Configure the tones and their subtones. Tones can have multiple subtones, but subtones cannot have further nested tones.</p>
+            
+            <div id="tones-container">
+                @for (int i = 0; i < Model.Tones.Count; i++)
+                {
+                    <div class="tone-item">
+                        <input type="hidden" asp-for="Tones[i].Id" />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label asp-for="Tones[i].Name">Tone Name:</label>
+                                <input type="text" class="form-control" asp-for="Tones[i].Name" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Tones[i].Description">Description:</label>
+                                <input type="text" class="form-control" asp-for="Tones[i].Description" />
+                            </div>
+                        </div>
+                        
+                        <div class="subtones-container">
+                            @for (int j = 0; j < Model.Tones[i].Subtones.Count; j++)
+                            {
+                                <div class="subtone-item">
+                                    <input type="hidden" asp-for="Tones[i].Subtones[j].Id" />
+                                    <input type="hidden" asp-for="Tones[i].Subtones[j].ParentId" />
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                            <label asp-for="Tones[i].Subtones[j].Name">Subtone Name:</label>
+                                            <input type="text" class="form-control" asp-for="Tones[i].Subtones[j].Name" required />
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label asp-for="Tones[i].Subtones[j].Description">Description:</label>
+                                            <input type="text" class="form-control" asp-for="Tones[i].Subtones[j].Description" />
+                                        </div>
+                                        <div class="col-md-2 d-flex align-items-end">
+                                            <button type="button" class="btn btn-remove" onclick="removeSubtone(this)">Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        
+                        <div class="tone-controls">
+                            <button type="button" class="btn btn-add-subtone" onclick="addSubtone(this)">Add Subtone</button>
+                            <button type="button" class="btn btn-remove float-right" onclick="removeTone(this)">Remove Tone</button>
+                        </div>
+                    </div>
+                }
+            </div>
+            
+            <button type="button" class="btn btn-secondary" onclick="addTone()">Add New Tone</button>
+        </div>
+        
+        <div class="config-section">
+            <button type="submit" class="btn btn-primary">Save Configuration</button>
+            <a href="@Url.Action("Index")" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script type="text/template" id="tone-template">
+    <div class="tone-item">
+        <input type="hidden" name="Tones[[INDEX]].Id" value="0" />
+        <div class="row">
+            <div class="col-md-6">
+                <label>Tone Name:</label>
+                <input type="text" class="form-control" name="Tones[[INDEX]].Name" required />
+            </div>
+            <div class="col-md-6">
+                <label>Description:</label>
+                <input type="text" class="form-control" name="Tones[[INDEX]].Description" />
+            </div>
+        </div>
+        
+        <div class="subtones-container"></div>
+        
+        <div class="tone-controls">
+            <button type="button" class="btn btn-add-subtone" onclick="addSubtone(this)">Add Subtone</button>
+            <button type="button" class="btn btn-remove float-right" onclick="removeTone(this)">Remove Tone</button>
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="subtone-template">
+    <div class="subtone-item">
+        <input type="hidden" name="Tones[[TONE_INDEX]].Subtones[[SUBTONE_INDEX]].Id" value="0" />
+        <input type="hidden" name="Tones[[TONE_INDEX]].Subtones[[SUBTONE_INDEX]].ParentId" value="0" />
+        <div class="row">
+            <div class="col-md-5">
+                <label>Subtone Name:</label>
+                <input type="text" class="form-control" name="Tones[[TONE_INDEX]].Subtones[[SUBTONE_INDEX]].Name" required />
+            </div>
+            <div class="col-md-5">
+                <label>Description:</label>
+                <input type="text" class="form-control" name="Tones[[TONE_INDEX]].Subtones[[SUBTONE_INDEX]].Description" />
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-remove" onclick="removeSubtone(this)">Remove</button>
+            </div>
+        </div>
+    </div>
+</script>
