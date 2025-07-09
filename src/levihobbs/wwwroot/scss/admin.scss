@@ -1,63 +1,63 @@
 .config-section {
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
-    background-color: #f8f9fa;
+    margin-bottom: $spacing-xl;
+    padding: $spacing-lg;
+    border: 1px solid $color-ui-medium;
+    border-radius: $radius-md;
+    background-color: $color-ui-light;
 
     .btn{
-        color: white;
+        color: $color-text-light;
         border: none;
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.25rem;
-        font-size: 0.8rem;
-        margin-top: 0.5rem;
-
+        padding: $spacing-xs $spacing-sm;
+        border-radius: $radius-sm;
+        font-size: $size-xs;
+        margin-top: $spacing-sm;
 
         &.btn-remove {
-            background-color: #dc3545;
+            background-color: $color-error;
         }
         
         &.btn-add-subtone {
-            background-color: #28a745;
+            background-color: #28a745; // Keeping this as is since there's no success color variable
         }
     }
 
     .tone-item {
-        background-color: white;
-        padding: 1rem;
-        border: 1px solid #dee2e6;
-        border-radius: 0.25rem;
-        margin-bottom: 1rem;
+        background-color: $color-text-light;
+        padding: $spacing-md;
+        border: 1px solid $color-ui-medium;
+        border-radius: $radius-sm;
+        margin-bottom: $spacing-md;
     }
+    
     .subtones-container{
-        margin-top: .5rem;
+        margin-top: $spacing-sm;
 
         .subtone-item {
-            background-color: #f8f9fa;
-            padding: 0.75rem;
-            border: 1px solid #e9ecef;
-            border-radius: 0.25rem;
-            margin-bottom: 0.5rem;
-            margin-left: 2rem;
+            background-color: $color-ui-light;
+            padding: 0.75rem; // Keeping this as is since there's no 0.75rem variable
+            border: 1px solid $color-ui-medium;
+            border-radius: $radius-sm;
+            margin-bottom: $spacing-sm;
+            margin-left: $spacing-xl;
             position: relative;
             
             &::before {
                 content: "└─";
                 position: absolute;
-                left: -1.5rem;
-                color: #6c757d;
+                left: -1.5rem; // Keeping this as is since it's a specific positioning
+                color: $color-text-muted;
             }
 
             .btn{
-                margin-top: 1.75rem;
+                margin-top: 1.75rem; // Keeping this as is since there's no 1.75rem variable
             }
         }
     }
 
     .tone-controls {
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid #dee2e6;
+        margin-top: $spacing-md;
+        padding-top: $spacing-md;
+        border-top: 1px solid $color-ui-medium;
     } 
 }
