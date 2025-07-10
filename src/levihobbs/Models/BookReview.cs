@@ -22,6 +22,9 @@ namespace levihobbs.Models
         
         // Navigation property for many-to-many relationship
         public ICollection<Bookshelf> Bookshelves { get; set; } = new List<Bookshelf>();
+        
+        // Navigation property for many-to-many relationship with Tone
+        public ICollection<Tone> Tones { get; set; } = new List<Tone>();
                 
         public BookCoverImage? CoverImage { get; set; }  // Navigation property for the associated image
         public int? CoverImageId { get; set; }  // Foreign key (nullable to allow reviews without images)

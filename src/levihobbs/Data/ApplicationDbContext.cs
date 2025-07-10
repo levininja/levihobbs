@@ -68,6 +68,12 @@ public class ApplicationDbContext : DbContext
             .WithMany(bs => bs.BookReviews)
             .UsingEntity(j => j.ToTable("BookReviewBookshelves"));
             
+        // Configure many-to-many relationship between BookReview and Tone
+        modelBuilder.Entity<BookReview>()
+            .HasMany(br => br.Tones)
+            .WithMany(t => t.BookReviews)
+            .UsingEntity(j => j.ToTable("BookReviewTones"));
+            
         modelBuilder.Entity<Bookshelf>()
             .HasIndex(bs => bs.Name)
             .IsUnique();

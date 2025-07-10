@@ -12,5 +12,8 @@ namespace levihobbs.Models
         
         // Navigation property for child tones
         public ICollection<Tone> Subtones { get; set; } = new List<Tone>();
+        
+        // Navigation property for many-to-many relationship with BookReview
+        public ICollection<BookReview> BookReviews { get; set; } = new List<BookReview>();
     }
 } 
