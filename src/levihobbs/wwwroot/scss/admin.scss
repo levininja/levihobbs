@@ -1,3 +1,5 @@
+@import 'variables';
+
 .config-section {
     margin-bottom: $spacing-xl;
     padding: $spacing-lg;
@@ -18,7 +20,7 @@
         }
         
         &.btn-add-subtone {
-            background-color: #28a745; // Keeping this as is since there's no success color variable
+            background-color: #28a745;
         }
     }
 
