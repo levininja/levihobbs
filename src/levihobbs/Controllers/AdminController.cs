@@ -759,7 +759,7 @@ namespace levihobbs.Controllers
                 return "tone-grey";
 
             // Generate consistent pastel colors based on tone index
-            string[] colors = new[] { "tone-blue", "tone-green", "tone-purple", "tone-pink", "tone-orange", "tone-teal", "tone-yellow", "tone-red" };
+            string[] colors = new[] { "tone-blue", "tone-purple",  "tone-aqua",  "tone-teal", "tone-orange", "tone-pink", "tone-yellow", "tone-green", "tone-red" };
             return colors[toneIndex];
         }
         #endregion
