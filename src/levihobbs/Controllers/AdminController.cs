@@ -604,9 +604,26 @@ namespace levihobbs.Controllers
             List<BookReview> bookReviews = await _context.BookReviews
                 .Include(br => br.Tones)
                 .Include(br => br.Bookshelves)
+                    .ThenInclude(bs => bs.BookshelfGroupings)
                 .Where(br => br.HasReviewContent)
                 .OrderBy(br => br.Title)
                 .ToListAsync();
+
+            // Log the bookshelves and their groups for the first 10 book reviews
+            var reviewsToLog = bookReviews.Take(50);
+            foreach (var review in reviewsToLog)
+            {
+                var bookshelfInfo = review.Bookshelves.Select(bs => 
+                {
+                    var groupName = bs.BookshelfGroupings.FirstOrDefault()?.Name ?? "No Group";
+                    return $"{bs.Name} (Group: {groupName})";
+                });
+                
+                _logger.LogInformation("Book review '{Title}' has {BookshelfCount} bookshelves: {BookshelfInfo}", 
+                    review.Title, 
+                    review.Bookshelves.Count, 
+                    string.Join(", ", bookshelfInfo));
+            }
 
             // Get all tones with their relationships
             List<Tone> allTones = await _context.Tones
@@ -642,6 +659,8 @@ namespace levihobbs.Controllers
                 }).ToList()
             });
 
+            
+
             // Return the view model
             ToneAssignmentViewModel viewModel = new ToneAssignmentViewModel
             {
@@ -654,6 +673,7 @@ namespace levihobbs.Controllers
                     SuggestedToneIds = GetSuggestedTones(br, allTones)
                 }).ToList(),
                 ToneGroups = toneGroups,
+                GenreToneAssociations = GetGenreToneAssociations()
             };
 
             return View(viewModel);
@@ -761,6 +781,102 @@ namespace levihobbs.Controllers
             // Generate consistent pastel colors based on tone index
             string[] colors = new[] { "tone-blue", "tone-purple",  "tone-aqua",  "tone-teal", "tone-orange", "tone-pink", "tone-yellow", "tone-green", "tone-red" };
             return colors[toneIndex];
+        }
+
+        /// <summary>
+        /// Returns a list of genre-tone associations for suggesting tones based on book genres.
+        /// </summary>
+        /// <returns>List of genre-tone associations</returns>
+        private List<GenreToneAssociation> GetGenreToneAssociations()
+        {
+            return new List<GenreToneAssociation>
+            {
+                new GenreToneAssociation
+                {
+                    Genre = "Fantasy",
+                    Tones = new List<string> { "Epic", "Heroic", "Mystical", "Atmospheric", "Poignant", "Dark", "Bittersweet", "Whimsical", "Dramatic", "Haunting" }
+                },
+                new GenreToneAssociation
+                {
+                    Genre = "Science Fiction",
+                    Tones = new List<string> { "Philosophical", "Epic", "Psychological", "Intense", "Suspenseful", "Dark", "Realistic", "Surreal", "Bittersweet", "Uplifting" }
+                },
+                new GenreToneAssociation
+                {
+                    Genre = "Historical Fiction",
+                    Tones = new List<string> { "Poignant", "Melancholic", "Bittersweet", "Heartwarming", "Tragic", "Realistic", "Dramatic", "Atmospheric", "Haunting", "Romantic", "Gritty", "Detached" }
+                },
+                new GenreToneAssociation
+                {
+                    Genre = "Thriller",
+                    Tones = new List<string> { "Intense", "Suspenseful", "Psychological", "Dark", "Gritty", "Claustrophobic", "Dramatic", "Cynical", "Disturbing", "Detached" }
+                },
+                new GenreToneAssociation
+                {
+                    Genre = "Horror",
+                    Tones = new List<string> { "Horrific", "Disturbing", "Macabre", "Grotesque", "Claustrophobic", "Haunting", "Dark", "Psychological", "Surreal", "Unsettling", "Tragic" }
+                },
+                new GenreToneAssociation
+                {
+                    Genre = "Contemporary",
+                    Tones = new List<string> { "Realistic", "Detached", "Poignant", "Heartwarming", "Bittersweet", "Romantic", "Angsty", "Sweet", "Playful", "Uplifting" }
+                },
+                new GenreToneAssociation
+                {
+                    Genre = "Literary",
+                    Tones = new List<string> { "Poignant", "Melancholic", "Bittersweet", "Psychological", "Detached", "Philosophical", "Realistic", "Dark", "Tragic", "Haunting" }
+                },
+                new GenreToneAssociation
+                {
+                    Genre = "Romance",
+                    Tones = new List<string> { "Romantic", "Steamy", "Sweet", "Angsty", "Flirty", "Poignant", "Heartwarming", "Uplifting", "Playful", "Bittersweet", "Whimsical", "Dramatic" }
+                },
+                new GenreToneAssociation
+                {
+                    Genre = "Mystery",
+                    Tones = new List<string> { "Suspenseful", "Psychological", "Dark", "Intense", "Realistic", "Gritty", "Detached", "Hard-boiled", "Atmospheric", "Dramatic" }
+                },
+                new GenreToneAssociation
+                {
+                    Genre = "Magical Realism",
+                    Tones = new List<string> { "Surreal", "Mystical", "Lyrical", "Poignant", "Haunting", "Bittersweet", "Whimsical", "Atmospheric", "Philosophical", "Playful", "Detached" }
+                },
+                new GenreToneAssociation
+                {
+                    Genre = "Fairy Tale",
+                    Tones = new List<string> { "Whimsical", "Mystical", "Atmospheric", "Romantic", "Heroic", "Poignant", "Heartwarming", "Playful", "Dark", "Tragic" }
+                },
+                new GenreToneAssociation
+                {
+                    Genre = "Humor",
+                    Tones = new List<string> { "Playful", "Flirty", "Sweet", "Whimsical", "Upbeat", "Cynical", "Detached", "Dramatic", "Realistic" }
+                },
+                new GenreToneAssociation
+                {
+                    Genre = "Children's",
+                    Tones = new List<string> { "Whimsical", "Playful", "Cozy", "Heartwarming", "Sweet", "Hopeful", "Uplifting", "Mystical", "Dramatic", "Poignant", "Atmospheric" }
+                },
+                new GenreToneAssociation
+                {
+                    Genre = "Dystopian",
+                    Tones = new List<string> { "Dark", "Bleak", "Gritty", "Cynical", "Disturbing", "Grimdark", "Intense", "Suspenseful", "Tragic", "Poignant", "Haunting", "Philosophical", "Epic" }
+                },
+                new GenreToneAssociation
+                {
+                    Genre = "Paranormal",
+                    Tones = new List<string> { "Mystical", "Haunting", "Dark", "Romantic", "Tragic", "Suspenseful", "Atmospheric", "Psychological", "Grotesque", "Poignant" }
+                },
+                new GenreToneAssociation
+                {
+                    Genre = "Crime",
+                    Tones = new List<string> { "Gritty", "Hard-boiled", "Suspenseful", "Intense", "Dark", "Detached", "Realistic", "Cynical", "Psychological", "Dramatic", "Disturbing" }
+                },
+                new GenreToneAssociation
+                {
+                    Genre = "Classics",
+                    Tones = new List<string> { "Philosophical", "Poignant", "Tragic", "Melancholic", "Detached", "Psychological", "Realistic", "Epic", "Bittersweet", "Romantic", "Cynical", "Haunting" }
+                }
+            };
         }
         #endregion
 

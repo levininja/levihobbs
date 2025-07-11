@@ -137,6 +137,8 @@
 
 @section Scripts {
 <script>
+    const genresToneAssociations = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GenreToneAssociations));
+
     function toggleTone(bookReviewId, toneId, element) {
         const isSelected = element.classList.contains('selected');
         const hiddenInput = document.querySelector(`input[name="BookReviews[${getBookReviewIndex(bookReviewId)}].AssignedToneIds"][value="${toneId}"]`);
@@ -227,7 +229,6 @@
             }
         }
     }
-    
 
 </script>
 }
