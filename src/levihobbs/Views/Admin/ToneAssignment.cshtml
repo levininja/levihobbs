@@ -194,20 +194,20 @@
                                 <div class="book-author">by @bookReview.AuthorName</div>
                                 <div id="book-@bookReview.Id-inputs">
                                     <input type="hidden" name="BookReviews[@i].Id" value="@bookReview.Id" />
-                                    @foreach (var toneId in bookReview.AssignedToneIds)
+                                    @foreach (int toneId in bookReview.AssignedToneIds)
                                     {
                                         <input type="hidden" name="BookReviews[@i].AssignedToneIds" value="@toneId" />
                                     }
                                 </div>
                             </td>
                             
-                            @foreach (var group in Model.ToneGroups)
+                            @foreach (levihobbs.Models.ToneGroup group in Model.ToneGroups)
                             {
                                 <td class="tone-column">
-                                    @foreach (var tone in group.Tones)
+                                    @foreach (levihobbs.Models.ToneDisplayItem tone in group.Tones)
                                     {
-                                        var isSelected = bookReview.AssignedToneIds.Contains(tone.Id);
-                                        var isSuggested = bookReview.SuggestedToneIds.Contains(tone.Id);
+                                        bool isSelected = bookReview.AssignedToneIds.Contains(tone.Id);
+                                        bool isSuggested = bookReview.SuggestedToneIds.Contains(tone.Id);
                                         <span class="tone-tag @group.ColorClass @(isSelected ? "selected" : "") @(isSuggested ? "suggested" : "")"
                                               data-book="@bookReview.Id"
                                               data-tone="@tone.Id"
@@ -222,10 +222,10 @@
                             @if (Model.OtherTones.Any())
                             {
                                 <td class="tone-column">
-                                    @foreach (var tone in Model.OtherTones)
+                                    @foreach (levihobbs.Models.ToneDisplayItem tone in Model.OtherTones)
                                     {
-                                        var isSelected = bookReview.AssignedToneIds.Contains(tone.Id);
-                                        var isSuggested = bookReview.SuggestedToneIds.Contains(tone.Id);
+                                        bool isSelected = bookReview.AssignedToneIds.Contains(tone.Id);
+                                        bool isSuggested = bookReview.SuggestedToneIds.Contains(tone.Id);
                                         <span class="tone-tag tone-other @(isSelected ? "selected" : "") @(isSuggested ? "suggested" : "")"
                                               data-book="@bookReview.Id"
                                               data-tone="@tone.Id"
@@ -245,9 +245,9 @@
                                         Apply All
                                     </button>
                                     <div>
-                                        @foreach (var toneId in bookReview.SuggestedToneIds)
+                                        @foreach (int toneId in bookReview.SuggestedToneIds)
                                         {
-                                            var tone = Model.ToneGroups.SelectMany(g => g.Tones).Concat(Model.OtherTones).FirstOrDefault(t => t.Id == toneId);
+                                            ToneDisplayItem tone = Model.ToneGroups.SelectMany(g => g.Tones).Concat(Model.OtherTones).FirstOrDefault(t => t.Id == toneId);
                                             if (tone != null)
                                             {
                                                 <span class="tone-tag tone-other suggested"

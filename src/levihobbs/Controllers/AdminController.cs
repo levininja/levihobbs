@@ -586,174 +586,174 @@ namespace levihobbs.Controllers
         }
         #endregion
 
+
         #region Tone Assignment
 
-
-/// <summary>
-/// Displays the tone assignment interface for book reviews that have review content.
-/// Groups tones by parent tone for organized display and provides suggestions based on content analysis.
-/// </summary>
-/// <returns>The tone assignment view with book reviews and tone groupings</returns>
-[HttpGet]
-public async Task<IActionResult> ToneAssignment()
-{
-    // Get all book reviews that have review content
-    var bookReviews = await _context.BookReviews
-        .Include(br => br.Tones)
-        .Include(br => br.Bookshelves)
-        .Where(br => br.HasReviewContent)
-        .OrderBy(br => br.Title)
-        .ToListAsync();
-
-    // Get all tones with their relationships
-    var allTones = await _context.Tones
-        .Include(t => t.Subtones)
-        .ToListAsync();
-
-    // Group tones by parent
-    var parentTones = allTones.Where(t => t.ParentId == null).OrderBy(t => t.Name).ToList();
-    var orphanTones = allTones.Where(t => t.ParentId == null && !t.Subtones.Any()).OrderBy(t => t.Name).ToList();
-
-    var viewModel = new ToneAssignmentViewModel
-    {
-        BookReviews = bookReviews.Select(br => new BookReviewToneItem
+        /// <summary>
+        /// Displays the tone assignment interface for book reviews that have review content.
+        /// Groups tones by parent tone for organized display and provides suggestions based on content analysis.
+        /// </summary>
+        /// <returns>The tone assignment view with book reviews and tone groupings</returns>
+        [HttpGet]
+        public async Task<IActionResult> ToneAssignment()
         {
-            Id = br.Id,
-            Title = br.Title,
-            AuthorName = $"{br.AuthorFirstName} {br.AuthorLastName}".Trim(),
-            AssignedToneIds = br.Tones.Select(t => t.Id).ToList(),
-            SuggestedToneIds = GetSuggestedTones(br, allTones)
-        }).ToList(),
-        ToneGroups = parentTones.Where(pt => pt.Subtones.Any()).Select(pt => new ToneGroup
-        {
-            Name = pt.Name,
-            DisplayName = pt.Name,
-            ColorClass = GetColorClassForTone(pt.Name),
-            Tones = new[] { pt }.Concat(pt.Subtones.OrderBy(st => st.Name))
-                .Select(t => new ToneDisplayItem
+            // Get all book reviews that have review content
+            List<BookReview> bookReviews = await _context.BookReviews
+                .Include(br => br.Tones)
+                .Include(br => br.Bookshelves)
+                .Where(br => br.HasReviewContent)
+                .OrderBy(br => br.Title)
+                .ToListAsync();
+
+            // Get all tones with their relationships
+            List<Tone> allTones = await _context.Tones
+                .Include(t => t.Subtones)
+                .ToListAsync();
+
+            // Group tones by parent
+            List<Tone> parentTones = allTones.Where(t => t.ParentId == null).OrderBy(t => t.Name).ToList();
+            List<Tone> orphanTones = allTones.Where(t => t.ParentId == null && !t.Subtones.Any()).OrderBy(t => t.Name).ToList();
+
+            ToneAssignmentViewModel viewModel = new ToneAssignmentViewModel
+            {
+                BookReviews = bookReviews.Select(br => new BookReviewToneItem
+                {
+                    Id = br.Id,
+                    Title = br.Title,
+                    AuthorName = $"{br.AuthorFirstName} {br.AuthorLastName}".Trim(),
+                    AssignedToneIds = br.Tones.Select(t => t.Id).ToList(),
+                    SuggestedToneIds = GetSuggestedTones(br, allTones)
+                }).ToList(),
+                ToneGroups = parentTones.Where(pt => pt.Subtones.Any()).Select(pt => new ToneGroup
+                {
+                    Name = pt.Name,
+                    DisplayName = pt.Name,
+                    ColorClass = GetColorClassForTone(pt.Name),
+                    Tones = new[] { pt }.Concat(pt.Subtones.OrderBy(st => st.Name))
+                        .Select(t => new ToneDisplayItem
+                        {
+                            Id = t.Id,
+                            Name = t.Name,
+                            Description = t.Description
+                        }).ToList()
+                }).ToList(),
+                OtherTones = orphanTones.Select(t => new ToneDisplayItem
                 {
                     Id = t.Id,
                     Name = t.Name,
                     Description = t.Description
                 }).ToList()
-        }).ToList(),
-        OtherTones = orphanTones.Select(t => new ToneDisplayItem
+            };
+
+            return View(viewModel);
+        }
+
+        /// <summary>
+        /// Handles POST requests for tone assignment updates, saving the tone assignments for book reviews.
+        /// </summary>
+        /// <param name="model">The view model containing tone assignment data from the form submission</param>
+        /// <returns>Redirects back to the tone assignment page after saving</returns>
+        [HttpPost]
+        public async Task<IActionResult> ToneAssignment(ToneAssignmentViewModel model)
         {
-            Id = t.Id,
-            Name = t.Name,
-            Description = t.Description
-        }).ToList()
-    };
-
-    return View(viewModel);
-}
-
-/// <summary>
-/// Handles POST requests for tone assignment updates, saving the tone assignments for book reviews.
-/// </summary>
-/// <param name="model">The view model containing tone assignment data from the form submission</param>
-/// <returns>Redirects back to the tone assignment page after saving</returns>
-[HttpPost]
-public async Task<IActionResult> ToneAssignment(ToneAssignmentViewModel model)
-{
-    try
-    {
-        // Get all book reviews and tones
-        var bookReviews = await _context.BookReviews
-            .Include(br => br.Tones)
-            .Where(br => model.BookReviews.Select(brm => brm.Id).Contains(br.Id))
-            .ToListAsync();
-
-        var allTones = await _context.Tones.ToListAsync();
-
-        // Update tone assignments for each book review
-        foreach (var bookReviewModel in model.BookReviews)
-        {
-            var bookReview = bookReviews.First(br => br.Id == bookReviewModel.Id);
-            
-            // Clear existing tone assignments
-            bookReview.Tones.Clear();
-            
-            // Add new tone assignments
-            var selectedTones = allTones.Where(t => bookReviewModel.AssignedToneIds.Contains(t.Id)).ToList();
-            foreach (var tone in selectedTones)
+            try
             {
-                bookReview.Tones.Add(tone);
+                // Get all book reviews and tones
+                List<BookReview> bookReviews = await _context.BookReviews
+                    .Include(br => br.Tones)
+                    .Where(br => model.BookReviews.Select(brm => brm.Id).Contains(br.Id))
+                    .ToListAsync();
+
+                List<Tone> allTones = await _context.Tones.ToListAsync();
+
+                // Update tone assignments for each book review
+                foreach (BookReviewToneItem bookReviewModel in model.BookReviews)
+                {
+                    BookReview bookReview = bookReviews.FirstOrDefault(br => br.Id == bookReviewModel.Id);
+                    
+                    // Clear existing tone assignments
+                    bookReview.Tones.Clear();
+                    
+                    // Add new tone assignments
+                    List<Tone> selectedTones = allTones.Where(t => bookReviewModel.AssignedToneIds.Contains(t.Id)).ToList();
+                    foreach (Tone tone in selectedTones)
+                    {
+                        bookReview.Tones.Add(tone);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                ViewBag.SuccessMessage = "Tone assignments saved successfully.";
+                
+                return RedirectToAction(nameof(ToneAssignment));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving tone assignments");
+                ModelState.AddModelError("", "An error occurred while saving the tone assignments.");
+                return await ToneAssignment();
             }
         }
 
-        await _context.SaveChangesAsync();
-        ViewBag.SuccessMessage = "Tone assignments saved successfully.";
-        
-        return RedirectToAction(nameof(ToneAssignment));
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error saving tone assignments");
-        ModelState.AddModelError("", "An error occurred while saving the tone assignments.");
-        return await ToneAssignment();
-    }
-}
+        /// <summary>
+        /// Analyzes a book review to suggest appropriate tones based on bookshelf tags and review content.
+        /// </summary>
+        /// <param name="bookReview">The book review to analyze</param>
+        /// <param name="allTones">All available tones for matching</param>
+        /// <returns>List of suggested tone IDs</returns>
+        private List<int> GetSuggestedTones(BookReview bookReview, List<Tone> allTones)
+        {
+            HashSet<int> suggestions = new HashSet<int>();
+            
+            // Get bookshelf names for matching
+            List<string> bookshelfNames = bookReview.Bookshelves.Select(bs => bs.Name.ToLower()).ToList();
+            string searchableContent = (bookReview.SearchableString ?? "").ToLower();
+            string reviewContent = (bookReview.MyReview ?? "").ToLower();
+            
+            foreach (Tone tone in allTones)
+            {
+                string toneName = tone.Name.ToLower();
+                string toneDescription = (tone.Description ?? "").ToLower();
+                
+                // Check if tone name matches bookshelf names
+                if (bookshelfNames.Any(bn => bn.Contains(toneName) || toneName.Contains(bn)))
+                {
+                    suggestions.Add(tone.Id);
+                    continue;
+                }
+                
+                // Check if tone name or description appears in searchable content
+                if (searchableContent.Contains(toneName) || 
+                    (!string.IsNullOrEmpty(toneDescription) && searchableContent.Contains(toneDescription)))
+                {
+                    suggestions.Add(tone.Id);
+                    continue;
+                }
+                
+                // Check if tone name or description appears in review content
+                if (reviewContent.Contains(toneName) || 
+                    (!string.IsNullOrEmpty(toneDescription) && reviewContent.Contains(toneDescription)))
+                {
+                    suggestions.Add(tone.Id);
+                }
+            }
+            
+            return suggestions.ToList();
+        }
 
-/// <summary>
-/// Analyzes a book review to suggest appropriate tones based on bookshelf tags and review content.
-/// </summary>
-/// <param name="bookReview">The book review to analyze</param>
-/// <param name="allTones">All available tones for matching</param>
-/// <returns>List of suggested tone IDs</returns>
-private List<int> GetSuggestedTones(BookReview bookReview, List<Tone> allTones)
-{
-    var suggestions = new HashSet<int>();
-    
-    // Get bookshelf names for matching
-    var bookshelfNames = bookReview.Bookshelves.Select(bs => bs.Name.ToLower()).ToList();
-    var searchableContent = (bookReview.SearchableString ?? "").ToLower();
-    var reviewContent = (bookReview.MyReview ?? "").ToLower();
-    
-    foreach (var tone in allTones)
-    {
-        var toneName = tone.Name.ToLower();
-        var toneDescription = (tone.Description ?? "").ToLower();
-        
-        // Check if tone name matches bookshelf names
-        if (bookshelfNames.Any(bn => bn.Contains(toneName) || toneName.Contains(bn)))
+        /// <summary>
+        /// Returns a CSS class name for color coding tone groups based on the parent tone name.
+        /// </summary>
+        /// <param name="toneName">The name of the parent tone</param>
+        /// <returns>CSS class name for the tone group color</returns>
+        private string GetColorClassForTone(string toneName)
         {
-            suggestions.Add(tone.Id);
-            continue;
+            // Generate consistent pastel colors based on tone name
+            int hash = toneName.GetHashCode();
+            string[] colors = new[] { "tone-blue", "tone-green", "tone-purple", "tone-pink", "tone-orange", "tone-teal", "tone-yellow", "tone-red" };
+            return colors[Math.Abs(hash) % colors.Length];
         }
-        
-        // Check if tone name or description appears in searchable content
-        if (searchableContent.Contains(toneName) || 
-            (!string.IsNullOrEmpty(toneDescription) && searchableContent.Contains(toneDescription)))
-        {
-            suggestions.Add(tone.Id);
-            continue;
-        }
-        
-        // Check if tone name or description appears in review content
-        if (reviewContent.Contains(toneName) || 
-            (!string.IsNullOrEmpty(toneDescription) && reviewContent.Contains(toneDescription)))
-        {
-            suggestions.Add(tone.Id);
-        }
-    }
-    
-    return suggestions.ToList();
-}
-
-/// <summary>
-/// Returns a CSS class name for color coding tone groups based on the parent tone name.
-/// </summary>
-/// <param name="toneName">The name of the parent tone</param>
-/// <returns>CSS class name for the tone group color</returns>
-private string GetColorClassForTone(string toneName)
-{
-    // Generate consistent pastel colors based on tone name
-    var hash = toneName.GetHashCode();
-    var colors = new[] { "tone-blue", "tone-green", "tone-purple", "tone-pink", "tone-orange", "tone-teal", "tone-yellow", "tone-red" };
-    return colors[Math.Abs(hash) % colors.Length];
-}
-#endregion
+        #endregion
 
     }
 }
