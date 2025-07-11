@@ -688,13 +688,11 @@ namespace levihobbs.Controllers
                     // Add new tone assignments
                     List<Tone> selectedTones = allTones.Where(t => bookReviewModel.AssignedToneIds.Contains(t.Id)).ToList();
                     foreach (Tone tone in selectedTones)
-                    {
                         bookReview.Tones.Add(tone);
-                    }
                 }
 
                 await _context.SaveChangesAsync();
-                ViewBag.SuccessMessage = "Tone assignments saved successfully.";
+                TempData["SuccessMessage"] = "Tone assignments saved successfully.";
                 
                 return RedirectToAction(nameof(ToneAssignment));
             }
@@ -702,6 +700,7 @@ namespace levihobbs.Controllers
             {
                 _logger.LogError(ex, "Error saving tone assignments");
                 ModelState.AddModelError("", "An error occurred while saving the tone assignments.");
+                TempData["ErrorMessage"] = "An error occurred while saving the tone assignments.";
                 return await ToneAssignment();
             }
         }
