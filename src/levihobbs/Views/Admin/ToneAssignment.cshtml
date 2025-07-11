@@ -1,0 +1,278 @@
+@model levihobbs.Models.ToneAssignmentViewModel
+@{
+    ViewData["Title"] = "Tone Assignment";
+}
+
+@section Styles {
+<style>
+    .tone-assignment-container {
+        overflow-x: auto;
+    }
+    
+    .tone-assignment-table {
+        min-width: 1200px;
+        white-space: nowrap;
+    }
+    
+    .tone-assignment-table th,
+    .tone-assignment-table td {
+        vertical-align: top;
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+    }
+    
+    .book-info {
+        min-width: 250px;
+        max-width: 250px;
+        white-space: normal;
+    }
+    
+    .tone-column {
+        min-width: 200px;
+        max-width: 200px;
+        white-space: normal;
+    }
+    
+    .suggestions-column {
+        min-width: 200px;
+        max-width: 200px;
+        white-space: normal;
+    }
+    
+    .tone-tag {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        margin: 0.125rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        font-size: 0.8rem;
+        border: 2px solid transparent;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+    
+    .tone-tag:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .tone-tag.selected {
+        border-color: #007bff;
+        font-weight: bold;
+    }
+    
+    .tone-tag.suggested {
+        border-color: #28a745;
+        border-style: dashed;
+    }
+    
+    /* Pastel color classes */
+    .tone-blue { background-color: #e3f2fd; color: #1565c0; }
+    .tone-green { background-color: #e8f5e8; color: #2e7d32; }
+    .tone-purple { background-color: #f3e5f5; color: #7b1fa2; }
+    .tone-pink { background-color: #fce4ec; color: #c2185b; }
+    .tone-orange { background-color: #fff3e0; color: #ef6c00; }
+    .tone-teal { background-color: #e0f2f1; color: #00695c; }
+    .tone-yellow { background-color: #fffde7; color: #f57f17; }
+    .tone-red { background-color: #ffebee; color: #c62828; }
+    .tone-other { background-color: #f5f5f5; color: #424242; }
+    
+    .book-title {
+        font-weight: bold;
+        margin-bottom: 0.25rem;
+    }
+    
+    .book-author {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .column-header {
+        font-weight: bold;
+        text-align: center;
+        background-color: #f8f9fa;
+    }
+    
+    .save-section {
+        position: sticky;
+        bottom: 0;
+        background-color: white;
+        padding: 1rem;
+        border-top: 2px solid #dee2e6;
+        box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+}
+
+@section Scripts {
+<script>
+    function toggleTone(bookReviewId, toneId, element) {
+        const isSelected = element.classList.contains('selected');
+        const hiddenInput = document.querySelector(`input[name="BookReviews[${getBookReviewIndex(bookReviewId)}].AssignedToneIds"][value="${toneId}"]`);
+        
+        if (isSelected) {
+            element.classList.remove('selected');
+            if (hiddenInput) {
+                hiddenInput.remove();
+            }
+        } else {
+            element.classList.add('selected');
+            if (!hiddenInput) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = `BookReviews[${getBookReviewIndex(bookReviewId)}].AssignedToneIds`;
+                input.value = toneId;
+                document.getElementById(`book-${bookReviewId}-inputs`).appendChild(input);
+            }
+        }
+    }
+    
+    function getBookReviewIndex(bookReviewId) {
+        const bookReviews = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BookReviews.Select(br => br.Id)));
+        return bookReviews.indexOf(bookReviewId);
+    }
+    
+    function applySuggestion(bookReviewId, toneId) {
+        const toneElement = document.querySelector(`[data-book="${bookReviewId}"][data-tone="${toneId}"]`);
+        if (toneElement && !toneElement.classList.contains('selected')) {
+            toggleTone(bookReviewId, toneId, toneElement);
+        }
+    }
+    
+    function applyAllSuggestions(bookReviewId) {
+        const suggestionElements = document.querySelectorAll(`[data-book="${bookReviewId}"].suggested`);
+        suggestionElements.forEach(element => {
+            const toneId = element.getAttribute('data-tone');
+            applySuggestion(bookReviewId, parseInt(toneId));
+        });
+    }
+</script>
+}
+
+<div class="container-fluid">
+    <h1>Tone Assignment</h1>
+    
+    @if (ViewBag.SuccessMessage != null)
+    {
+        <div class="alert alert-success">@ViewBag.SuccessMessage</div>
+    }
+    
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div>@error.ErrorMessage</div>
+            }
+        </div>
+    }
+    
+    <form asp-action="ToneAssignment" method="post">
+        <div class="tone-assignment-container">
+            <table class="table tone-assignment-table">
+                <thead>
+                    <tr>
+                        <th class="column-header book-info">Book Review</th>
+                        @foreach (var group in Model.ToneGroups)
+                        {
+                            <th class="column-header tone-column @group.ColorClass">@group.DisplayName Tones</th>
+                        }
+                        @if (Model.OtherTones.Any())
+                        {
+                            <th class="column-header tone-column tone-other">Other Tones</th>
+                        }
+                        <th class="column-header suggestions-column">Suggestions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.BookReviews.Count; i++)
+                    {
+                        var bookReview = Model.BookReviews[i];
+                        <tr>
+                            <td class="book-info">
+                                <div class="book-title">@bookReview.Title</div>
+                                <div class="book-author">by @bookReview.AuthorName</div>
+                                <div id="book-@bookReview.Id-inputs">
+                                    <input type="hidden" name="BookReviews[@i].Id" value="@bookReview.Id" />
+                                    @foreach (var toneId in bookReview.AssignedToneIds)
+                                    {
+                                        <input type="hidden" name="BookReviews[@i].AssignedToneIds" value="@toneId" />
+                                    }
+                                </div>
+                            </td>
+                            
+                            @foreach (var group in Model.ToneGroups)
+                            {
+                                <td class="tone-column">
+                                    @foreach (var tone in group.Tones)
+                                    {
+                                        var isSelected = bookReview.AssignedToneIds.Contains(tone.Id);
+                                        var isSuggested = bookReview.SuggestedToneIds.Contains(tone.Id);
+                                        <span class="tone-tag @group.ColorClass @(isSelected ? "selected" : "") @(isSuggested ? "suggested" : "")"
+                                              data-book="@bookReview.Id"
+                                              data-tone="@tone.Id"
+                                              onclick="toggleTone(@bookReview.Id, @tone.Id, this)"
+                                              title="@(tone.Description ?? tone.Name)">
+                                            @tone.Name
+                                        </span>
+                                    }
+                                </td>
+                            }
+                            
+                            @if (Model.OtherTones.Any())
+                            {
+                                <td class="tone-column">
+                                    @foreach (var tone in Model.OtherTones)
+                                    {
+                                        var isSelected = bookReview.AssignedToneIds.Contains(tone.Id);
+                                        var isSuggested = bookReview.SuggestedToneIds.Contains(tone.Id);
+                                        <span class="tone-tag tone-other @(isSelected ? "selected" : "") @(isSuggested ? "suggested" : "")"
+                                              data-book="@bookReview.Id"
+                                              data-tone="@tone.Id"
+                                              onclick="toggleTone(@bookReview.Id, @tone.Id, this)"
+                                              title="@(tone.Description ?? tone.Name)">
+                                            @tone.Name
+                                        </span>
+                                    }
+                                </td>
+                            }
+                            
+                            <td class="suggestions-column">
+                                @if (bookReview.SuggestedToneIds.Any())
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-success mb-2" 
+                                            onclick="applyAllSuggestions(@bookReview.Id)">
+                                        Apply All
+                                    </button>
+                                    <div>
+                                        @foreach (var toneId in bookReview.SuggestedToneIds)
+                                        {
+                                            var tone = Model.ToneGroups.SelectMany(g => g.Tones).Concat(Model.OtherTones).FirstOrDefault(t => t.Id == toneId);
+                                            if (tone != null)
+                                            {
+                                                <span class="tone-tag tone-other suggested"
+                                                      onclick="applySuggestion(@bookReview.Id, @toneId)"
+                                                      title="@(tone.Description ?? tone.Name)">
+                                                    @tone.Name
+                                                </span>
+                                            }
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <em class="text-muted">No suggestions</em>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="save-section">
+            <button type="submit" class="btn btn-primary">Save Tone Assignments</button>
+            <a href="@Url.Action("Index")" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
