@@ -46,6 +46,7 @@
         border-radius: 0.25rem;
         cursor: pointer;
         font-size: 0.8rem;
+        font-weight: bold;
         border: 2px solid transparent;
         transition: all 0.2s ease;
         user-select: none;
@@ -56,14 +57,15 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     
-    .tone-tag.selected {
-        border-color: #007bff;
-        font-weight: bold;
-    }
-    
     .tone-tag.suggested {
         border-color: #28a745;
         border-style: dashed;
+    }
+    
+    .tone-tag.selected {
+        border-color: #007bff;
+        border-style: solid;
+        font-weight: bold;
     }
     
     /* Pastel color classes */
@@ -71,11 +73,11 @@
     .tone-green { background-color: #e8f5e8; color: #2e7d32; }
     .tone-purple { background-color: #f3e5f5; color: #7b1fa2; }
     .tone-pink { background-color: #fce4ec; color: #c2185b; }
-    .tone-orange { background-color: #fff3e0; color: #ef6c00; }
+    .tone-orange { background-color: #f6e6cc; color: #be5804; }
     .tone-teal { background-color: #e0f2f1; color: #00695c; }
-    .tone-yellow { background-color: #fffde7; color: #f57f17; }
-    .tone-red { background-color: #ffebee; color: #c62828; }
-    .tone-other { background-color: #f5f5f5; color: #424242; }
+    .tone-yellow { background-color: #fffde7; color: #907713; }
+    .tone-red { background-color: #ffebee; color: #c30a0a; }
+    .tone-grey { background-color: #e9e6e6; color: #424242; }
     
     .book-title {
         font-weight: bold;
@@ -177,10 +179,7 @@
                         {
                             <th class="column-header tone-column @group.ColorClass">@group.DisplayName Tones</th>
                         }
-                        @if (Model.OtherTones.Any())
-                        {
-                            <th class="column-header tone-column tone-other">Other Tones</th>
-                        }
+                        <th class="column-header tone-column tone-other">Other Tones</th>
                         <th class="column-header suggestions-column">Suggestions</th>
                     </tr>
                 </thead>
@@ -219,24 +218,6 @@
                                 </td>
                             }
                             
-                            @if (Model.OtherTones.Any())
-                            {
-                                <td class="tone-column">
-                                    @foreach (levihobbs.Models.ToneDisplayItem tone in Model.OtherTones)
-                                    {
-                                        bool isSelected = bookReview.AssignedToneIds.Contains(tone.Id);
-                                        bool isSuggested = bookReview.SuggestedToneIds.Contains(tone.Id);
-                                        <span class="tone-tag tone-other @(isSelected ? "selected" : "") @(isSuggested ? "suggested" : "")"
-                                              data-book="@bookReview.Id"
-                                              data-tone="@tone.Id"
-                                              onclick="toggleTone(@bookReview.Id, @tone.Id, this)"
-                                              title="@(tone.Description ?? tone.Name)">
-                                            @tone.Name
-                                        </span>
-                                    }
-                                </td>
-                            }
-                            
                             <td class="suggestions-column">
                                 @if (bookReview.SuggestedToneIds.Any())
                                 {
@@ -247,7 +228,7 @@
                                     <div>
                                         @foreach (int toneId in bookReview.SuggestedToneIds)
                                         {
-                                            ToneDisplayItem tone = Model.ToneGroups.SelectMany(g => g.Tones).Concat(Model.OtherTones).FirstOrDefault(t => t.Id == toneId);
+                                            ToneDisplayItem tone = Model.ToneGroups.SelectMany(g => g.Tones).FirstOrDefault(t => t.Id == toneId);
                                             if (tone != null)
                                             {
                                                 <span class="tone-tag tone-other suggested"

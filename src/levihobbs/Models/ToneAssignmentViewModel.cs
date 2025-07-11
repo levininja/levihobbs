@@ -4,7 +4,6 @@ namespace levihobbs.Models
     {
         public List<BookReviewToneItem> BookReviews { get; set; } = new List<BookReviewToneItem>();
         public List<ToneGroup> ToneGroups { get; set; } = new List<ToneGroup>();
-        public List<ToneDisplayItem> OtherTones { get; set; } = new List<ToneDisplayItem>();
     }
 
     public class BookReviewToneItem

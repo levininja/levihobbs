@@ -589,6 +589,9 @@ namespace levihobbs.Controllers
 
         #region Tone Assignment
 
+        // For the uncategorized tones that aren't part of any other group
+        const string otherTonesGroupName = "Other";
+
         /// <summary>
         /// Displays the tone assignment interface for book reviews that have review content.
         /// Groups tones by parent tone for organized display and provides suggestions based on content analysis.
@@ -608,12 +611,38 @@ namespace levihobbs.Controllers
             // Get all tones with their relationships
             List<Tone> allTones = await _context.Tones
                 .Include(t => t.Subtones)
+                .Where(t => t.ParentId == null) // This way you don't get subtones twice in the structure
                 .ToListAsync();
 
-            // Group tones by parent
-            List<Tone> parentTones = allTones.Where(t => t.ParentId == null).OrderBy(t => t.Name).ToList();
-            List<Tone> orphanTones = allTones.Where(t => t.ParentId == null && !t.Subtones.Any()).OrderBy(t => t.Name).ToList();
+            // Put the tone groupings together
+            List<ToneGroup> toneGroups = allTones.Where(pt => pt.Subtones.Any()).Select((pt, index) => new ToneGroup
+            {
+                Name = pt.Name,
+                DisplayName = pt.Name,
+                ColorClass = GetColorClassForTone(index),
+                Tones = new[] { pt }.Concat(pt.Subtones.OrderBy(st => st.Name))
+                    .Select(t => new ToneDisplayItem
+                    {
+                        Id = t.Id,
+                        Name = t.Name,
+                        Description = t.Description
+                    }).ToList()
+            }).ToList();
 
+            // Add a group for all stand-alone tones that don't have children
+            toneGroups.Add(new ToneGroup
+            {
+                Name = otherTonesGroupName,
+                DisplayName = otherTonesGroupName,
+                ColorClass = GetColorClassForTone(-1), // -1 is a special case for the uncategorized tones group
+                Tones = allTones.Where(pt => !pt.Subtones.Any() && pt.ParentId == null).Select(pt => new ToneDisplayItem {
+                    Id = pt.Id,
+                    Name = pt.Name,
+                    Description = pt.Description
+                }).ToList()
+            });
+
+            // Return the view model
             ToneAssignmentViewModel viewModel = new ToneAssignmentViewModel
             {
                 BookReviews = bookReviews.Select(br => new BookReviewToneItem
@@ -624,25 +653,7 @@ namespace levihobbs.Controllers
                     AssignedToneIds = br.Tones.Select(t => t.Id).ToList(),
                     SuggestedToneIds = GetSuggestedTones(br, allTones)
                 }).ToList(),
-                ToneGroups = parentTones.Where(pt => pt.Subtones.Any()).Select(pt => new ToneGroup
-                {
-                    Name = pt.Name,
-                    DisplayName = pt.Name,
-                    ColorClass = GetColorClassForTone(pt.Name),
-                    Tones = new[] { pt }.Concat(pt.Subtones.OrderBy(st => st.Name))
-                        .Select(t => new ToneDisplayItem
-                        {
-                            Id = t.Id,
-                            Name = t.Name,
-                            Description = t.Description
-                        }).ToList()
-                }).ToList(),
-                OtherTones = orphanTones.Select(t => new ToneDisplayItem
-                {
-                    Id = t.Id,
-                    Name = t.Name,
-                    Description = t.Description
-                }).ToList()
+                ToneGroups = toneGroups,
             };
 
             return View(viewModel);
@@ -713,45 +724,44 @@ namespace levihobbs.Controllers
             foreach (Tone tone in allTones)
             {
                 string toneName = tone.Name.ToLower();
-                string toneDescription = (tone.Description ?? "").ToLower();
                 
                 // Check if tone name matches bookshelf names
-                if (bookshelfNames.Any(bn => bn.Contains(toneName) || toneName.Contains(bn)))
+                if (bookshelfNames.Any(bn => bn.Contains(toneName)))
                 {
                     suggestions.Add(tone.Id);
                     continue;
                 }
                 
-                // Check if tone name or description appears in searchable content
-                if (searchableContent.Contains(toneName) || 
-                    (!string.IsNullOrEmpty(toneDescription) && searchableContent.Contains(toneDescription)))
+                // Check if tone name appears in searchable content
+                if (searchableContent.Contains(toneName))
                 {
                     suggestions.Add(tone.Id);
                     continue;
                 }
                 
-                // Check if tone name or description appears in review content
-                if (reviewContent.Contains(toneName) || 
-                    (!string.IsNullOrEmpty(toneDescription) && reviewContent.Contains(toneDescription)))
-                {
+                // Check if tone name appears in review content
+                if (reviewContent.Contains(toneName))
                     suggestions.Add(tone.Id);
-                }
             }
             
             return suggestions.ToList();
         }
-
         /// <summary>
-        /// Returns a CSS class name for color coding tone groups based on the parent tone name.
+        /// Returns a CSS class name for color coding tone groups based on the tone's index.
         /// </summary>
-        /// <param name="toneName">The name of the parent tone</param>
-        /// <returns>CSS class name for the tone group color</returns>
-        private string GetColorClassForTone(string toneName)
+        /// <param name="toneIndex">The index of the tone in the list of parent tones. Used to consistently assign colors. Special case of -1 for 
+        /// tones that don't have a parent tone (i.e. are not subtones).</param>
+        /// <returns>CSS class name for the tone group color. Returns "tone-grey" for tones that don't have a parent tone (i.e. are not subtones), 
+        /// otherwise returns one of 8 predefined color classes.</returns>
+        private string GetColorClassForTone(int toneIndex)
         {
-            // Generate consistent pastel colors based on tone name
-            int hash = toneName.GetHashCode();
+            // Special case for tones that don't have a parent tone (i.e. are not subtones)
+            if (toneIndex == -1)
+                return "tone-grey";
+
+            // Generate consistent pastel colors based on tone index
             string[] colors = new[] { "tone-blue", "tone-green", "tone-purple", "tone-pink", "tone-orange", "tone-teal", "tone-yellow", "tone-red" };
-            return colors[Math.Abs(hash) % colors.Length];
+            return colors[toneIndex];
         }
         #endregion
 
