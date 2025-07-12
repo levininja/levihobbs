@@ -38,7 +38,7 @@
                         @if (!string.IsNullOrEmpty(bookReview.MyReview))
                         {
                             <div>
-                                <a href="#" class="review-link" data-bs-toggle="tooltip" data-bs-html="true" 
+                                <a href="#" class="review-link" data-toggle="tooltip" data-html="true" 
                                    title="<div class='review-tooltip'>@Html.Raw(bookReview.MyReview.Replace("\"", "&quot;"))</div>">
                                     <i class="fas fa-info-circle"></i> Review
                                 </a>

@@ -167,7 +167,28 @@
         color: #333;
     }
     
-    .accordion-button:not(.collapsed) {
+    .accordion-toggle {
+        text-decoration: none;
+        color: #333;
+        display: block;
+        padding: 10px 15px;
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: -1px;
+    }
+    
+    .accordion-toggle:hover {
+        text-decoration: none;
+        color: #333;
+        background-color: #e7e7e7;
+    }
+    
+    .accordion-toggle.collapsed {
+        background-color: #f5f5f5;
+    }
+    
+    .accordion-toggle:not(.collapsed) {
         background-color: #e7f3ff;
         color: #0c63e4;
     }
@@ -180,12 +201,9 @@
 
     // Initialize Bootstrap tooltips
     document.addEventListener('DOMContentLoaded', function() {
-        let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl, {
-                html: true,
-                placement: 'top'
-            });
+        $('[data-toggle="tooltip"]').tooltip({
+            html: true,
+            placement: 'top'
         });
     });
 
@@ -341,15 +359,17 @@
         <!-- Books With Tones Section (Accordion) -->
         @if (Model.BooksWithTones.Any())
         {
-            <div class="accordion mt-4" id="booksWithTonesAccordion">
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="booksWithTonesHeading">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#booksWithTonesCollapse" aria-expanded="false" aria-controls="booksWithTonesCollapse">
-                            Books Already Assigned Tones (@Model.BooksWithTones.Count)
-                        </button>
-                    </h2>
-                    <div id="booksWithTonesCollapse" class="accordion-collapse collapse" aria-labelledby="booksWithTonesHeading" data-bs-parent="#booksWithTonesAccordion">
-                        <div class="accordion-body">
+            <div class="panel-group mt-4" id="booksWithTonesAccordion">
+                <div class="panel panel-default">
+                    <div class="panel-heading" id="booksWithTonesHeading">
+                        <h4 class="panel-title">
+                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#booksWithTonesAccordion" href="#booksWithTonesCollapse">
+                                Books Already Assigned Tones (@Model.BooksWithTones.Count)
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="booksWithTonesCollapse" class="panel-collapse collapse" aria-labelledby="booksWithTonesHeading">
+                        <div class="panel-body">
                             @await Html.PartialAsync("_ToneAssignmentTable", new ViewDataDictionary(ViewData) { 
                                 { "BookReviews", Model.BooksWithTones }, 
                                 { "ToneGroups", Model.ToneGroups },
