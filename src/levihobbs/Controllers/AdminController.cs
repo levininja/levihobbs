@@ -108,25 +108,9 @@ namespace levihobbs.Controllers
         public async Task<IActionResult> BookshelfConfiguration(BookshelfConfigurationViewModel model)
         {
             try
-            {
-                _logger.LogInformation("POST to BookshelfConfiguration received. Model details:");
-                _logger.LogInformation("EnableCustomMappings: {EnableCustomMappings}", model.EnableCustomMappings);
-                _logger.LogInformation("Number of groupings in model: {GroupingCount}", model.Groupings.Count);
-                
-                foreach (BookshelfGroupingItem grouping in model.Groupings)
-                {
-                    _logger.LogInformation("Grouping details - Id: {Id}, Name: {Name}, DisplayName: {DisplayName}, SelectedBookshelfIds: {SelectedIds}", 
-                        grouping.Id, 
-                        grouping.Name, 
-                        grouping.DisplayName ?? "null",
-                        string.Join(", ", grouping.SelectedBookshelfIds));
-                }
-                
-                _logger.LogInformation("Starting BookshelfConfiguration save. Model has {GroupingCount} groupings", model.Groupings.Count);
-                
+            {                
                 // Update bookshelf display settings
                 List<Bookshelf> bookshelves = await _context.Bookshelves.ToListAsync();
-                _logger.LogInformation("Found {BookshelfCount} bookshelves in database", bookshelves.Count);
                 
                 if (model.EnableCustomMappings)
                 {
@@ -136,35 +120,25 @@ namespace levihobbs.Controllers
                         bookshelf.Display = displayItem?.Display ?? false;
                     }
                 }
-                else
-                {
-                    // Reset all display settings to null when custom mappings are disabled
+                else // Reset all display settings to null when custom mappings are disabled
                     foreach (Bookshelf bookshelf in bookshelves)
-                    {
                         bookshelf.Display = null;
-                    }
-                }
                 
                 // Handle groupings
                 List<BookshelfGrouping> existingGroupings = await _context.BookshelfGroupings
                     .Include(bg => bg.Bookshelves)
                     .ToListAsync();
-                _logger.LogInformation("Found {ExistingGroupingCount} existing groupings in database", existingGroupings.Count);
                 
                 // Only remove groupings that are explicitly marked for removal
                 List<BookshelfGrouping> groupingsToRemove = existingGroupings
                     .Where(eg => model.Groupings.Any(mg => mg.Id == eg.Id && mg.ShouldRemove))
                     .ToList();
-                _logger.LogInformation("Removing {GroupingRemoveCount} groupings", groupingsToRemove.Count);
                     
                 _context.BookshelfGroupings.RemoveRange(groupingsToRemove);
                 
                 // Update or create groupings
                 foreach (BookshelfGroupingItem groupingModel in model.Groupings)
-                {
-                    _logger.LogInformation("Processing grouping: {GroupingName} with {SelectedCount} selected bookshelves", 
-                        groupingModel.Name, groupingModel.SelectedBookshelfIds.Count);
-                    
+                {                   
                     BookshelfGrouping grouping;
                     
                     if (groupingModel.Id > 0)
@@ -173,7 +147,6 @@ namespace levihobbs.Controllers
                         grouping.Name = groupingModel.Name;
                         grouping.DisplayName = groupingModel.DisplayName;
                         grouping.Bookshelves.Clear();
-                        _logger.LogInformation("Updating existing grouping with ID {GroupingId}", grouping.Id);
                     }
                     else
                     {
@@ -183,14 +156,12 @@ namespace levihobbs.Controllers
                             DisplayName = groupingModel.DisplayName
                         };
                         _context.BookshelfGroupings.Add(grouping);
-                        _logger.LogInformation("Creating new grouping: {GroupingName}", grouping.Name);
                     }
                     
                     // Add selected bookshelves to the grouping
                     List<Bookshelf> selectedBookshelves = bookshelves
                         .Where(bs => groupingModel.SelectedBookshelfIds?.Contains(bs.Id) ?? false)
                         .ToList();
-                    _logger.LogInformation("Found {SelectedCount} bookshelves to add to grouping", selectedBookshelves.Count);
                         
                     foreach (Bookshelf bookshelf in selectedBookshelves)
                     {
@@ -199,7 +170,6 @@ namespace levihobbs.Controllers
                 }
                 
                 int saveResult = await _context.SaveChangesAsync();
-                _logger.LogInformation("SaveChangesAsync returned {SaveResult} changes", saveResult);
                 ViewBag.SuccessMessage = "Bookshelf configuration saved successfully.";
             }
             catch (Exception ex)
