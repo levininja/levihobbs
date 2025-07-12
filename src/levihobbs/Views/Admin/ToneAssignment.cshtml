@@ -190,8 +190,6 @@
 
 @section Scripts {
 <script>
-    const genresToneAssociations = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GenreToneAssociations));
-
     // Initialize Bootstrap tooltips
     document.addEventListener('DOMContentLoaded', function() {
         $('[data-toggle="tooltip"]').tooltip({

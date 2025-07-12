@@ -642,8 +642,7 @@ namespace levihobbs.Controllers
                     AssignedToneIds = br.Tones.Select(t => t.Id).ToList(),
                     SuggestedToneIds = GetSuggestedTones(br, allTones, genreToneAssociations)
                 }).ToList(),
-                ToneGroups = toneGroups,
-                GenreToneAssociations = genreToneAssociations
+                ToneGroups = toneGroups
             };
 
             return View(viewModel);
