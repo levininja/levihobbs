@@ -689,16 +689,34 @@ namespace levihobbs.Controllers
         {
             try
             {
-                // Get all book reviews and tones
+                // Get all book reviews and tones - include both BookReviews and BooksWithTones
+                List<int> allBookReviewIds = model.BookReviews.Select(brm => brm.Id)
+                    .Concat(model.BooksWithTones.Select(brm => brm.Id))
+                    .ToList();
+                
                 List<BookReview> bookReviews = await _context.BookReviews
                     .Include(br => br.Tones)
-                    .Where(br => model.BookReviews.Select(brm => brm.Id).Contains(br.Id))
+                    .Where(br => allBookReviewIds.Contains(br.Id))
                     .ToListAsync();
 
                 List<Tone> allTones = await _context.Tones.ToListAsync();
 
-                // Update tone assignments for each book review
+                // Update tone assignments for books without tones
                 foreach (BookReviewToneItem bookReviewModel in model.BookReviews)
+                {
+                    BookReview? bookReview = bookReviews.FirstOrDefault(br => br.Id == bookReviewModel.Id);
+                    
+                    // Clear existing tone assignments
+                    bookReview?.Tones.Clear();
+                    
+                    // Add new tone assignments
+                    List<Tone> selectedTones = allTones.Where(t => bookReviewModel.AssignedToneIds.Contains(t.Id)).ToList();
+                    foreach (Tone tone in selectedTones)
+                        bookReview?.Tones.Add(tone);
+                }
+
+                // Update tone assignments for books with tones (accordion section)
+                foreach (BookReviewToneItem bookReviewModel in model.BooksWithTones)
                 {
                     BookReview? bookReview = bookReviews.FirstOrDefault(br => br.Id == bookReviewModel.Id);
                     
