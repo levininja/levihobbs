@@ -73,16 +73,16 @@ namespace levihobbs.Controllers
         [HttpGet]
         public async Task<IActionResult> BookshelfConfiguration()
         {
-            var bookshelves = await _context.Bookshelves
+            List<Bookshelf> bookshelves = await _context.Bookshelves
                 .OrderBy(bs => bs.DisplayName ?? bs.Name)
                 .ToListAsync();
                 
-            var groupings = await _context.BookshelfGroupings
+            List<BookshelfGrouping> groupings = await _context.BookshelfGroupings
                 .Include(bg => bg.Bookshelves)
                 .OrderBy(bg => bg.DisplayName ?? bg.Name)
                 .ToListAsync();
                 
-            var viewModel = new BookshelfConfigurationViewModel
+            BookshelfConfigurationViewModel viewModel = new BookshelfConfigurationViewModel
             {
                 EnableCustomMappings = bookshelves.Any(bs => bs.Display.HasValue),
                 Bookshelves = bookshelves.Select(bs => new BookshelfDisplayItem
@@ -113,7 +113,7 @@ namespace levihobbs.Controllers
                 _logger.LogInformation("EnableCustomMappings: {EnableCustomMappings}", model.EnableCustomMappings);
                 _logger.LogInformation("Number of groupings in model: {GroupingCount}", model.Groupings.Count);
                 
-                foreach (var grouping in model.Groupings)
+                foreach (BookshelfGroupingItem grouping in model.Groupings)
                 {
                     _logger.LogInformation("Grouping details - Id: {Id}, Name: {Name}, DisplayName: {DisplayName}, SelectedBookshelfIds: {SelectedIds}", 
                         grouping.Id, 
@@ -125,34 +125,34 @@ namespace levihobbs.Controllers
                 _logger.LogInformation("Starting BookshelfConfiguration save. Model has {GroupingCount} groupings", model.Groupings.Count);
                 
                 // Update bookshelf display settings
-                var bookshelves = await _context.Bookshelves.ToListAsync();
+                List<Bookshelf> bookshelves = await _context.Bookshelves.ToListAsync();
                 _logger.LogInformation("Found {BookshelfCount} bookshelves in database", bookshelves.Count);
                 
                 if (model.EnableCustomMappings)
                 {
-                    foreach (var bookshelf in bookshelves)
+                    foreach (Bookshelf bookshelf in bookshelves)
                     {
-                        var displayItem = model.Bookshelves.FirstOrDefault(b => b.Id == bookshelf.Id);
+                        BookshelfDisplayItem? displayItem = model.Bookshelves.FirstOrDefault(b => b.Id == bookshelf.Id);
                         bookshelf.Display = displayItem?.Display ?? false;
                     }
                 }
                 else
                 {
                     // Reset all display settings to null when custom mappings are disabled
-                    foreach (var bookshelf in bookshelves)
+                    foreach (Bookshelf bookshelf in bookshelves)
                     {
                         bookshelf.Display = null;
                     }
                 }
                 
                 // Handle groupings
-                var existingGroupings = await _context.BookshelfGroupings
+                List<BookshelfGrouping> existingGroupings = await _context.BookshelfGroupings
                     .Include(bg => bg.Bookshelves)
                     .ToListAsync();
                 _logger.LogInformation("Found {ExistingGroupingCount} existing groupings in database", existingGroupings.Count);
                 
                 // Only remove groupings that are explicitly marked for removal
-                var groupingsToRemove = existingGroupings
+                List<BookshelfGrouping> groupingsToRemove = existingGroupings
                     .Where(eg => model.Groupings.Any(mg => mg.Id == eg.Id && mg.ShouldRemove))
                     .ToList();
                 _logger.LogInformation("Removing {GroupingRemoveCount} groupings", groupingsToRemove.Count);
@@ -160,7 +160,7 @@ namespace levihobbs.Controllers
                 _context.BookshelfGroupings.RemoveRange(groupingsToRemove);
                 
                 // Update or create groupings
-                foreach (var groupingModel in model.Groupings)
+                foreach (BookshelfGroupingItem groupingModel in model.Groupings)
                 {
                     _logger.LogInformation("Processing grouping: {GroupingName} with {SelectedCount} selected bookshelves", 
                         groupingModel.Name, groupingModel.SelectedBookshelfIds.Count);
@@ -187,18 +187,18 @@ namespace levihobbs.Controllers
                     }
                     
                     // Add selected bookshelves to the grouping
-                    var selectedBookshelves = bookshelves
+                    List<Bookshelf> selectedBookshelves = bookshelves
                         .Where(bs => groupingModel.SelectedBookshelfIds?.Contains(bs.Id) ?? false)
                         .ToList();
                     _logger.LogInformation("Found {SelectedCount} bookshelves to add to grouping", selectedBookshelves.Count);
                         
-                    foreach (var bookshelf in selectedBookshelves)
+                    foreach (Bookshelf bookshelf in selectedBookshelves)
                     {
                         grouping.Bookshelves.Add(bookshelf);
                     }
                 }
                 
-                var saveResult = await _context.SaveChangesAsync();
+                int saveResult = await _context.SaveChangesAsync();
                 _logger.LogInformation("SaveChangesAsync returned {SaveResult} changes", saveResult);
                 ViewBag.SuccessMessage = "Bookshelf configuration saved successfully.";
             }
@@ -384,7 +384,7 @@ namespace levihobbs.Controllers
         private string BuildSearchableString(string title, string firstName, string lastName, 
             string? additionalAuthors, string? publisher, string? bookshelves)
         {
-            var searchableParts = new List<string>();
+            List<string> searchableParts = new List<string>();
             
             // Add title and author
             searchableParts.Add(title);
@@ -401,7 +401,7 @@ namespace levihobbs.Controllers
             // Process bookshelves
             if (!string.IsNullOrEmpty(bookshelves))
             {
-                var processedShelves = ProcessBookshelvesForSearch(bookshelves);
+                string processedShelves = ProcessBookshelvesForSearch(bookshelves);
                 if (!string.IsNullOrEmpty(processedShelves))
                     searchableParts.Add(processedShelves);
             }
@@ -411,18 +411,18 @@ namespace levihobbs.Controllers
 
         private string ProcessBookshelvesForSearch(string bookshelves)
         {
-            var excludedShelves = new HashSet<string> 
+            HashSet<string> excludedShelves = new HashSet<string> 
             { 
                 "to-read", "to-look-into", "currently-reading", 
                 "decided-not-to-read", "anticipating-release" 
             };
             
-            var synonymMap = new Dictionary<string, string>
+            Dictionary<string, string> synonymMap = new Dictionary<string, string>
             {
                 { "sf", "Science Fiction Sci-Fi Scifi" }
             };
             
-            var shelves = bookshelves.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            IEnumerable<string> shelves = bookshelves.Split(',', StringSplitOptions.RemoveEmptyEntries)
                 .Select(s => s.Trim().ToLower())
                 .Where(s => !excludedShelves.Contains(s))
                 .Select(s => s.Replace('-', ' '))
@@ -434,11 +434,11 @@ namespace levihobbs.Controllers
 
         private void ValidateCsvHeader(CsvReader csv, string[] requiredColumns)
         {
-            var header = csv.HeaderRecord;
+            string[] header = csv.HeaderRecord;
             if (header == null)
                 throw new Exception("CSV file is missing header row");
             
-            var missingColumns = requiredColumns
+            List<string> missingColumns = requiredColumns
                 .Where(col => !header.Contains(col))
                 .ToList();
                 
@@ -461,7 +461,7 @@ namespace levihobbs.Controllers
         [HttpGet]
         public async Task<IActionResult> ToneConfiguration()
         {
-            var tones = await _context.Tones
+            List<Tone> tones = await _context.Tones
                 .Include(t => t.Subtones)
                 .Where(t => t.ParentId == null) // This way you don't get subtones twice in the structure
                 .OrderBy(t => t.Name)
@@ -497,17 +497,17 @@ namespace levihobbs.Controllers
             try
             {
                 // Get all existing tones
-                var existingTones = await _context.Tones
+                List<Tone> existingTones = await _context.Tones
                     .Include(t => t.Subtones)
                     .ToListAsync();
                 
                 // Handle tone removals...
-                var tonesToRemove = existingTones
+                List<Tone> tonesToRemove = existingTones
                     .Where(et => model.Tones.Any(mt => mt.Id == et.Id && mt.ShouldRemove))
                     .ToList();
                 
                 // Also remove subtones of removed parent tones
-                var subtonesToRemove = existingTones
+                List<Tone> subtonesToRemove = existingTones
                     .Where(et => et.ParentId.HasValue && tonesToRemove.Any(tr => tr.Id == et.ParentId))
                     .ToList();
                 
@@ -538,10 +538,10 @@ namespace levihobbs.Controllers
                     }
                     
                     // Handle subtones...
-                    var existingSubtones = existingTones.Where(et => et.ParentId == tone.Id).ToList();
+                    List<Tone> existingSubtones = existingTones.Where(et => et.ParentId == tone.Id).ToList();
                     
                     // Remove subtones marked for removal
-                    var subtonesToRemoveForThisTone = existingSubtones
+                    List<Tone> subtonesToRemoveForThisTone = existingSubtones
                         .Where(es => toneModel.Subtones.Any(st => st.Id == es.Id && st.ShouldRemove))
                         .ToList();
                     _context.Tones.RemoveRange(subtonesToRemoveForThisTone);
@@ -591,7 +591,7 @@ namespace levihobbs.Controllers
 
         // For the uncategorized tones that aren't part of any other group
         const string otherTonesGroupName = "Other";
-
+                
         /// <summary>
         /// Displays the tone assignment interface for book reviews that have review content.
         /// Groups tones by parent tone for organized display and provides suggestions based on content analysis.
@@ -601,7 +601,7 @@ namespace levihobbs.Controllers
         public async Task<IActionResult> ToneAssignment()
         {
             // Get all book reviews that have review content
-            List<BookReview> bookReviews = await _context.BookReviews
+            List<BookReview> allBookReviews = await _context.BookReviews
                 .Include(br => br.Tones)
                 .Include(br => br.Bookshelves)
                     .ThenInclude(bs => bs.BookshelfGroupings)
@@ -609,21 +609,9 @@ namespace levihobbs.Controllers
                 .OrderBy(br => br.Title)
                 .ToListAsync();
 
-            // Log the bookshelves and their groups for the first 10 book reviews
-            var reviewsToLog = bookReviews.Take(50);
-            foreach (var review in reviewsToLog)
-            {
-                var bookshelfInfo = review.Bookshelves.Select(bs => 
-                {
-                    var groupName = bs.BookshelfGroupings.FirstOrDefault()?.Name ?? "No Group";
-                    return $"{bs.Name} (Group: {groupName})";
-                });
-                
-                _logger.LogInformation("Book review '{Title}' has {BookshelfCount} bookshelves: {BookshelfInfo}", 
-                    review.Title, 
-                    review.Bookshelves.Count, 
-                    string.Join(", ", bookshelfInfo));
-            }
+            // Separate books with and without assigned tones
+            List<BookReview> booksWithoutTones = allBookReviews.Where(br => !br.Tones.Any()).ToList();
+            List<BookReview> booksWithTones = allBookReviews.Where(br => br.Tones.Any()).ToList();
 
             // Get all tones with their relationships
             List<Tone> allTones = await _context.Tones
@@ -659,21 +647,33 @@ namespace levihobbs.Controllers
                 }).ToList()
             });
 
-            
+            List<GenreToneAssociation> genreToneAssociations = GetGenreToneAssociations();
 
             // Return the view model
             ToneAssignmentViewModel viewModel = new ToneAssignmentViewModel
             {
-                BookReviews = bookReviews.Select(br => new BookReviewToneItem
+                BookReviews = booksWithoutTones.Select(br => new BookReviewToneItem
                 {
                     Id = br.Id,
                     Title = br.Title,
                     AuthorName = $"{br.AuthorFirstName} {br.AuthorLastName}".Trim(),
+                    Genres = GetBookGenres(br),
+                    MyReview = br.MyReview,
                     AssignedToneIds = br.Tones.Select(t => t.Id).ToList(),
-                    SuggestedToneIds = GetSuggestedTones(br, allTones)
+                    SuggestedToneIds = GetSuggestedTones(br, allTones, genreToneAssociations)
+                }).ToList(),
+                BooksWithTones = booksWithTones.Select(br => new BookReviewToneItem
+                {
+                    Id = br.Id,
+                    Title = br.Title,
+                    AuthorName = $"{br.AuthorFirstName} {br.AuthorLastName}".Trim(),
+                    Genres = GetBookGenres(br),
+                    MyReview = br.MyReview,
+                    AssignedToneIds = br.Tones.Select(t => t.Id).ToList(),
+                    SuggestedToneIds = GetSuggestedTones(br, allTones, genreToneAssociations)
                 }).ToList(),
                 ToneGroups = toneGroups,
-                GenreToneAssociations = GetGenreToneAssociations()
+                GenreToneAssociations = genreToneAssociations
             };
 
             return View(viewModel);
@@ -700,15 +700,15 @@ namespace levihobbs.Controllers
                 // Update tone assignments for each book review
                 foreach (BookReviewToneItem bookReviewModel in model.BookReviews)
                 {
-                    BookReview bookReview = bookReviews.FirstOrDefault(br => br.Id == bookReviewModel.Id);
+                    BookReview? bookReview = bookReviews.FirstOrDefault(br => br.Id == bookReviewModel.Id);
                     
                     // Clear existing tone assignments
-                    bookReview.Tones.Clear();
+                    bookReview?.Tones.Clear();
                     
                     // Add new tone assignments
                     List<Tone> selectedTones = allTones.Where(t => bookReviewModel.AssignedToneIds.Contains(t.Id)).ToList();
                     foreach (Tone tone in selectedTones)
-                        bookReview.Tones.Add(tone);
+                        bookReview?.Tones.Add(tone);
                 }
 
                 await _context.SaveChangesAsync();
@@ -726,12 +726,28 @@ namespace levihobbs.Controllers
         }
 
         /// <summary>
-        /// Analyzes a book review to suggest appropriate tones based on bookshelf tags and review content.
+        /// Gets the genres for a book review based on its bookshelf groupings
+        /// </summary>
+        /// <param name="bookReview">The book review to get genres for</param>
+        /// <returns>List of genre names</returns>
+        private List<string> GetBookGenres(BookReview bookReview)
+        {
+            return bookReview.Bookshelves
+                .SelectMany(bs => bs.BookshelfGroupings)
+                .Select(bg => bg.Name)
+                .Distinct()
+                .OrderBy(name => name)
+                .ToList();
+        }
+
+        /// <summary>
+        /// Analyzes a book review to suggest appropriate tones based on bookshelf tags, review content, and genre associations.
         /// </summary>
         /// <param name="bookReview">The book review to analyze</param>
         /// <param name="allTones">All available tones for matching</param>
+        /// <param name="genreToneAssociations">Genre-tone associations for genre-based suggestions</param>
         /// <returns>List of suggested tone IDs</returns>
-        private List<int> GetSuggestedTones(BookReview bookReview, List<Tone> allTones)
+        private List<int> GetSuggestedTones(BookReview bookReview, List<Tone> allTones, List<GenreToneAssociation> genreToneAssociations)
         {
             HashSet<int> suggestions = new HashSet<int>();
             
@@ -740,7 +756,10 @@ namespace levihobbs.Controllers
             string searchableContent = (bookReview.SearchableString ?? "").ToLower();
             string reviewContent = (bookReview.MyReview ?? "").ToLower();
             
-            foreach (Tone tone in allTones)
+            // Get genres for this book
+            List<string> genres = GetBookGenres(bookReview);
+            
+            foreach (Tone tone in allTones.Concat(allTones.SelectMany(t => t.Subtones)))
             {
                 string toneName = tone.Name.ToLower();
                 
@@ -760,11 +779,28 @@ namespace levihobbs.Controllers
                 
                 // Check if tone name appears in review content
                 if (reviewContent.Contains(toneName))
+                {
                     suggestions.Add(tone.Id);
+                    continue;
+                }
+                
+                // Check genre-based suggestions
+                foreach (string genre in genres)
+                {
+                    GenreToneAssociation? association = genreToneAssociations.FirstOrDefault(gta => 
+                        gta.Genre.Equals(genre, StringComparison.OrdinalIgnoreCase));
+                    if (association != null && association.Tones.Any(t => 
+                        t.Equals(tone.Name, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        suggestions.Add(tone.Id);
+                        break;
+                    }
+                }
             }
             
             return suggestions.ToList();
         }
+
         /// <summary>
         /// Returns a CSS class name for color coding tone groups based on the tone's index.
         /// </summary>

@@ -3,6 +3,7 @@ namespace levihobbs.Models
     public class ToneAssignmentViewModel
     {
         public List<BookReviewToneItem> BookReviews { get; set; } = new List<BookReviewToneItem>();
+        public List<BookReviewToneItem> BooksWithTones { get; set; } = new List<BookReviewToneItem>();
         public List<ToneGroup> ToneGroups { get; set; } = new List<ToneGroup>();
         public List<GenreToneAssociation> GenreToneAssociations { get; set; } = new List<GenreToneAssociation>();
     }
@@ -18,6 +19,8 @@ namespace levihobbs.Models
         public int Id { get; set; }
         public string Title { get; set; } = "";
         public string AuthorName { get; set; } = "";
+        public List<string> Genres { get; set; } = new List<string>();
+        public string? MyReview { get; set; }
         public List<int> AssignedToneIds { get; set; } = new List<int>();
         public List<int> SuggestedToneIds { get; set; } = new List<int>();
     }

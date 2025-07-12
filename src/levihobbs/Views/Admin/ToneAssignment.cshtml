@@ -1,3 +1,4 @@
+
 @model levihobbs.Models.ToneAssignmentViewModel
 @{
     ViewData["Title"] = "Tone Assignment";
@@ -22,8 +23,8 @@
     }
     
     .book-info {
-        min-width: 250px;
-        max-width: 250px;
+        min-width: 300px;
+        max-width: 300px;
         white-space: normal;
     }
     
@@ -88,6 +89,32 @@
     .book-author {
         color: #666;
         font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .book-genres {
+        color: #007bff;
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .review-link {
+        color: #6c757d;
+        text-decoration: none;
+        font-size: 0.8rem;
+    }
+    
+    .review-link:hover {
+        color: #007bff;
+        text-decoration: underline;
+    }
+    
+    .review-tooltip {
+        max-width: 400px;
+        max-height: 300px;
+        overflow-y: auto;
+        white-space: normal;
+        text-align: left;
     }
     
     .column-header {
@@ -132,6 +159,18 @@
         color: blue;
         background-color: #eeeeff;
     }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 2rem 0 1rem 0;
+        color: #333;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        background-color: #e7f3ff;
+        color: #0c63e4;
+    }
 </style>
 }
 
@@ -139,9 +178,20 @@
 <script>
     const genresToneAssociations = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GenreToneAssociations));
 
+    // Initialize Bootstrap tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                html: true,
+                placement: 'top'
+            });
+        });
+    });
+
     function toggleTone(bookReviewId, toneId, element) {
         const isSelected = element.classList.contains('selected');
-        const hiddenInput = document.querySelector(`input[name="BookReviews[${getBookReviewIndex(bookReviewId)}].AssignedToneIds"][value="${toneId}"]`);
+        const hiddenInput = document.querySelector(`input[name="BookReviews[${getBookReviewIndex(bookReviewId)}].AssignedToneIds"][value="${toneId}"], input[name="BooksWithTones[${getBooksWithTonesIndex(bookReviewId)}].AssignedToneIds"][value="${toneId}"]`);
         
         if (isSelected) {
             element.classList.remove('selected');
@@ -155,7 +205,17 @@
             if (!hiddenInput) {
                 const input = document.createElement('input');
                 input.type = 'hidden';
-                input.name = `BookReviews[${getBookReviewIndex(bookReviewId)}].AssignedToneIds`;
+                
+                // Determine if this is in the main table or the accordion table
+                const bookReviewIndex = getBookReviewIndex(bookReviewId);
+                const booksWithTonesIndex = getBooksWithTonesIndex(bookReviewId);
+                
+                if (bookReviewIndex !== -1) {
+                    input.name = `BookReviews[${bookReviewIndex}].AssignedToneIds`;
+                } else if (booksWithTonesIndex !== -1) {
+                    input.name = `BooksWithTones[${booksWithTonesIndex}].AssignedToneIds`;
+                }
+                
                 input.value = toneId;
                 document.getElementById(`book-${bookReviewId}-inputs`).appendChild(input);
             }
@@ -167,6 +227,11 @@
     function getBookReviewIndex(bookReviewId) {
         const bookReviews = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BookReviews.Select(br => br.Id)));
         return bookReviews.indexOf(bookReviewId);
+    }
+    
+    function getBooksWithTonesIndex(bookReviewId) {
+        const booksWithTones = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BooksWithTones.Select(br => br.Id)));
+        return booksWithTones.indexOf(bookReviewId);
     }
     
     function applySuggestion(bookReviewId, toneId) {
@@ -257,101 +322,44 @@
     }
     
     <form asp-action="ToneAssignment" method="post">
-        <div class="tone-assignment-container">
-            <table class="table tone-assignment-table">
-                <thead>
-                    <tr>
-                        <th class="column-header book-info">Book Review</th>
-                        @foreach (var group in Model.ToneGroups)
-                        {
-                            <th class="column-header tone-column @group.ColorClass">@group.DisplayName Tones</th>
-                        }
-                        <th class="column-header suggestions-column">Suggestions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (int i = 0; i < Model.BookReviews.Count; i++)
-                    {
-                        var bookReview = Model.BookReviews[i];
-                        <tr>
-                            <td class="book-info">
-                                <div class="book-title">@bookReview.Title</div>
-                                <div class="book-author">by @bookReview.AuthorName</div>
-                                <div class="selected-tones mt-2" style="display: @(bookReview.AssignedToneIds.Any() ? "block" : "none");">
-                                    <small class="text-muted">Selected tones:</small>
-                                    <div class="selected-tones-list">
-                                        @foreach (int toneId in bookReview.AssignedToneIds)
-                                        {
-                                            var tone = Model.ToneGroups.SelectMany(g => g.Tones).FirstOrDefault(t => t.Id == toneId);
-                                            var group = Model.ToneGroups.FirstOrDefault(g => g.Tones.Any(t => t.Id == toneId));
-                                            if (tone != null && group != null)
-                                            {
-                                                <span class="tone-tag @group.ColorClass selected" data-tone-id="@toneId">
-                                                    @tone.Name
-                                                </span>
-                                            }
-                                        }
-                                    </div>
-                                </div>
-                                <div id="book-@bookReview.Id-inputs">
-                                    <input type="hidden" name="BookReviews[@i].Id" value="@bookReview.Id" />
-                                    @foreach (int toneId in bookReview.AssignedToneIds)
-                                    {
-                                        <input type="hidden" name="BookReviews[@i].AssignedToneIds" value="@toneId" />
-                                    }
-                                </div>
-                            </td>
-                            
-                            @foreach (levihobbs.Models.ToneGroup group in Model.ToneGroups)
-                            {
-                                <td class="tone-column">
-                                    @foreach (levihobbs.Models.ToneDisplayItem tone in group.Tones)
-                                    {
-                                        bool isSelected = bookReview.AssignedToneIds.Contains(tone.Id);
-                                        bool isSuggested = bookReview.SuggestedToneIds.Contains(tone.Id);
-                                        <span class="tone-tag @group.ColorClass @(isSelected ? "selected" : "") @(isSuggested ? "suggested" : "")"
-                                              data-book="@bookReview.Id"
-                                              data-tone="@tone.Id"
-                                              onclick="toggleTone(@bookReview.Id, @tone.Id, this)"
-                                              title="@(tone.Description ?? tone.Name)">
-                                            @tone.Name
-                                        </span>
-                                    }
-                                </td>
-                            }
-                            
-                            <td class="suggestions-column">
-                                @if (bookReview.SuggestedToneIds.Any())
-                                {
-                                    <div>
-                                        @foreach (int toneId in bookReview.SuggestedToneIds)
-                                        {
-                                            ToneDisplayItem tone = Model.ToneGroups.SelectMany(g => g.Tones).FirstOrDefault(t => t.Id == toneId);
-                                            if (tone != null)
-                                            {
-                                                <span class="tone-tag tone-other suggested"
-                                                      onclick="applySuggestion(@bookReview.Id, @toneId)"
-                                                      title="@(tone.Description ?? tone.Name)">
-                                                    @tone.Name
-                                                </span>
-                                            }
-                                        }
-                                    </div>
-                                    <button type="button" class="btn suggest-btn" 
-                                            onclick="applyAllSuggestions(@bookReview.Id)">
-                                        Apply All
-                                    </button>
-                                }
-                                else
-                                {
-                                    <em class="text-muted">No suggestions</em>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+        <!-- Books Without Tones Section -->
+        <div class="section-title">Books Without Tones Assigned Yet</div>
+        
+        @if (Model.BookReviews.Any())
+        {
+            @await Html.PartialAsync("_ToneAssignmentTable", new ViewDataDictionary(ViewData) { 
+                { "BookReviews", Model.BookReviews }, 
+                { "ToneGroups", Model.ToneGroups },
+                { "InputPrefix", "BookReviews" }
+            })
+        }
+        else
+        {
+            <div class="alert alert-info">All books with review content have been assigned tones!</div>
+        }
+        
+        <!-- Books With Tones Section (Accordion) -->
+        @if (Model.BooksWithTones.Any())
+        {
+            <div class="accordion mt-4" id="booksWithTonesAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="booksWithTonesHeading">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#booksWithTonesCollapse" aria-expanded="false" aria-controls="booksWithTonesCollapse">
+                            Books Already Assigned Tones (@Model.BooksWithTones.Count)
+                        </button>
+                    </h2>
+                    <div id="booksWithTonesCollapse" class="accordion-collapse collapse" aria-labelledby="booksWithTonesHeading" data-bs-parent="#booksWithTonesAccordion">
+                        <div class="accordion-body">
+                            @await Html.PartialAsync("_ToneAssignmentTable", new ViewDataDictionary(ViewData) { 
+                                { "BookReviews", Model.BooksWithTones }, 
+                                { "ToneGroups", Model.ToneGroups },
+                                { "InputPrefix", "BooksWithTones" }
+                            })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
         
         <div class="save-section">
             <button type="submit" class="btn btn-primary">Save Tone Assignments</button>
