@@ -110,14 +110,13 @@ namespace levihobbs.Controllers
             };
             
             var existingReviews = await _context.BookReviews
-                .Select(r => new { r.Title, r.AuthorFirstName, r.AuthorLastName })
+                .Select(r => new { r.Title, r.AuthorFirstName, r.AuthorLastName, BookshelvesCount = r.Bookshelves.Count })
                 .ToListAsync();
             
             List<Bookshelf> existingBookshelves = await _context.Bookshelves.ToListAsync();
             
             int importedCount = 0;
             int duplicateCount = 0;
-            int skippedToReadCount = 0;
             
             using CsvReader csv = new CsvReader(reader, config);
             List<GoodreadsBookReviewCsv> records = csv.GetRecords<GoodreadsBookReviewCsv>().ToList();
@@ -130,15 +129,7 @@ namespace levihobbs.Controllers
                 // because of how stream readers work.
                 if (i == 0)
                     ValidateCsvHeader(csv, requiredColumns);
-                
-                // Skip rows that contain "to-read" in bookshelves
-                if (!string.IsNullOrEmpty(row.Bookshelves) && 
-                    row.Bookshelves.Split(',').Any(shelf => shelf.Trim().ToLower() == "to-read"))
-                {
-                    skippedToReadCount++;
-                    continue;
-                }
-                
+                    
                 // All GoodReads books with reviews also have exclusive shelf "read".
                 if (row.Exclusive_Shelf?.ToString() != "read")
                     continue;
@@ -181,7 +172,8 @@ namespace levihobbs.Controllers
                 bool reviewExists = existingReviews.Any(r => 
                     r.Title == row.Title && 
                     r.AuthorFirstName == firstName && 
-                    r.AuthorLastName == lastName);
+                    r.AuthorLastName == lastName &&
+                    r.BookshelvesCount == (row.Bookshelves?.Split(',', StringSplitOptions.RemoveEmptyEntries).Length ?? 0));
                 
                 if (reviewExists)
                 {
@@ -242,7 +234,6 @@ namespace levihobbs.Controllers
             
             await _context.SaveChangesAsync();
             ViewBag.DuplicateCount = duplicateCount;
-            ViewBag.SkippedToReadCount = skippedToReadCount;
             return importedCount;
         }
 
