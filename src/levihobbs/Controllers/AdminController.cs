@@ -37,6 +37,12 @@ namespace levihobbs.Controllers
 
         #region Book Review Import
         
+        /// <summary>
+        /// Handles the POST request for importing book reviews from a CSV file.
+        /// Validates the file, processes it, and imports the reviews into the database.
+        /// </summary>
+        /// <param name="file">The CSV file containing book reviews to import.</param>
+        /// <returns>View with success message or error details.</returns>
         [HttpPost]
         [RequestSizeLimit(10 * 1024 * 1024)] // 10MB limit
         public async Task<IActionResult> ImportBookReviews(IFormFile? file)
@@ -68,117 +74,6 @@ namespace levihobbs.Controllers
                 ModelState.AddModelError("", ex.Message);
                 return View(ModelState);
             }
-        }
-        
-        [HttpGet]
-        public async Task<IActionResult> BookshelfConfiguration()
-        {
-            List<Bookshelf> bookshelves = await _context.Bookshelves
-                .OrderBy(bs => bs.DisplayName ?? bs.Name)
-                .ToListAsync();
-                
-            List<BookshelfGrouping> groupings = await _context.BookshelfGroupings
-                .Include(bg => bg.Bookshelves)
-                .OrderBy(bg => bg.DisplayName ?? bg.Name)
-                .ToListAsync();
-                
-            BookshelfConfigurationViewModel viewModel = new BookshelfConfigurationViewModel
-            {
-                EnableCustomMappings = bookshelves.Any(bs => bs.Display.HasValue),
-                Bookshelves = bookshelves.Select(bs => new BookshelfDisplayItem
-                {
-                    Id = bs.Id,
-                    Name = bs.Name,
-                    DisplayName = bs.DisplayName,
-                    Display = bs.Display ?? false
-                }).ToList(),
-                Groupings = groupings.Select(bg => new BookshelfGroupingItem
-                {
-                    Id = bg.Id,
-                    Name = bg.Name,
-                    DisplayName = bg.DisplayName,
-                    SelectedBookshelfIds = bg.Bookshelves.Select(bs => bs.Id).ToList()
-                }).ToList()
-            };
-            
-            return View(viewModel);
-        }
-        
-        [HttpPost]
-        public async Task<IActionResult> BookshelfConfiguration(BookshelfConfigurationViewModel model)
-        {
-            try
-            {                
-                // Update bookshelf display settings
-                List<Bookshelf> bookshelves = await _context.Bookshelves.ToListAsync();
-                
-                if (model.EnableCustomMappings)
-                {
-                    foreach (Bookshelf bookshelf in bookshelves)
-                    {
-                        BookshelfDisplayItem? displayItem = model.Bookshelves.FirstOrDefault(b => b.Id == bookshelf.Id);
-                        bookshelf.Display = displayItem?.Display ?? false;
-                    }
-                }
-                else // Reset all display settings to null when custom mappings are disabled
-                    foreach (Bookshelf bookshelf in bookshelves)
-                        bookshelf.Display = null;
-                
-                // Handle groupings
-                List<BookshelfGrouping> existingGroupings = await _context.BookshelfGroupings
-                    .Include(bg => bg.Bookshelves)
-                    .ToListAsync();
-                
-                // Only remove groupings that are explicitly marked for removal
-                List<BookshelfGrouping> groupingsToRemove = existingGroupings
-                    .Where(eg => model.Groupings.Any(mg => mg.Id == eg.Id && mg.ShouldRemove))
-                    .ToList();
-                    
-                _context.BookshelfGroupings.RemoveRange(groupingsToRemove);
-                
-                // Update or create groupings
-                foreach (BookshelfGroupingItem groupingModel in model.Groupings)
-                {                   
-                    BookshelfGrouping grouping;
-                    
-                    if (groupingModel.Id > 0)
-                    {
-                        grouping = existingGroupings.First(eg => eg.Id == groupingModel.Id);
-                        grouping.Name = groupingModel.Name;
-                        grouping.DisplayName = groupingModel.DisplayName;
-                        grouping.Bookshelves.Clear();
-                    }
-                    else
-                    {
-                        grouping = new BookshelfGrouping
-                        {
-                            Name = groupingModel.Name,
-                            DisplayName = groupingModel.DisplayName
-                        };
-                        _context.BookshelfGroupings.Add(grouping);
-                    }
-                    
-                    // Add selected bookshelves to the grouping
-                    List<Bookshelf> selectedBookshelves = bookshelves
-                        .Where(bs => groupingModel.SelectedBookshelfIds?.Contains(bs.Id) ?? false)
-                        .ToList();
-                        
-                    foreach (Bookshelf bookshelf in selectedBookshelves)
-                    {
-                        grouping.Bookshelves.Add(bookshelf);
-                    }
-                }
-                
-                int saveResult = await _context.SaveChangesAsync();
-                ViewBag.SuccessMessage = "Bookshelf configuration saved successfully.";
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error saving bookshelf configuration");
-                ModelState.AddModelError("", "An error occurred while saving the configuration.");
-            }
-            
-            return await BookshelfConfiguration();
         }
         
         /// <summary>
@@ -351,6 +246,16 @@ namespace levihobbs.Controllers
             return importedCount;
         }
 
+        /// <summary>
+        /// Builds a searchable string for a book review by combining title, authors, publisher, and processed bookshelves.
+        /// </summary>
+        /// <param name="title">The book title.</param>
+        /// <param name="firstName">The author's first name.</param>
+        /// <param name="lastName">The author's last name.</param>
+        /// <param name="additionalAuthors">Additional authors.</param>
+        /// <param name="publisher">The publisher.</param>
+        /// <param name="bookshelves">The bookshelves.</param>
+        /// <returns>A lowercase searchable string.</returns>
         private string BuildSearchableString(string title, string firstName, string lastName, 
             string? additionalAuthors, string? publisher, string? bookshelves)
         {
@@ -379,6 +284,11 @@ namespace levihobbs.Controllers
             return string.Join(" ", searchableParts.Where(p => !string.IsNullOrEmpty(p))).ToLower();
         }
 
+        /// <summary>
+        /// Processes bookshelves for search by filtering, normalizing, and applying synonyms.
+        /// </summary>
+        /// <param name="bookshelves">The raw bookshelves string.</param>
+        /// <returns>A space-separated string of processed shelf names.</returns>
         private string ProcessBookshelvesForSearch(string bookshelves)
         {
             HashSet<string> excludedShelves = new HashSet<string> 
@@ -402,6 +312,12 @@ namespace levihobbs.Controllers
             return string.Join(" ", shelves);
         }
 
+        /// <summary>
+        /// Validates that the CSV header contains all required columns.
+        /// </summary>
+        /// <param name="csv">The CSV reader.</param>
+        /// <param name="requiredColumns">Array of required column names.</param>
+        /// <exception cref="Exception">Thrown if header is missing or required columns are absent.</exception>
         private void ValidateCsvHeader(CsvReader csv, string[] requiredColumns)
         {
             string[] header = csv.HeaderRecord;
@@ -415,6 +331,134 @@ namespace levihobbs.Controllers
             if (missingColumns.Any())
                 throw new Exception($"CSV file is missing required columns: {string.Join(", ", missingColumns)}");
         }
+
+
+        #endregion
+
+
+        #region Bookshelf Configuration
+
+        /// <summary>
+        /// Displays the bookshelf configuration page with current bookshelves and groupings.
+        /// </summary>
+        /// <returns>The bookshelf configuration view with populated view model.</returns>
+        [HttpGet]
+        public async Task<IActionResult> BookshelfConfiguration()
+        {
+            List<Bookshelf> bookshelves = await _context.Bookshelves
+                .OrderBy(bs => bs.DisplayName ?? bs.Name)
+                .ToListAsync();
+                
+            List<BookshelfGrouping> groupings = await _context.BookshelfGroupings
+                .Include(bg => bg.Bookshelves)
+                .OrderBy(bg => bg.DisplayName ?? bg.Name)
+                .ToListAsync();
+                
+            BookshelfConfigurationViewModel viewModel = new BookshelfConfigurationViewModel
+            {
+                EnableCustomMappings = bookshelves.Any(bs => bs.Display.HasValue),
+                Bookshelves = bookshelves.Select(bs => new BookshelfDisplayItem
+                {
+                    Id = bs.Id,
+                    Name = bs.Name,
+                    DisplayName = bs.DisplayName,
+                    Display = bs.Display ?? false
+                }).ToList(),
+                Groupings = groupings.Select(bg => new BookshelfGroupingItem
+                {
+                    Id = bg.Id,
+                    Name = bg.Name,
+                    DisplayName = bg.DisplayName,
+                    SelectedBookshelfIds = bg.Bookshelves.Select(bs => bs.Id).ToList()
+                }).ToList()
+            };
+            
+            return View(viewModel);
+        }
+        
+        /// <summary>
+        /// Handles the POST request for updating bookshelf configurations, including display settings and groupings.
+        /// </summary>
+        /// <param name="model">The view model containing updated bookshelf configuration data.</param>
+        /// <returns>Redirect to the bookshelf configuration page after saving.</returns>
+        [HttpPost]
+        public async Task<IActionResult> BookshelfConfiguration(BookshelfConfigurationViewModel model)
+        {
+            try
+            {                
+                // Update bookshelf display settings
+                List<Bookshelf> bookshelves = await _context.Bookshelves.ToListAsync();
+                
+                if (model.EnableCustomMappings)
+                {
+                    foreach (Bookshelf bookshelf in bookshelves)
+                    {
+                        BookshelfDisplayItem? displayItem = model.Bookshelves.FirstOrDefault(b => b.Id == bookshelf.Id);
+                        bookshelf.Display = displayItem?.Display ?? false;
+                    }
+                }
+                else // Reset all display settings to null when custom mappings are disabled
+                    foreach (Bookshelf bookshelf in bookshelves)
+                        bookshelf.Display = null;
+                
+                // Handle groupings
+                List<BookshelfGrouping> existingGroupings = await _context.BookshelfGroupings
+                    .Include(bg => bg.Bookshelves)
+                    .ToListAsync();
+                
+                // Only remove groupings that are explicitly marked for removal
+                List<BookshelfGrouping> groupingsToRemove = existingGroupings
+                    .Where(eg => model.Groupings.Any(mg => mg.Id == eg.Id && mg.ShouldRemove))
+                    .ToList();
+                    
+                _context.BookshelfGroupings.RemoveRange(groupingsToRemove);
+                
+                // Update or create groupings
+                foreach (BookshelfGroupingItem groupingModel in model.Groupings)
+                {                   
+                    BookshelfGrouping grouping;
+                    
+                    if (groupingModel.Id > 0)
+                    {
+                        grouping = existingGroupings.First(eg => eg.Id == groupingModel.Id);
+                        grouping.Name = groupingModel.Name;
+                        grouping.DisplayName = groupingModel.DisplayName;
+                        grouping.Bookshelves.Clear();
+                    }
+                    else
+                    {
+                        grouping = new BookshelfGrouping
+                        {
+                            Name = groupingModel.Name,
+                            DisplayName = groupingModel.DisplayName
+                        };
+                        _context.BookshelfGroupings.Add(grouping);
+                    }
+                    
+                    // Add selected bookshelves to the grouping
+                    List<Bookshelf> selectedBookshelves = bookshelves
+                        .Where(bs => groupingModel.SelectedBookshelfIds?.Contains(bs.Id) ?? false)
+                        .ToList();
+                        
+                    foreach (Bookshelf bookshelf in selectedBookshelves)
+                    {
+                        grouping.Bookshelves.Add(bookshelf);
+                    }
+                }
+                
+                int saveResult = await _context.SaveChangesAsync();
+                ViewBag.SuccessMessage = "Bookshelf configuration saved successfully.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving bookshelf configuration");
+                ModelState.AddModelError("", "An error occurred while saving the configuration.");
+            }
+            
+            return await BookshelfConfiguration();
+        }
+        
+
 
 
         #endregion
