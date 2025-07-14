@@ -130,15 +130,14 @@ namespace levihobbs.Controllers
                 if (i == 0)
                     ValidateCsvHeader(csv, requiredColumns);
                     
-                // All GoodReads books with reviews also have exclusive shelf "read".
-                if (row.Exclusive_Shelf?.ToString() != "read")
+                // Skip import if there is no review content
+                if (row.My_Review == null || row.My_Review.Trim().Length == 0)
                     continue;
                 
                 // Parse author name (last, first)
                 string authorName = row.Author_l_f ?? "";
                 string firstName = "";
                 string lastName = "";
-                
                 if (authorName.Contains(","))
                 {
                     string[] parts = authorName.Split(new[] { ", " }, StringSplitOptions.None);
@@ -147,40 +146,66 @@ namespace levihobbs.Controllers
                 }
                 else
                     lastName = authorName;
+
+                // Check for existing reviews with same title and author
+                var matchingReview = existingReviews.FirstOrDefault(r => 
+                    r.Title == row.Title && 
+                    r.AuthorFirstName == firstName && 
+                    r.AuthorLastName == lastName);
+                if (matchingReview != null)
+                {
+                    int importedRowBookshelvesCount = row.Bookshelves?.Split(',', StringSplitOptions.RemoveEmptyEntries).Length ?? 0;
+                    bool hasSameNumberOfBookshelves = matchingReview.BookshelvesCount == importedRowBookshelvesCount;
+                    
+                    // If it has the same number of bookshelves too, then this is a true duplicate; skip import and increase duplicate count
+                    if (hasSameNumberOfBookshelves)
+                    {
+                        duplicateCount++;
+                        continue;
+                    }
+                    // If it has a different number of bookshelves, we need to delete the existing review so it can be replaced with the new one
+                    else
+                    {
+                        var reviewsToDelete = await _context.BookReviews
+                            .Where(r => r.Title == row.Title && 
+                                       r.AuthorFirstName == firstName && 
+                                       r.AuthorLastName == lastName)
+                            .ToListAsync();
+                        _context.BookReviews.RemoveRange(reviewsToDelete);
+                        
+                        // Remove from our in-memory tracking list as well
+                        existingReviews.RemoveAll(r => 
+                            r.Title == row.Title && 
+                            r.AuthorFirstName == firstName && 
+                            r.AuthorLastName == lastName);
+                    }
+                }
                 
-                // Parse ratings
+                // Now that we have determined that the book review should in fact be imported...
+
+                _logger.LogInformation("Importing book review: {Title} by {Author}", row.Title, authorName);
+                _logger.LogDebug("Row data: {RowData}", row);
+                _logger.LogDebug("Bookshelves: {Bookshelves}", row.Bookshelves?.Split(',', StringSplitOptions.RemoveEmptyEntries).Length ?? 0);
+
+                // Finish parsing other fields
                 int.TryParse(row.My_Rating, out int myRating);
-                decimal.TryParse(row.Average_Rating, out decimal avgRating);
-                
-                // Validate ratings
                 if (myRating < 0 || myRating > 5)
                 {
                     _logger.LogWarning("Skipping book '{Title}' - Invalid rating: {Rating}", row.Title, myRating);
                     continue;
                 }
-                
-                // Parse other numeric fields
+
+                decimal.TryParse(row.Average_Rating, out decimal avgRating);
+
                 int.TryParse(row.Number_of_Pages, out int pages);
+
                 int.TryParse(row.Original_Publication_Year, out int pubYear);
-                
-                // Parse date
+
                 DateTime dateRead = DateTime.UtcNow;
                 if (DateTime.TryParse(row.Date_Read, out DateTime parsedDate))
                     dateRead = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
                 
-                // Check for existing review in memory
-                bool reviewExists = existingReviews.Any(r => 
-                    r.Title == row.Title && 
-                    r.AuthorFirstName == firstName && 
-                    r.AuthorLastName == lastName &&
-                    r.BookshelvesCount == (row.Bookshelves?.Split(',', StringSplitOptions.RemoveEmptyEntries).Length ?? 0));
-                
-                if (reviewExists)
-                {
-                    duplicateCount++;
-                    continue;
-                }
-                
+                // Put together BookReview object for import
                 BookReview bookReview = new BookReview
                 {
                     Title = row.Title ?? "",
@@ -195,42 +220,17 @@ namespace levihobbs.Controllers
                     SearchableString = BuildSearchableString(row.Title ?? "", firstName, lastName, 
                         row.Additional_Authors, row.Publisher, row.Bookshelves)
                 };
-                
-                // Import bookshelves, if they don't already exist
-                if (!string.IsNullOrEmpty(row.Bookshelves))
-                {
-                    List<string> shelfNames = row.Bookshelves.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(s => s.Trim())
-                        .Where(s => !string.IsNullOrEmpty(s))
-                        .ToList();
-                    
-                    foreach (string shelfName in shelfNames)
-                    {
-                        string normalizedName = shelfName.ToLower();
 
-                        // See if this bookshelf already exists in the database
-                        Bookshelf? bookshelf = existingBookshelves.FirstOrDefault(b => b.Name.ToLower() == normalizedName);
-
-                        // If the bookshelf doesn't exist, create a new one
-                        if(bookshelf == null){
-                            bookshelf = new Bookshelf
-                            {
-                                Name = shelfName,
-                                DisplayName = shelfName
-                            };
-                            _context.Bookshelves.Add(bookshelf);
-                            existingBookshelves.Add(bookshelf);
-                        }
-
-                        // Either way (whether we created a new bookshelf or found an existing one), add it to the book review
-                        // to track that it has this bookshelf (this populates a crossreference table in the db).
-                        bookReview.Bookshelves.Add(bookshelf);
-                    }
-                }
-                
+                // Import book review
                 _context.BookReviews.Add(bookReview);
                 importedCount++;
+                
+                // Import any bookshelves, if they don't already exist
+                ProcessBookshelvesForImport(row.Bookshelves, bookReview, existingBookshelves);
             }
+            
+            // After processing all records, delete bookshelves that exist in the database but don't exist in the import
+            RemoveUnusedBookshelves(records, existingBookshelves);
             
             await _context.SaveChangesAsync();
             ViewBag.DuplicateCount = duplicateCount;
@@ -321,6 +321,82 @@ namespace levihobbs.Controllers
                 
             if (missingColumns.Any())
                 throw new Exception($"CSV file is missing required columns: {string.Join(", ", missingColumns)}");
+        }
+
+        /// <summary>
+        /// Processes bookshelves from the CSV import, creating new bookshelves if they don't exist and associating them with the book review.
+        /// </summary>
+        /// <param name="bookshelvesString">The comma-separated string of bookshelf names from the CSV.</param>
+        /// <param name="bookReview">The book review to associate the bookshelves with.</param>
+        /// <param name="existingBookshelves">The list of existing bookshelves in the database.</param>
+        private void ProcessBookshelvesForImport(string? bookshelvesString, BookReview bookReview, List<Bookshelf> existingBookshelves)
+        {
+            if (string.IsNullOrEmpty(bookshelvesString))
+                return;
+
+            List<string> shelfNames = bookshelvesString.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim())
+                .Where(s => !string.IsNullOrEmpty(s))
+                .ToList();
+            
+            foreach (string shelfName in shelfNames)
+            {
+                string normalizedName = shelfName.ToLower();
+
+                // See if this bookshelf already exists in the database
+                Bookshelf? bookshelf = existingBookshelves.FirstOrDefault(b => b.Name.ToLower() == normalizedName);
+
+                // If the bookshelf doesn't exist, create a new one
+                if(bookshelf == null){
+                    bookshelf = new Bookshelf
+                    {
+                        Name = shelfName,
+                        DisplayName = shelfName
+                    };
+                    _context.Bookshelves.Add(bookshelf);
+                    existingBookshelves.Add(bookshelf);
+                }
+
+                // Either way (whether we created a new bookshelf or found an existing one), add it to the book review
+                // to track that it has this bookshelf (this populates a crossreference table in the db).
+                bookReview.Bookshelves.Add(bookshelf);
+            }
+        }
+
+        /// <summary>
+        /// Removes bookshelves that exist in the database but are not present in the import records.
+        /// </summary>
+        /// <param name="records">The list of imported book review records.</param>
+        /// <param name="existingBookshelves">The list of existing bookshelves in the database.</param>
+        private void RemoveUnusedBookshelves(List<GoodreadsBookReviewCsv> records, List<Bookshelf> existingBookshelves)
+        {
+            HashSet<string> importedBookshelfNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (GoodreadsBookReviewCsv record in records)
+            {
+                if (!string.IsNullOrEmpty(record.Bookshelves))
+                {
+                    List<string> shelfNames = record.Bookshelves.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(s => s.Trim())
+                        .Where(s => !string.IsNullOrEmpty(s))
+                        .ToList();
+                    
+                    foreach (string shelfName in shelfNames)
+                        importedBookshelfNames.Add(shelfName);
+                }
+            }
+            
+            // Find bookshelves that exist in the database but not in the import
+            List<Bookshelf> bookshelvesToDelete = existingBookshelves
+                .Where(bs => !importedBookshelfNames.Contains(bs.Name))
+                .ToList();
+            
+            if (bookshelvesToDelete.Any())
+            {
+                _context.Bookshelves.RemoveRange(bookshelvesToDelete);
+                _logger.LogInformation("Deleted {Count} bookshelves that were not present in the import: {Names}", 
+                    bookshelvesToDelete.Count, 
+                    string.Join(", ", bookshelvesToDelete.Select(bs => bs.Name)));
+            }
         }
 
 
