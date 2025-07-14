@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using levihobbs.Data;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Net.Http.Headers;
-using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 using levihobbs.Controllers;
 using levihobbs.Services;
@@ -49,7 +39,7 @@ namespace levihobbs
             builder.Services.AddHttpClient();
 
             // Add SubstackApiClient
-            builder.Services.AddScoped<ISubstackApiClient, SubstackApiClient>();
+            builder.Services.AddHttpClient<ISubstackApiClient, SubstackApiClient>();
 
             // Add GoodreadsRssService
             builder.Services.AddScoped<IGoodreadsRssService, GoodreadsRssService>();
@@ -133,9 +123,5 @@ namespace levihobbs
             app.Run();
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .Build();
     }
 }
