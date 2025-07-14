@@ -116,3 +116,12 @@ p, a, span, div {
     display: none;
   }
 } 
+
+/* Nav */
+.navbar-nav .dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.navbar-nav .dropdown-menu {
+  margin-top: 0;
+}
