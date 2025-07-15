@@ -24,12 +24,14 @@ export interface BookReview {
 export interface Bookshelf {
   id: number;
   name: string;
+  isGenreBased: boolean;
 }
 
 export interface BookshelfGrouping {
   id: number;
   name: string;
   bookshelves: Bookshelf[];
+  isGenreBased: boolean;
 }
 
 export interface BookReviewsViewModel {

@@ -17,28 +17,25 @@ export const addToneDescription = (descriptions: Map<string, string>, tone: Tone
   }
 };
 
-export const getTags = (bookshelves: Bookshelf[], bookshelfGroupings: BookshelfGrouping[], specialtyShelves: string[]): Tag[] => {
+export const getTags = (bookshelves: Bookshelf[], bookshelfGroupings: BookshelfGrouping[]): Tag[] => {
   const tags: Tag[] = [];
-  // Create Genre tags from bookshelf groupings
+  
+  // Create tags from bookshelf groupings
   bookshelfGroupings.forEach(grouping => {
     tags.push({
       name: convertKebabCaseToDisplayCase(grouping.name),
-      type: 'Genre',
+      type: grouping.isGenreBased ? 'Genre' : 'Specialty',
       bookshelfGrouping: grouping
     });
   });
   
-  // Create Specialty tags from specialty shelves
-  specialtyShelves.forEach(specialtyShelfName => {
-    const matchingBookshelf = bookshelves.find(shelf => shelf.name === specialtyShelfName);
-    if (matchingBookshelf)
-      tags.push({
-        name: convertKebabCaseToDisplayCase(matchingBookshelf.name),
-        type: 'Specialty',
-        bookshelf: matchingBookshelf
-      });
-    else
-      console.error(`Specialty shelf not found: ${specialtyShelfName}`);
+  // Create tags from bookshelves that are not in a group
+  bookshelves.forEach(bookshelf => {
+    tags.push({
+      name: convertKebabCaseToDisplayCase(bookshelf.name),
+      type: bookshelf.isGenreBased ? 'Genre' : 'Specialty',
+      bookshelf: bookshelf
+    });
   });
   
   return tags;
