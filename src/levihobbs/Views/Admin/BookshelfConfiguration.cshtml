@@ -71,6 +71,16 @@
         tempDiv.innerHTML = html;
         populateBookshelfCheckboxes(tempDiv.querySelector('[data-bookshelves]'), groupingCounter);
         container.appendChild(tempDiv.firstElementChild);
+        
+        // Set up event handlers for the new grouping
+        const newGrouping = container.lastElementChild;
+        const genreCheckbox = newGrouping.querySelector('input[id^="grouping_genre_"]');
+        if (genreCheckbox) {
+            genreCheckbox.addEventListener('change', function() {
+                handleGroupingGenreBasedChange(this);
+            });
+        }
+        
         groupingCounter++;
     }
     
@@ -99,6 +109,10 @@
         const form = button.closest('.grouping-form');
         const idInput = form.querySelector('input[name$="].Id"]');
         
+        // Get all bookshelves that are in this grouping
+        const bookshelfCheckboxes = form.querySelectorAll('input[name$="].SelectedBookshelfIds"]:checked');
+        const bookshelfIds = Array.from(bookshelfCheckboxes).map(cb => cb.value);
+        
         if (idInput && idInput.value !== '0') {
             // For existing groupings, mark for removal
             const shouldRemoveInput = document.createElement('input');
@@ -111,11 +125,118 @@
             // For new groupings, just remove from DOM
             form.remove();
         }
+        
+        // Check if any of the bookshelves from this grouping are no longer in any grouping
+        setTimeout(() => {
+            bookshelfIds.forEach(bookshelfId => {
+                const bookshelfIndex = bookshelves.findIndex(bs => bs.Id == bookshelfId);
+                if (bookshelfIndex !== -1) {
+                    // Check if this bookshelf is still in any other grouping
+                    const isInOtherGrouping = Array.from(document.querySelectorAll('.grouping-form:not([style*="display: none"])'))
+                        .some(groupingForm => {
+                            const checkedBoxes = groupingForm.querySelectorAll('input[name$="].SelectedBookshelfIds"]:checked');
+                            return Array.from(checkedBoxes).some(cb => cb.value == bookshelfId);
+                        });
+                    
+                    if (!isInOtherGrouping) {
+                        // This bookshelf is no longer in any grouping, re-enable its checkboxes
+                        const genreCheckbox = document.getElementById(`bookshelf_genre_${bookshelfIndex}`);
+                        const displayCheckbox = document.getElementById(`bookshelf_${bookshelfIndex}`);
+                        
+                        if (genreCheckbox && displayCheckbox) {
+                            displayCheckbox.disabled = false;
+                            genreCheckbox.disabled = false;
+                        }
+                    }
+                }
+            });
+        }, 0);
     }
     
     document.addEventListener('DOMContentLoaded', function() {
         toggleCustomMappings();
+        
+        // Set up event listeners for genre-based checkboxes
+        setupGenreBasedHandlers();
+        
+        // Handle initial state for existing genre-based checkboxes
+        handleInitialGenreBasedState();
     });
+    
+    function setupGenreBasedHandlers() {
+        // Handle bookshelf genre-based checkboxes
+        document.querySelectorAll('input[id^="bookshelf_genre_"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const index = this.id.replace('bookshelf_genre_', '');
+                const displayCheckbox = document.getElementById(`bookshelf_${index}`);
+                
+                if (this.checked) {
+                    // Auto-select display checkbox and disable it
+                    displayCheckbox.checked = true;
+                    displayCheckbox.disabled = true;
+                } else {
+                    // Re-enable display checkbox
+                    displayCheckbox.disabled = false;
+                }
+            });
+        });
+        
+        // Handle grouping genre-based checkboxes
+        document.querySelectorAll('input[id^="grouping_genre_"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                handleGroupingGenreBasedChange(this);
+            });
+        });
+    }
+    
+    function handleInitialGenreBasedState() {
+        // Handle initial state for individual bookshelves
+        document.querySelectorAll('input[id^="bookshelf_genre_"]').forEach(checkbox => {
+            if (checkbox.checked) {
+                const index = checkbox.id.replace('bookshelf_genre_', '');
+                const displayCheckbox = document.getElementById(`bookshelf_${index}`);
+                if (displayCheckbox) {
+                    displayCheckbox.checked = true;
+                    displayCheckbox.disabled = true;
+                }
+            }
+        });
+        
+        // Handle initial state for groupings
+        document.querySelectorAll('input[id^="grouping_genre_"]').forEach(checkbox => {
+            if (checkbox.checked) {
+                handleGroupingGenreBasedChange(checkbox);
+            }
+        });
+    }
+    
+    function handleGroupingGenreBasedChange(checkbox) {
+        const index = checkbox.id.replace('grouping_genre_', '');
+        const groupingForm = checkbox.closest('.grouping-form');
+        const bookshelfCheckboxes = groupingForm.querySelectorAll('input[name$="].SelectedBookshelfIds"]:checked');
+        
+        bookshelfCheckboxes.forEach(bsCheckbox => {
+            const bookshelfId = bsCheckbox.value;
+            const bookshelfIndex = bookshelves.findIndex(bs => bs.Id == bookshelfId);
+            if (bookshelfIndex !== -1) {
+                const genreCheckbox = document.getElementById(`bookshelf_genre_${bookshelfIndex}`);
+                const displayCheckbox = document.getElementById(`bookshelf_${bookshelfIndex}`);
+                
+                if (checkbox.checked) {
+                    // Set genre-based for all bookshelves in this grouping
+                    genreCheckbox.checked = true;
+                    displayCheckbox.checked = true;
+                    displayCheckbox.disabled = true;
+                    genreCheckbox.disabled = true;
+                } else {
+                    // Unset genre-based for all bookshelves in this grouping
+                    genreCheckbox.checked = false;
+                    displayCheckbox.disabled = false;
+                    genreCheckbox.disabled = false;
+                }
+            }
+        });
+    }
 </script>
 }
 
@@ -171,6 +292,12 @@
                                 @(Model.Bookshelves[i].DisplayName ?? Model.Bookshelves[i].Name)
                             </label>
                         </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" asp-for="Bookshelves[i].IsGenreBased" id="bookshelf_genre_@i">
+                            <label class="form-check-label" for="bookshelf_genre_@i">
+                                Genre-based
+                            </label>
+                        </div>
                     </div>
                 }
             </div>
@@ -194,6 +321,12 @@
                                 <label asp-for="Groupings[i].DisplayName">Display Name (optional):</label>
                                 <input type="text" class="form-control" asp-for="Groupings[i].DisplayName" />
                             </div>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" asp-for="Groupings[i].IsGenreBased" id="grouping_genre_@i" />
+                            <label class="form-check-label" for="grouping_genre_@i">
+                                Genre-based
+                            </label>
                         </div>
                         <div class="grouping-controls">
                             <label>Select Bookshelves for this Grouping:</label>
@@ -240,6 +373,13 @@
                 <label>Display Name (optional):</label>
                 <input type="text" class="form-control" name="Groupings[[INDEX]].DisplayName" />
             </div>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="Groupings[[INDEX]].IsGenreBased" value="true" id="grouping_genre_[INDEX]" />
+            <input type="hidden" name="Groupings[[INDEX]].IsGenreBased" value="false" />
+            <label class="form-check-label" for="grouping_genre_[INDEX]">
+                Genre-based
+            </label>
         </div>
         <div class="grouping-controls">
             <label>Select Bookshelves for this Grouping:</label>

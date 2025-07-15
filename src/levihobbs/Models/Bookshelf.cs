@@ -6,6 +6,7 @@ namespace levihobbs.Models
         public required string Name { get; set; }
         public string? DisplayName { get; set; }
         public bool? Display { get; set; }
+        public bool IsGenreBased { get; set; } = false;
         
         // Navigation property for many-to-many relationship with BookReview
         public ICollection<BookReview> BookReviews { get; set; } = new List<BookReview>();

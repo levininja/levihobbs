@@ -429,14 +429,16 @@ namespace levihobbs.Controllers
                     Id = bs.Id,
                     Name = bs.Name,
                     DisplayName = bs.DisplayName,
-                    Display = bs.Display ?? false
+                    Display = bs.Display ?? false,
+                    IsGenreBased = bs.IsGenreBased
                 }).ToList(),
                 Groupings = groupings.Select(bg => new BookshelfGroupingItem
                 {
                     Id = bg.Id,
                     Name = bg.Name,
                     DisplayName = bg.DisplayName,
-                    SelectedBookshelfIds = bg.Bookshelves.Select(bs => bs.Id).ToList()
+                    SelectedBookshelfIds = bg.Bookshelves.Select(bs => bs.Id).ToList(),
+                    IsGenreBased = bg.IsGenreBased
                 }).ToList()
             };
             
@@ -462,6 +464,7 @@ namespace levihobbs.Controllers
                     {
                         BookshelfDisplayItem? displayItem = model.Bookshelves.FirstOrDefault(b => b.Id == bookshelf.Id);
                         bookshelf.Display = displayItem?.Display ?? false;
+                        bookshelf.IsGenreBased = displayItem?.IsGenreBased ?? false;
                     }
                 }
                 else // Reset all display settings to null when custom mappings are disabled
@@ -493,6 +496,7 @@ namespace levihobbs.Controllers
                         grouping = existingGroupings.First(eg => eg.Id == groupingModel.Id);
                         grouping.Name = groupingModel.Name;
                         grouping.DisplayName = groupingModel.DisplayName;
+                        grouping.IsGenreBased = groupingModel.IsGenreBased;
                         grouping.Bookshelves.Clear();
                     }
                     else
@@ -500,7 +504,8 @@ namespace levihobbs.Controllers
                         grouping = new BookshelfGrouping
                         {
                             Name = groupingModel.Name,
-                            DisplayName = groupingModel.DisplayName
+                            DisplayName = groupingModel.DisplayName,
+                            IsGenreBased = groupingModel.IsGenreBased
                         };
                         _context.BookshelfGroupings.Add(grouping);
                     }
@@ -514,6 +519,8 @@ namespace levihobbs.Controllers
                     {
                         grouping.Bookshelves.Add(bookshelf);
                         bookshelvesInGroupings.Add(bookshelf.Id);
+                        // Set IsGenreBased for bookshelves in groupings
+                        bookshelf.IsGenreBased = groupingModel.IsGenreBased;
                     }
                 }
                 
@@ -523,6 +530,11 @@ namespace levihobbs.Controllers
                     foreach (Bookshelf bookshelf in bookshelves)
                     {
                         if (bookshelvesInGroupings.Contains(bookshelf.Id))
+                        {
+                            bookshelf.Display = true;
+                        }
+                        // If IsGenreBased is true, ensure Display is also true
+                        if (bookshelf.IsGenreBased)
                         {
                             bookshelf.Display = true;
                         }

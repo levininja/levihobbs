@@ -13,6 +13,7 @@ namespace levihobbs.Models
         public string Name { get; set; } = string.Empty;
         public string? DisplayName { get; set; }
         public bool Display { get; set; }
+        public bool IsGenreBased { get; set; }
     }
 
     public class BookshelfGroupingItem
@@ -22,5 +23,6 @@ namespace levihobbs.Models
         public string? DisplayName { get; set; }
         public List<int> SelectedBookshelfIds { get; set; } = new List<int>();
         public bool ShouldRemove { get; set; }
+        public bool IsGenreBased { get; set; }
     }
 }

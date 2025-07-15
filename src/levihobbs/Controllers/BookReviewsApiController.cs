@@ -115,12 +115,13 @@ namespace levihobbs.Controllers
                 var result = new
                 {
                     Category = displayCategory,
-                    AllBookshelves = allBookshelves.Select(bs => new { bs.Id, bs.Name }).ToList(),
+                    AllBookshelves = allBookshelves.Select(bs => new { bs.Id, bs.Name, bs.IsGenreBased }).ToList(),
                     AllBookshelfGroupings = allBookshelfGroupings.Select(bg => new 
                     { 
                         bg.Id, 
                         bg.Name,
-                        Bookshelves = bg.Bookshelves.Select(bs => new { bs.Id, bs.Name }).ToList()
+                        bg.IsGenreBased,
+                        Bookshelves = bg.Bookshelves.Select(bs => new { bs.Id, bs.Name, bs.IsGenreBased }).ToList()
                     }).ToList(),
                     SelectedShelf = shelf,
                     SelectedGrouping = grouping,
@@ -144,7 +145,7 @@ namespace levihobbs.Controllers
                         PreviewText = br.PreviewText,
                         ReadingTimeMinutes = br.ReadingTimeMinutes,
                         CoverImageId = br.CoverImageId,
-                        Bookshelves = br.Bookshelves.Select(bs => new { bs.Id, bs.Name }).ToList(),
+                        Bookshelves = br.Bookshelves.Select(bs => new { bs.Id, bs.Name, bs.IsGenreBased }).ToList(),
                         Tones = br.Tones.Select(t => new { t.Id, t.Name, t.Description }).ToList()
                     }).ToList()
                 };
@@ -182,7 +183,7 @@ namespace levihobbs.Controllers
                     PreviewText = br.PreviewText,
                     ReadingTimeMinutes = br.ReadingTimeMinutes,
                     CoverImageId = br.CoverImageId,
-                    Bookshelves = br.Bookshelves.Select(bs => new { bs.Id, bs.Name, bs.DisplayName }).ToList(),
+                    Bookshelves = br.Bookshelves.Select(bs => new { bs.Id, bs.Name, bs.DisplayName, bs.IsGenreBased }).ToList(),
                     Tones = br.Tones.Select(t => new { t.Id, t.Name, t.Description }).ToList()
                 }).ToList();
                 
@@ -199,12 +200,13 @@ namespace levihobbs.Controllers
                 var result = new
                 {
                     Category = displayCategory,
-                    AllBookshelves = allBookshelves.Select(bs => new { bs.Id, bs.Name }).ToList(),
+                    AllBookshelves = allBookshelves.Select(bs => new { bs.Id, bs.Name, bs.IsGenreBased }).ToList(),
                     AllBookshelfGroupings = allBookshelfGroupings.Select(bg => new 
                     { 
                         bg.Id, 
                         bg.Name,
-                        Bookshelves = bg.Bookshelves.Select(bs => new { bs.Id, bs.Name }).ToList()
+                        bg.IsGenreBased,
+                        Bookshelves = bg.Bookshelves.Select(bs => new { bs.Id, bs.Name, bs.IsGenreBased }).ToList()
                     }).ToList(),
                     SelectedShelf = shelf,
                     SelectedGrouping = grouping,
