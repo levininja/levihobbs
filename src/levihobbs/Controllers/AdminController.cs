@@ -480,6 +480,9 @@ namespace levihobbs.Controllers
                     
                 _context.BookshelfGroupings.RemoveRange(groupingsToRemove);
                 
+                // Track which bookshelves are assigned to groupings for automatic display setting
+                HashSet<int> bookshelvesInGroupings = new HashSet<int>();
+                
                 // Update or create groupings
                 foreach (BookshelfGroupingItem groupingModel in model.Groupings)
                 {                   
@@ -510,6 +513,19 @@ namespace levihobbs.Controllers
                     foreach (Bookshelf bookshelf in selectedBookshelves)
                     {
                         grouping.Bookshelves.Add(bookshelf);
+                        bookshelvesInGroupings.Add(bookshelf.Id);
+                    }
+                }
+                
+                // Automatically set bookshelves to display if they're assigned to a grouping
+                if (model.EnableCustomMappings)
+                {
+                    foreach (Bookshelf bookshelf in bookshelves)
+                    {
+                        if (bookshelvesInGroupings.Contains(bookshelf.Id))
+                        {
+                            bookshelf.Display = true;
+                        }
                     }
                 }
                 

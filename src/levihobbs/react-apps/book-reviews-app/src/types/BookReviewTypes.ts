@@ -17,6 +17,7 @@ export interface BookReview {
   coverImageId?: number | null;
   coverImageUrl?: string | null;
   bookshelves: Bookshelf[];
+  tones?: Tone[];
   toneTags?: string[];
 }
 
@@ -56,6 +57,7 @@ export interface Tag {
 }
 
 export interface Tone {
+  id: number;
   name: string;
   description?: string;
 }

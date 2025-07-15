@@ -6,9 +6,8 @@ import { BookReviewReader } from './components/BookReviewReader';
 import { SearchBookReviews } from './components/SearchBookReviews';
 import { BrowseBookReviews } from './components/BrowseBookReviews';
 import { specialtyShelves } from './services/mockData';
-import { toneTaxonomy } from './services/mockToneTaxonomyData';
 import { convertLowerCaseKebabToUpperCaseKebab } from './utils/caseConverter';
-import { addToneDescription, getTags } from './utils/appFunctions';
+import { getTags } from './utils/appFunctions';
 import './App.scss';
 
 type AppMode = 'welcome' | 'search' | 'browse';
@@ -31,32 +30,6 @@ function App() {
   // Current results and loading state for both search and browse
   const [currentResults, setCurrentResults] = useState<BookReview[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Tone descriptions dictionary loaded at app startup
-  const [toneDescriptions, setToneDescriptions] = useState<Map<string, string>>(new Map());
-
-  // Load tone descriptions when app starts
-  useEffect(() => {
-    const loadToneDescriptions = () => {
-      const descriptions = new Map<string, string>();
-      const importedToneNames = new Set<string>();
-      
-      toneTaxonomy.forEach(tone => {
-        // Add parent tone description
-        addToneDescription(descriptions, tone, false, importedToneNames);
-        
-        // Add subtone descriptions
-        if (tone.subtones && tone.subtones.length > 0)
-          tone.subtones.forEach(subtone => {
-            addToneDescription(descriptions, subtone, true, importedToneNames);
-          });
-      });
-      
-      setToneDescriptions(descriptions);
-    };
-
-    loadToneDescriptions();
-  }, []);
 
   // Load viewModel data when switching to search or browse mode
   useEffect(() => {
@@ -205,7 +178,6 @@ function App() {
                     key={bookReview.id}
                     bookReview={bookReview}
                     onClick={handleBookReviewClick}
-                    toneDescriptions={toneDescriptions}
                   />
                 ))}
               </div>

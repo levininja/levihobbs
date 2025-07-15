@@ -75,6 +75,7 @@ namespace levihobbs.Controllers
                 // Build the query for book reviews - only include reviews with content
                 var bookReviewsQuery = _context.BookReviews
                     .Include(br => br.Bookshelves)
+                    .Include(br => br.Tones)
                     .Include(br => br.CoverImage)
                     .Where(br => br.HasReviewContent == true)
                     .AsQueryable();
@@ -143,7 +144,8 @@ namespace levihobbs.Controllers
                         PreviewText = br.PreviewText,
                         ReadingTimeMinutes = br.ReadingTimeMinutes,
                         CoverImageId = br.CoverImageId,
-                        Bookshelves = br.Bookshelves.Select(bs => new { bs.Id, bs.Name }).ToList()
+                        Bookshelves = br.Bookshelves.Select(bs => new { bs.Id, bs.Name }).ToList(),
+                        Tones = br.Tones.Select(t => new { t.Id, t.Name, t.Description }).ToList()
                     }).ToList()
                 };
                 
@@ -180,7 +182,8 @@ namespace levihobbs.Controllers
                     PreviewText = br.PreviewText,
                     ReadingTimeMinutes = br.ReadingTimeMinutes,
                     CoverImageId = br.CoverImageId,
-                    Bookshelves = br.Bookshelves.Select(bs => new { bs.Id, bs.Name, bs.DisplayName }).ToList()
+                    Bookshelves = br.Bookshelves.Select(bs => new { bs.Id, bs.Name, bs.DisplayName }).ToList(),
+                    Tones = br.Tones.Select(t => new { t.Id, t.Name, t.Description }).ToList()
                 }).ToList();
                 
                 // Get all bookshelves and groupings for the response

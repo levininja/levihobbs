@@ -7,10 +7,9 @@ import storyIcon from '../assets/story icon.png';
 interface BookReviewCardProps {
   bookReview: BookReview;
   onClick?: (bookReview: BookReview) => void;
-  toneDescriptions: Map<string, string>;
 }
 
-export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookReview, onClick, toneDescriptions }) => {
+export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookReview, onClick }) => {
   const [imageError, setImageError] = useState(false);
   const [mockImageSrc, setMockImageSrc] = useState<string | null>(null);
   
@@ -60,11 +59,6 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
     return `/api/BookCoverApi?bookTitle=${encodeURIComponent(bookReview.titleByAuthor)}&bookReviewId=${bookReview.id}`;
   }, [bookReview.titleByAuthor, bookReview.id, imageError, mockImageSrc]);
 
-  // Memoize the formatted date to prevent recalculation
-  const formattedDateRead = useMemo(() => {
-    return new Date(bookReview.dateRead).toLocaleDateString();
-  }, [bookReview.dateRead]);
-
   // Calculate star rating display
   const starRating = useMemo(() => {
     const rating = bookReview.myRating || 0;
@@ -86,18 +80,18 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
 
   // Memoize tone tags with descriptions to prevent unnecessary re-renders
   const toneTagElements = useMemo(() => {
-    if (!bookReview.toneTags || bookReview.toneTags.length === 0)
+    if (!bookReview.tones || bookReview.tones.length === 0)
       return null;
-    return bookReview.toneTags.map(toneTag => (
+    return bookReview.tones.map(tone => (
       <span 
-        key={toneTag} 
+        key={tone.id} 
         className="tag tone"
-        title={toneDescriptions.get(toneTag) || ''}
+        title={tone.description || ''}
       >
-        {toneTag}
+        {tone.name}
       </span>
     ));
-  }, [bookReview.toneTags, toneDescriptions]);
+  }, [bookReview.tones]);
 
   return (
     <div 

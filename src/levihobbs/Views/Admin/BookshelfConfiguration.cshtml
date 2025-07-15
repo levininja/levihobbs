@@ -154,6 +154,10 @@
         <div class="custom-mapping-section config-section">
             <h3>Display Bookshelves</h3>
             <p>Select which individual bookshelves should be shown as filter tags:</p>
+            <div class="alert alert-info">
+                <strong>Note:</strong> Bookshelves that are assigned to groupings below will automatically be set to display, 
+                even if they are not explicitly selected here. This ensures that grouped bookshelves are always available as filter options.
+            </div>
             <div class="bookshelf-list">
                 @for (int i = 0; i < Model.Bookshelves.Count; i++)
                 {
