@@ -33,3 +33,16 @@ public static class Utilities
         return cleanedTerm.Trim();
     }
 }
+
+public static class StringExtensions
+{
+    /// <summary>
+    /// Returns true if the string is not null, empty, or whitespace.
+    /// </summary>
+    /// <param name="value">The string to check.</param>
+    /// <returns>True if the string has a meaningful value, false otherwise.</returns>
+    public static bool HasValue(this string? value)
+    {
+        return !string.IsNullOrWhiteSpace(value);
+    }
+}

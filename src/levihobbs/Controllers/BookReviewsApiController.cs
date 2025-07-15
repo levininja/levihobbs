@@ -1,6 +1,7 @@
 using levihobbs.Services;
 using levihobbs.Data;
 using levihobbs.Models;
+using levihobbs.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,13 +26,11 @@ namespace levihobbs.Controllers
         }
         
         [HttpGet]
-        public async Task<IActionResult> GetBookReviews(string? displayCategory, string? shelf, string? grouping, bool recent = false, string? searchTerm = null)
+        public async Task<IActionResult> GetBookReviews(string? shelf, string? grouping, string? searchTerm = null)
         {
             // If searchTerm is provided, use search functionality
-            if (!string.IsNullOrWhiteSpace(searchTerm))
-            {
-                return await GetBookReviewSearchResults(displayCategory, shelf, grouping, recent, searchTerm);
-            }
+            if (searchTerm.HasValue())
+                return await GetBookReviewSearchResults(shelf, grouping, searchTerm);
             
             // Otherwise, use browse functionality
             try
@@ -68,26 +67,15 @@ namespace levihobbs.Controllers
                         .ToListAsync();
                 }
                 
-                // Default to "favorites" shelf if no shelf/grouping is specified and not showing recent
-                if (string.IsNullOrEmpty(shelf) && string.IsNullOrEmpty(grouping) && !recent)
-                    shelf = "favorites";
-                
                 // Build the query for book reviews - only include reviews with content
-                var bookReviewsQuery = _context.BookReviews
+                IQueryable<BookReview> bookReviewsQuery = _context.BookReviews
                     .Include(br => br.Bookshelves)
                     .Include(br => br.Tones)
                     .Include(br => br.CoverImage)
-                    .Where(br => br.HasReviewContent == true)
-                    .AsQueryable();
+                    .Where(br => br.HasReviewContent == true);
                 
                 // Apply filters
-                if (recent)
-                {
-                    bookReviewsQuery = bookReviewsQuery
-                        .OrderByDescending(r => r.DateRead)
-                        .Take(10);
-                }
-                else if (!string.IsNullOrEmpty(grouping))
+                if (grouping.HasValue())
                 {
                     // Filter by grouping - get all bookshelves in the grouping
                     var groupingBookshelfNames = await _context.BookshelfGroupings
@@ -98,23 +86,16 @@ namespace levihobbs.Controllers
                     bookReviewsQuery = bookReviewsQuery
                         .Where(br => br.Bookshelves.Any(bs => groupingBookshelfNames.Contains(bs.Name)));
                 }
-                else if (!string.IsNullOrEmpty(shelf))
-                {
+                else if (shelf.HasValue())
                     // Filter by individual shelf
                     bookReviewsQuery = bookReviewsQuery
                         .Where(br => br.Bookshelves.Any(bs => bs.Name.ToLower() == shelf.ToLower()));
-                }
+                bookReviewsQuery = bookReviewsQuery.OrderByDescending(r => r.DateRead);
                 
-                if (!recent)
-                {
-                    bookReviewsQuery = bookReviewsQuery.OrderByDescending(r => r.DateRead);
-                }
-                
-                var bookReviews = await bookReviewsQuery.ToListAsync();
+                List<BookReview> bookReviews = await bookReviewsQuery.ToListAsync();
                 
                 var result = new
                 {
-                    Category = displayCategory,
                     AllBookshelves = allBookshelves.Select(bs => new { bs.Id, bs.Name, bs.IsGenreBased }).ToList(),
                     AllBookshelfGroupings = allBookshelfGroupings.Select(bg => new 
                     { 
@@ -125,7 +106,6 @@ namespace levihobbs.Controllers
                     }).ToList(),
                     SelectedShelf = shelf,
                     SelectedGrouping = grouping,
-                    ShowRecentOnly = recent,
                     UseCustomMappings = useCustomMappings,
                     BookReviews = bookReviews.Select(br => new
                     {
@@ -159,7 +139,7 @@ namespace levihobbs.Controllers
             }
         }
         
-        private async Task<IActionResult> GetBookReviewSearchResults(string? displayCategory, string? shelf, string? grouping, bool recent, string searchTerm)
+        private async Task<IActionResult> GetBookReviewSearchResults(string? shelf, string? grouping, string searchTerm)
         {
             try
             {
@@ -183,7 +163,7 @@ namespace levihobbs.Controllers
                     PreviewText = br.PreviewText,
                     ReadingTimeMinutes = br.ReadingTimeMinutes,
                     CoverImageId = br.CoverImageId,
-                    Bookshelves = br.Bookshelves.Select(bs => new { bs.Id, bs.Name, bs.DisplayName, bs.IsGenreBased }).ToList(),
+                    Bookshelves = br.Bookshelves.Select(bs => new { bs.Id, bs.Name, bs.IsGenreBased }).ToList(),
                     Tones = br.Tones.Select(t => new { t.Id, t.Name, t.Description }).ToList()
                 }).ToList();
                 
@@ -199,7 +179,6 @@ namespace levihobbs.Controllers
                 
                 var result = new
                 {
-                    Category = displayCategory,
                     AllBookshelves = allBookshelves.Select(bs => new { bs.Id, bs.Name, bs.IsGenreBased }).ToList(),
                     AllBookshelfGroupings = allBookshelfGroupings.Select(bg => new 
                     { 
@@ -210,7 +189,6 @@ namespace levihobbs.Controllers
                     }).ToList(),
                     SelectedShelf = shelf,
                     SelectedGrouping = grouping,
-                    ShowRecentOnly = recent,
                     UseCustomMappings = false, // Always false for search results
                     BookReviews = searchResults
                 };
