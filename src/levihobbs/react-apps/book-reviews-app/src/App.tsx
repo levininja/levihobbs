@@ -56,8 +56,7 @@ function App() {
     
     return getTags(
       viewModel.allBookshelves,
-      viewModel.allBookshelfGroupings,
-      specialtyShelves
+      viewModel.allBookshelfGroupings
     );
   }, [viewModel]);
 

@@ -32,53 +32,58 @@ export const mockBookshelfGroupings: BookshelfGrouping[] = [
   {
     id: 7,
     name: "History",
+    isGenreBased: true,
     bookshelves: [
-      { id: 202, name: "topical-history" },
-      { id: 214, name: "ancient-history" },
-      { id: 214, name: "renaissance-history" },
-      { id: 227, name: "modern-history" }
+      { id: 202, name: "topical-history", isGenreBased: true },
+      { id: 214, name: "ancient-history", isGenreBased: true },
+      { id: 214, name: "renaissance-history", isGenreBased: true },
+      { id: 227, name: "modern-history", isGenreBased: true }
     ]
   },
   {
     id: 8,
     name: "Science Fiction",
+    isGenreBased: true,
     bookshelves: [
-      { id: 189, name: "sf-classics" },
-      { id: 201, name: "space-opera" },
-      { id: 203, name: "epic-sf" },
-      { id: 204, name: "science-fiction-comps" },
-      { id: 205, name: "cyberpunk" },
-      { id: 206, name: "2024-science-fiction" }
+      { id: 189, name: "sf-classics", isGenreBased: true },
+      { id: 201, name: "space-opera", isGenreBased: true },
+      { id: 203, name: "epic-sf", isGenreBased: true },
+      { id: 204, name: "science-fiction-comps", isGenreBased: true },
+      { id: 205, name: "cyberpunk", isGenreBased: true },
+      { id: 206, name: "2024-science-fiction", isGenreBased: true }
     ]
   },
   {
     id: 9,
     name: "Fantasy",
+    isGenreBased: true,
     bookshelves: [
-      { id: 207, name: "high-fantasy" },
-      { id: 208, name: "modern-fantasy" },
-      { id: 209, name: "modern-fairy-tales" },
-      { id: 210, name: "folks-and-myths" }
+      { id: 207, name: "high-fantasy", isGenreBased: true },
+      { id: 208, name: "modern-fantasy", isGenreBased: true },
+      { id: 209, name: "modern-fairy-tales", isGenreBased: true },
+      { id: 210, name: "folks-and-myths", isGenreBased: true }
     ]
   },
   {
     id: 10,
     name: "Ancient Classics",
+    isGenreBased: true,
     bookshelves: [
-      { id: 211, name: "ancient-greek" },
-      { id: 214, name: "ancient-history" },
-      { id: 212, name: "ancient-classics" },
-      { id: 213, name: "ancient-roman" }
+      { id: 211, name: "ancient-greek", isGenreBased: true },
+      { id: 214, name: "ancient-history", isGenreBased: true },
+      { id: 212, name: "ancient-classics", isGenreBased: true },
+      { id: 213, name: "ancient-roman", isGenreBased: true }
     ]
   },
   {
     id: 11,
     name: "Classics",
+    isGenreBased: true,
     bookshelves: [
-      { id: 211, name: "ancient-greek" },
-      { id: 213, name: "ancient-roman" },
-      { id: 215, name: "renaissance-classics" },
-      { id: 216, name: "modern-classics" }
+      { id: 211, name: "ancient-greek", isGenreBased: true },
+      { id: 213, name: "ancient-roman", isGenreBased: true },
+      { id: 215, name: "renaissance-classics", isGenreBased: true },
+      { id: 216, name: "modern-classics", isGenreBased: true }
     ]
   }
 ]; 
@@ -94,15 +99,23 @@ export const mockBookReviews: BookReview[] = [
     averageRating: 4.5,
     numberOfPages: 350,
     originalPublicationYear: null,
-    dateRead: "2025-06-18 14:55:39.266458-07",
+    dateRead: "2025-06-18T21:55:39.266458-07:00",
     myReview: finalEclipseReview,
     searchableString: "final eclipse matthew huddleston archway publishing epic sf friends sf sci fi science fiction",
     hasReviewContent: true,
     previewText: generatePreviewText(finalEclipseReview),
     readingTimeMinutes: calculateReadingTime(finalEclipseReview),
     coverImageId: null,
-    bookshelves: [{ id: 203, name: "epic-sf" },{ id: 194, name: "friends" }],
-    toneTags: ["gritty", "mystical", "bittersweet", "playful", "surreal", "heroic", "dramatic"]
+    bookshelves: [{ id: 203, name: "epic-sf", isGenreBased: true },{ id: 194, name: "friends", isGenreBased: false }],
+    tones: [
+      { id: 1, name: "Gritty", description: "Harsh realism; physical or moral ugliness" },
+      { id: 2, name: "Mystical", description: "Numinous, transcendent, spiritual, or magical in tone" },
+      { id: 3, name: "Bittersweet", description: "Happy-sad blend; joy tinged with sorrow" },
+      { id: 4, name: "Playful", description: "Light, humorous, self-aware, witty, or tongue-in-cheek tone" },
+      { id: 5, name: "Surreal", description: "Dreamlike, bizarre, reality-bending tone" },
+      { id: 6, name: "Heroic", description: "Dramatization of courage, valor, sacrifice, grand quests" },
+      { id: 7, name: "Dramatic", description: "High emotional stakes, emotional display, conflict, and heightened energy" }
+    ]
   },
   {
     id: 2,
@@ -114,15 +127,23 @@ export const mockBookReviews: BookReview[] = [
     averageRating: 4.2,
     numberOfPages: 400,
     originalPublicationYear: null,
-    dateRead: "2025-06-18 14:55:39.253796-07",
+    dateRead: "2025-06-18T21:55:39.253796-07:00",
     myReview: odysseyReview,
     searchableString: "the odyssey homer homer robert fagles, bernard knox penguin classics  history of lit ancient greek 2025 reading list ancient classics",
     hasReviewContent: true,
     previewText: generatePreviewText(odysseyReview),
     readingTimeMinutes: calculateReadingTime(odysseyReview),
     coverImageId: null,
-    bookshelves: [{ id: 192, name: "2025-reading-list" }, { id: 191, name: "ancient-greek" }, { id: 225, name: "ancient-classics" },{ id: 190, name: "history-of-lit" }],
-    toneTags: ["fast-paced", "grotesque", "hopeful", "sweet", "philosophical", "tragic", "romantic"]
+    bookshelves: [{ id: 192, name: "2025-reading-list", isGenreBased: false }, { id: 191, name: "ancient-greek", isGenreBased: true }, { id: 225, name: "ancient-classics", isGenreBased: true },{ id: 190, name: "history-of-lit", isGenreBased: false }],
+    tones: [
+      { id: 8, name: "Fast-paced", description: "Quick, energetic, dynamic narrative pace" },
+      { id: 9, name: "Grotesque", description: "Distorted, deformed, or unsettling in physical, thematic, or psychological ways" },
+      { id: 10, name: "Hopeful", description: "Oriented toward optimism, progress, or the possibility of good outcomes" },
+      { id: 11, name: "Sweet", description: "Wholesome, tender, gentle, and emotionally innocent romance" },
+      { id: 12, name: "Philosophical", description: "Focused on intellectual or existential exploration; abstract or contemplative" },
+      { id: 13, name: "Tragic", description: "Dramatization of downfall, loss, failure, sorrow" },
+      { id: 14, name: "Romantic", description: "Focused on love, passion, and relationship-driven emotional tone" }
+    ]
   },
   {
     id: 3,
@@ -134,15 +155,23 @@ export const mockBookReviews: BookReview[] = [
     averageRating: 4.2,
     numberOfPages: 298,
     originalPublicationYear: null,
-    dateRead: "2025-06-17 14:55:39.253796-07",
+    dateRead: "2025-06-17T21:55:39.253796-07:00",
     myReview: nineteenEightyFourReview,
     searchableString: "1984 george orwell signet classics dystopian fiction sf classics modern classics sf sci fi science fiction",
     hasReviewContent: true,
     previewText: generatePreviewText(nineteenEightyFourReview),
     readingTimeMinutes: calculateReadingTime(nineteenEightyFourReview),
     coverImageId: null,
-    bookshelves: [{ id: 189, name: "sf-classics" },{ id: 212, name: "modern-classics" },],
-    toneTags: ["melancholic", "haunting", "cozy", "hard-boiled", "dramatic", "suspenseful", "realistic"]
+    bookshelves: [{ id: 189, name: "sf-classics", isGenreBased: true },{ id: 212, name: "modern-classics", isGenreBased: true },],
+    tones: [
+      { id: 15, name: "Melancholic", description: "Wistful sadness, emotional heaviness" },
+      { id: 16, name: "Haunting", description: "Emotionally lingering; either mournful or eerie" },
+      { id: 17, name: "Cozy", description: "Safe, comforting, low-stress, emotionally gentle" },
+      { id: 18, name: "Hard-boiled", description: "Cynical, terse, emotionally detached tone, often in crime or noir fiction" },
+      { id: 19, name: "Dramatic", description: "High emotional stakes, emotional display, conflict, and heightened energy" },
+      { id: 20, name: "Suspenseful", description: "Driven by tension, uncertainty, and anticipation" },
+      { id: 21, name: "Realistic", description: "Grounded in plausibility, the mundane, the ordinary; downplays melodrama or artifice" }
+    ]
   },
   {
     id: 4,
@@ -154,15 +183,23 @@ export const mockBookReviews: BookReview[] = [
     averageRating: 4.1,
     numberOfPages: 250,
     originalPublicationYear: null,
-    dateRead: "2025-06-16 14:55:39.253796-07",
+    dateRead: "2025-06-16T21:55:39.253796-07:00",
     myReview: tenthOfDecemberReview,
     searchableString: "tenth of december george saunders random house short stories featured favorites modern literary fiction sf sci fi science fiction",
     hasReviewContent: true,
     previewText: generatePreviewText(tenthOfDecemberReview),
     readingTimeMinutes: calculateReadingTime(tenthOfDecemberReview),
     coverImageId: null,
-    bookshelves: [{ id: 219, name: "featured" }, { id: 196, name: "favorites" },{ id: 221, name: "modern-literary-fiction" }, { id: 205, name: "cyberpunk" }],
-    toneTags: ["dark", "futuristic", "surreal", "philosophical", "haunting", "melancholic", "hopeful"]
+    bookshelves: [{ id: 219, name: "featured", isGenreBased: false }, { id: 196, name: "favorites", isGenreBased: false },{ id: 221, name: "modern-literary-fiction", isGenreBased: true }, { id: 205, name: "cyberpunk", isGenreBased: true }],
+    tones: [
+      { id: 22, name: "Dark", description: "Bleak, grim, disturbing, negative emotional or thematic tone" },
+      { id: 23, name: "Futuristic", description: "Set in or depicting the future" },
+      { id: 24, name: "Surreal", description: "Dreamlike, bizarre, reality-bending tone" },
+      { id: 25, name: "Philosophical", description: "Focused on intellectual or existential exploration; abstract or contemplative" },
+      { id: 26, name: "Haunting", description: "Emotionally lingering; either mournful or eerie" },
+      { id: 27, name: "Melancholic", description: "Wistful sadness, emotional heaviness" },
+      { id: 28, name: "Hopeful", description: "Oriented toward optimism, progress, or the possibility of good outcomes" }
+    ]
   },
   {
     id: 5,
@@ -174,15 +211,23 @@ export const mockBookReviews: BookReview[] = [
     averageRating: 3.8,
     numberOfPages: 200,
     originalPublicationYear: null,
-    dateRead: "2025-06-15 14:55:39.253796-07",
+    dateRead: "2025-06-15T21:55:39.253796-07:00",
     myReview: kingArthurReview,
     searchableString: "king arthur and the knights of the round table joshua e hanft abdo publishing arthurian legends childrens",
     hasReviewContent: true,
     previewText: generatePreviewText(kingArthurReview),
     readingTimeMinutes: calculateReadingTime(kingArthurReview),
     coverImageId: null,
-    bookshelves: [{ id: 228, name: "childrens" },],
-    toneTags: ["angsty", "uplifting", "macabre", "epic", "psychological", "romantic", "poignant"]
+    bookshelves: [{ id: 228, name: "childrens", isGenreBased: true },],
+    tones: [
+      { id: 29, name: "Angsty", description: "Emotional turmoil, yearning, heartbreak, tension before resolution" },
+      { id: 30, name: "Uplifting", description: "Specifically designed to make the reader feel joyful, encouraged, or inspired" },
+      { id: 31, name: "Macabre", description: "Focused on death, decay, and mortality" },
+      { id: 32, name: "Epic", description: "Grand in scope, high-stakes, large-scale storytelling" },
+      { id: 33, name: "Psychological", description: "Focused on internal tension, mind games, emotional instability, or mental complexity" },
+      { id: 34, name: "Romantic", description: "Focused on love, passion, and relationship-driven emotional tone" },
+      { id: 35, name: "Poignant", description: "Evokes a deep emotional response — beauty, sadness, longing, or emotional catharsis" }
+    ]
   },
   {
     id: 6,
@@ -194,7 +239,7 @@ export const mockBookReviews: BookReview[] = [
     averageRating: 3.5,
     numberOfPages: 180,
     originalPublicationYear: null,
-    dateRead: "2025-06-14 14:55:39.253796-07",
+    dateRead: "2025-06-14T21:55:39.253796-07:00",
     myReview: dontYouJustHateThatReview,
     searchableString: "don't you just hate that? scott cohen workman publishing humor",
     hasReviewContent: true,
@@ -214,15 +259,23 @@ export const mockBookReviews: BookReview[] = [
     averageRating: 3.49,
     numberOfPages: 2,
     originalPublicationYear: null,
-    dateRead: "2025-06-18 21:55:39.315251+00:00",
+    dateRead: "2025-06-18T21:55:39.315251-07:00",
     myReview: thelefthandofdarknessReview,
     searchableString: "the left hand of darkness: bbc radio 4 full cast dramatisation ursula k. le guin bbc worldwide ltd. modern classics sf classics  sf sci fi science fiction",
     hasReviewContent: true,
     previewText: generatePreviewText(thelefthandofdarknessReview),
     readingTimeMinutes: calculateReadingTime(thelefthandofdarknessReview),
     coverImageId: null,
-    bookshelves: [{ id: 212, name: "modern-classics" },{ id: 189, name: "sf-classics" }],
-    toneTags: ["dark", "lyrical", "tragic", "playful", "gritty", "romantic", "intense"]
+    bookshelves: [{ id: 212, name: "modern-classics", isGenreBased: true },{ id: 189, name: "sf-classics", isGenreBased: true }],
+    tones: [
+      { id: 36, name: "Dark", description: "Bleak, grim, disturbing, negative emotional or thematic tone" },
+      { id: 37, name: "Lyrical", description: "Beautiful, poetic, stylized language that drives the emotional tone" },
+      { id: 38, name: "Tragic", description: "Dramatization of downfall, loss, failure, sorrow" },
+      { id: 39, name: "Playful", description: "Light, humorous, self-aware, witty, or tongue-in-cheek tone" },
+      { id: 40, name: "Gritty", description: "Harsh realism; physical or moral ugliness" },
+      { id: 41, name: "Romantic", description: "Focused on love, passion, and relationship-driven emotional tone" },
+      { id: 42, name: "Intense", description: "High emotional pressure, tension, or stress — internal or external" }
+    ]
   },
   {
     id: 2138,
@@ -234,15 +287,23 @@ export const mockBookReviews: BookReview[] = [
     averageRating: 4.54,
     numberOfPages: 1216,
     originalPublicationYear: 1954,
-    dateRead: "2025-06-18 21:55:39.314736+00:00",
+    dateRead: "2025-06-18T21:55:39.314736-07:00",
     myReview: thelordoftheringsReview,
     searchableString: "the lord of the rings j.r.r. tolkien houghton mifflin harcourt favorites featured high fantasy modern classics",
     hasReviewContent: true,
     previewText: generatePreviewText(thelordoftheringsReview),
     readingTimeMinutes: calculateReadingTime(thelordoftheringsReview),
     coverImageId: 54,
-    bookshelves: [{ id: 196, name: "favorites" }, { id: 219, name: "featured" },{ id: 211, name: "high-fantasy" },{ id: 212, name: "modern-classics" },],
-    toneTags: ["suspenseful", "mystical", "tragic", "claustrophobic", "sweet", "disturbing", "atmospheric"]
+    bookshelves: [{ id: 196, name: "favorites", isGenreBased: false }, { id: 219, name: "featured", isGenreBased: false },{ id: 211, name: "high-fantasy", isGenreBased: true },{ id: 212, name: "modern-classics", isGenreBased: true },],
+    tones: [
+      { id: 43, name: "Suspenseful", description: "Driven by tension, uncertainty, and anticipation" },
+      { id: 44, name: "Mystical", description: "Numinous, transcendent, spiritual, or magical in tone" },
+      { id: 45, name: "Tragic", description: "Dramatization of downfall, loss, failure, sorrow" },
+      { id: 46, name: "Claustrophobic", description: "Oppressive, trapped, suffocating, whether emotionally or physically" },
+      { id: 47, name: "Sweet", description: "Wholesome, tender, gentle, and emotionally innocent romance" },
+      { id: 48, name: "Disturbing", description: "Provokes discomfort or dread; often through horror, depravity, or existential tension" },
+      { id: 49, name: "Atmospheric", description: "Immersive mood and sensory presence" }
+    ]
   },
   {
     id: 2061,
@@ -254,14 +315,14 @@ export const mockBookReviews: BookReview[] = [
     averageRating: 4.51,
     numberOfPages: 192,
     originalPublicationYear: 1952,
-    dateRead: "2025-06-18 21:55:39.312407+00:00",
+    dateRead: "2025-06-18T21:55:39.312407-07:00",
     myReview: twelvestepsandtwelvetraditionsReview,
     searchableString: "twelve steps and twelve traditions alcoholics anonymous alcoholics anonymous world services favorites psychology spirituality-and-theology",
     hasReviewContent: true,
     previewText: generatePreviewText(twelvestepsandtwelvetraditionsReview),
     readingTimeMinutes: calculateReadingTime(twelvestepsandtwelvetraditionsReview),
     coverImageId: 50,
-    bookshelves: [{ id: 196, name: "favorites" },{ id: 213, name: "psychology" },{ id: 218, name: "spirituality and theology" },]
+    bookshelves: [{ id: 196, name: "favorites", isGenreBased: false },{ id: 213, name: "psychology", isGenreBased: true },{ id: 218, name: "spirituality and theology", isGenreBased: true },]
   },
   {
     id: 1948,
@@ -273,15 +334,23 @@ export const mockBookReviews: BookReview[] = [
     averageRating: 4.19,
     numberOfPages: 435,
     originalPublicationYear: 1995,
-    dateRead: "2025-06-18 21:55:39.268388+00:00",
+    dateRead: "2025-06-18T21:55:39.268388-07:00",
     myReview: assassinsapprenticeReview,
     searchableString: "assassin's apprentice (farseer trilogy, #1) robin hobb spectra books favorites high fantasy",
     hasReviewContent: true,
     previewText: generatePreviewText(assassinsapprenticeReview),
     readingTimeMinutes: calculateReadingTime(assassinsapprenticeReview),
     coverImageId: 55,
-    bookshelves: [{ id: 196, name: "favorites" }, { id: 211, name: "high-fantasy" }],
-    toneTags: ["dramatic", "macabre", "heroic", "cynical", "cozy", "uplifting", "dark"]
+    bookshelves: [{ id: 196, name: "favorites", isGenreBased: false }, { id: 211, name: "high-fantasy", isGenreBased: true }],
+    tones: [
+      { id: 50, name: "Dramatic", description: "High emotional stakes, emotional display, conflict, and heightened energy" },
+      { id: 51, name: "Macabre", description: "Focused on death, decay, and mortality" },
+      { id: 52, name: "Heroic", description: "Dramatization of courage, valor, sacrifice, grand quests" },
+      { id: 53, name: "Cynical", description: "Distrustful of humanity, institutions, or motives" },
+      { id: 54, name: "Cozy", description: "Safe, comforting, low-stress, emotionally gentle" },
+      { id: 55, name: "Uplifting", description: "Specifically designed to make the reader feel joyful, encouraged, or inspired" },
+      { id: 56, name: "Dark", description: "Bleak, grim, disturbing, negative emotional or thematic tone" }
+    ]
   },
   {
     id: 1885,
@@ -293,15 +362,22 @@ export const mockBookReviews: BookReview[] = [
     averageRating: 4.25,
     numberOfPages: 64,
     originalPublicationYear: 1970,
-    dateRead: "2025-05-26 00:00:00.000000+00:00",
+    dateRead: "2025-05-26T00:00:00.000000-07:00",
     myReview: frogandtoadarefriendsReview,
     searchableString: "frog and toad are friends (frog and toad, #1) arnold lobel harpercollins favorites childrens",
     hasReviewContent: true,
     previewText: generatePreviewText(frogandtoadarefriendsReview),
     readingTimeMinutes: calculateReadingTime(frogandtoadarefriendsReview),
     coverImageId: 61,
-    bookshelves: [{ id: 196, name: "favorites" }, { id: 228, name: "childrens" },],
-    toneTags: ["surreal", "grotesque", "psychological", "bleak", "hopeful", "atmospheric"]
+    bookshelves: [{ id: 196, name: "favorites", isGenreBased: false }, { id: 228, name: "childrens", isGenreBased: true },],
+    tones: [
+      { id: 57, name: "Surreal", description: "Dreamlike, bizarre, reality-bending tone" },
+      { id: 58, name: "Grotesque", description: "Distorted, deformed, or unsettling in physical, thematic, or psychological ways" },
+      { id: 59, name: "Psychological", description: "Focused on internal tension, mind games, emotional instability, or mental complexity" },
+      { id: 60, name: "Bleak", description: "Hopeless, emotionally barren, devoid of comfort" },
+      { id: 61, name: "Hopeful", description: "Oriented toward optimism, progress, or the possibility of good outcomes" },
+      { id: 62, name: "Atmospheric", description: "Immersive mood and sensory presence" }
+    ]
   },
   {
     id: 1884,
@@ -313,28 +389,28 @@ export const mockBookReviews: BookReview[] = [
     averageRating: 4.00,
     numberOfPages: 234,
     originalPublicationYear: 1994,
-    dateRead: "2025-05-03 00:00:00.000000+00:00",
+    dateRead: "2025-05-03T00:00:00.000000-07:00",
     myReview: religiousexplanationandscientificideologyReview,
     searchableString: "religious explanation and scientific ideology (toronto studies in religion) jesse hobbs peter lang inc., international academic publishers friends philosophy 2025 reading list theology and spirituality",
     hasReviewContent: true,
     previewText: generatePreviewText(religiousexplanationandscientificideologyReview),
     readingTimeMinutes: calculateReadingTime(religiousexplanationandscientificideologyReview),
     coverImageId: null,
-    bookshelves: [{ id: 192, name: "2025-reading-list" }, { id: 194, name: "friends" }, { id: 195, name: "philosophy" }, { id: 218, name: "theology-and-spirituality" },]  
+    bookshelves: [{ id: 192, name: "2025-reading-list", isGenreBased: false }, { id: 194, name: "friends", isGenreBased: false }, { id: 195, name: "philosophy", isGenreBased: true }, { id: 218, name: "theology-and-spirituality", isGenreBased: true },]
   }
 ]; 
 
 // Real bookshelves from database
 export const mockBookshelves: Bookshelf[] = [
-  { id: 196, name: "favorites" },
-  { id: 219, name: "featured" },
-  { id: 192, name: "2025-reading-list" },
-  { id: 191, name: "ancient-greek" },
-  { id: 190, name: "history-of-lit" },
-  { id: 211, name: "high-fantasy" },
-  { id: 195, name: "philosophy" },
-  { id: 194, name: "friends" },
-  { id: 228, name: "childrens" }
+  { id: 196, name: "favorites", isGenreBased: false },
+  { id: 219, name: "featured", isGenreBased: false },
+  { id: 192, name: "2025-reading-list", isGenreBased: false },
+  { id: 191, name: "ancient-greek", isGenreBased: true },
+  { id: 190, name: "history-of-lit", isGenreBased: false },
+  { id: 211, name: "high-fantasy", isGenreBased: true },
+  { id: 195, name: "philosophy", isGenreBased: true },
+  { id: 194, name: "friends", isGenreBased: false },
+  { id: 228, name: "childrens", isGenreBased: true }
 ];
 
 // Re-export utility functions for convenience

@@ -106,7 +106,7 @@ const BookReviewsFilterPanel: React.FC<BookReviewsFilterPanelProps> = React.memo
     onTagChange(newSelectedTag);
   }, [selectedTag, onTagChange]);
 
-  // Separate tags by type (no longer including tone tags)
+  // Separate tags by type
   const genreTags = tags.filter(tag => tag.type === 'Genre');
   const specialtyTags = tags.filter(tag => tag.type === 'Specialty');
 
