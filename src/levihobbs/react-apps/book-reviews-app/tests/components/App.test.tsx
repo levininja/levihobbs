@@ -36,19 +36,19 @@ const mockSearchResults: BookReview[] = [
     previewText: "Test search preview text",
     readingTimeMinutes: 7,
     coverImageId: null,
-    bookshelves: [{ id: 197, name: "science-fiction" }]
+    bookshelves: [{ id: 197, name: "science-fiction", isGenreBased: true }]
   }
 ];
 
 const mockViewModel: BookReviewsViewModel = {
   category: "Book Reviews",
   allBookshelves: [
-    { id: 1, name: "favorites" },
-    { id: 2, name: "science-fiction" }
+    { id: 1, name: "favorites", isGenreBased: false },
+    { id: 2, name: "science-fiction", isGenreBased: true }
   ],
   allBookshelfGroupings: [
-    { id: 1, name: "Fiction", bookshelves: [] },
-    { id: 2, name: "Non-Fiction", bookshelves: [] }
+    { id: 1, name: "Fiction", bookshelves: [], isGenreBased: true },
+    { id: 2, name: "Non-Fiction", bookshelves: [], isGenreBased: false }
   ],
   selectedShelf: "favorites",
   selectedGrouping: undefined,

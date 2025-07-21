@@ -24,7 +24,7 @@ const mockBookReview: BookReview = {
   previewText: `It was a joy to read this again after many years. I don't want to go this long between readings next time.  From the moment I started reading the prologue...`,
   readingTimeMinutes: 4,
   coverImageId: 54,
-  bookshelves: [{ id: 196, name: "favorites" }, { id: 219, name: "featured" },{ id: 211, name: "high-fantasy" },{ id: 212, name: "modern-classics" },]
+  bookshelves: [{ id: 196, name: "favorites", isGenreBased: false }, { id: 219, name: "featured", isGenreBased: false },{ id: 211, name: "high-fantasy", isGenreBased: true },{ id: 212, name: "modern-classics", isGenreBased: true },]
 };
 
 const mockBookReviewWithoutCover: BookReview = {
@@ -173,8 +173,8 @@ describe('BookReviewReader - Test Suite', () => {
       const bookReviewWithMixedShelves: BookReview = {
         ...mockBookReview,
         bookshelves: [
-          { id: 1, name: 'science-fiction'},
-          { id: 2, name: 'sf-classics'} 
+          { id: 1, name: 'science-fiction', isGenreBased: true},
+          { id: 2, name: 'sf-classics', isGenreBased: true} 
         ]
       };
       
@@ -391,7 +391,7 @@ describe('BookReviewReader - Test Suite', () => {
     it('should display date read', () => {
       render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
       
-      expect(screen.getAllByText('6/18/2025').length).toBe(1);
+      expect(screen.getByText('Review written 6/18/2025')).toBeInTheDocument();
     });
   });
 
@@ -478,8 +478,8 @@ describe('BookReviewReader - Test Suite', () => {
       const bookReviewWithMixedShelves: BookReview = {
         ...mockBookReview,
         bookshelves: [
-          { id: 1, name: 'science-fiction'},
-          { id: 2, name: 'sf-classics'} 
+          { id: 1, name: 'science-fiction', isGenreBased: true},
+          { id: 2, name: 'sf-classics', isGenreBased: true} 
         ]
       };
       

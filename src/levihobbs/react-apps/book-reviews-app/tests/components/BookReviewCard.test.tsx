@@ -20,38 +20,35 @@ const mockBookReview: BookReview = {
   readingTimeMinutes: 3,
   coverImageId: 1,
   bookshelves: [
-    { id: 1, name: "test" }
+    { id: 1, name: "test", isGenreBased: false }
   ]
 };
 
 describe('BookReviewCard', () => {
-  const mockToneDescriptions = new Map<string, string>();
-
   it('renders book review information correctly', () => {
-    render(<BookReviewCard bookReview={mockBookReview} toneDescriptions={mockToneDescriptions} />);
+    render(<BookReviewCard bookReview={mockBookReview} />);
     
     expect(screen.getByText('Test Book')).toBeInTheDocument();
     expect(screen.getByText('by John Doe')).toBeInTheDocument();
-    expect(screen.getByText('My Rating: 4/5')).toBeInTheDocument();
-    expect(screen.getByText('Average: 3.8/5')).toBeInTheDocument();
+    expect(screen.getByText('★★★★☆')).toBeInTheDocument(); // 4-star rating
   });
 
   it('calls onClick when clicked', () => {
     const mockOnClick = vi.fn();
-    render(<BookReviewCard bookReview={mockBookReview} onClick={mockOnClick} toneDescriptions={mockToneDescriptions} />);
+    render(<BookReviewCard bookReview={mockBookReview} onClick={mockOnClick} />);
     
     fireEvent.click(screen.getByTestId('book-review-card-1'));
     expect(mockOnClick).toHaveBeenCalledWith(mockBookReview);
   });
 
   it('displays bookshelf tags', () => {
-    render(<BookReviewCard bookReview={mockBookReview} toneDescriptions={mockToneDescriptions} />);
+    render(<BookReviewCard bookReview={mockBookReview} />);
     
     expect(screen.getByText('test')).toBeInTheDocument();
   });
 
   it('displays reading time when review content exists', () => {
-    render(<BookReviewCard bookReview={mockBookReview} toneDescriptions={mockToneDescriptions} />);
+    render(<BookReviewCard bookReview={mockBookReview} />);
     
     expect(screen.getByText('3 min read')).toBeInTheDocument();
   });

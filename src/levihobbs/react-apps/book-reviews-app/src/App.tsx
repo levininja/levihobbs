@@ -5,7 +5,6 @@ import { BookReviewCard } from './components/BookReviewCard';
 import { BookReviewReader } from './components/BookReviewReader';
 import { SearchBookReviews } from './components/SearchBookReviews';
 import { BrowseBookReviews } from './components/BrowseBookReviews';
-import { specialtyShelves } from './services/mockData';
 import { convertLowerCaseKebabToUpperCaseKebab } from './utils/caseConverter';
 import { getTags } from './utils/appFunctions';
 import './App.scss';
