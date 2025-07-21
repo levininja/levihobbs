@@ -62,3 +62,24 @@ src/levihobbs/react-apps/raven-unit-test-validation-tool/
 # User secrets
 appsettings.Production.json
 Directory.Build.props 
+
+# Bootstrap, jquery, jquery-validation
+/src/levihobbs/wwwroot/lib/bootstrap/dist/css/bootstrap-theme.css
+/src/levihobbs/wwwroot/lib/bootstrap/dist/css/bootstrap-theme.min.css
+/src/levihobbs/wwwroot/lib/bootstrap/dist/css/bootstrap.css
+/src/levihobbs/wwwroot/lib/bootstrap/dist/css/bootstrap.min.css
+/src/levihobbs/wwwroot/lib/bootstrap/dist/fonts/glyphicons-halflings-regular.eot
+/src/levihobbs/wwwroot/lib/bootstrap/dist/fonts/glyphicons-halflings-regular.svg
+/src/levihobbs/wwwroot/lib/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf
+/src/levihobbs/wwwroot/lib/bootstrap/dist/fonts/glyphicons-halflings-regular.woff
+/src/levihobbs/wwwroot/lib/bootstrap/dist/fonts/glyphicons-halflings-regular.woff2
+/src/levihobbs/wwwroot/lib/bootstrap/dist/js/bootstrap.js
+/src/levihobbs/wwwroot/lib/bootstrap/dist/js/bootstrap.min.js
+/src/levihobbs/wwwroot/lib/bootstrap/dist/js/npm.js
+/src/levihobbs/wwwroot/lib/jquery-validation/dist/additional-methods.js
+/src/levihobbs/wwwroot/lib/jquery-validation/dist/additional-methods.min.js
+/src/levihobbs/wwwroot/lib/jquery-validation/dist/jquery.validate.js
+/src/levihobbs/wwwroot/lib/jquery-validation/dist/jquery.validate.min.js
+/src/levihobbs/wwwroot/lib/jquery/dist/jquery.js
+/src/levihobbs/wwwroot/lib/jquery/dist/jquery.min.js
+/src/levihobbs/wwwroot/lib/jquery/dist/jquery.min.map
