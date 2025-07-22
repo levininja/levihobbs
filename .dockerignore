@@ -1,0 +1,58 @@
+# Ignore everything by default
+**
+
+# Include solution and project files
+!levihobbs.sln
+!**/*.sln
+!**/*.csproj
+
+# Include source code
+!src/**/*.cs
+!src/**/*.cshtml
+!src/**/*.json
+
+# Include essential config files
+!src/**/appsettings*.json
+!src/**/launchSettings.json
+!src/**/bower.json
+
+# Include wwwroot static assets (pre-built React apps, CSS, JS, images)
+!src/**/wwwroot/**
+
+# Include the test scripts
+!./run_tests.sh
+!./build_docker.sh
+
+# Preserve folder structure
+!src/
+!src/levihobbs/
+!src/levihobbs.Tests/
+!src/levihobbs/Controllers/
+!src/levihobbs/Data/
+!src/levihobbs/Models/
+!src/levihobbs/Services/
+!src/levihobbs/Utils/
+!src/levihobbs/ViewComponents/
+!src/levihobbs/Views/
+!src/levihobbs/Properties/
+!src/levihobbs/Migrations/
+!src/levihobbs/wwwroot/
+!src/levihobbs.Tests/Controllers/
+!src/levihobbs.Tests/Utils/
+
+# Exclude build outputs and temporary files
+src/**/bin/
+src/**/obj/
+**/.DS_Store
+**/*.user
+**/*.suo
+**/.vs/
+**/.vscode/
+**/logs/
+**/temp/
+
+# Exclude other task folders and validation tool
+../levihobbsBeetle - task 3/
+../levihobbsSonnet - task 3/
+../docker-csharp-bin-main/
+../raven-unit-test-validation-tool 2/ 
