@@ -90,6 +90,23 @@ Before you begin, ensure you have the following installed:
          - `book-reviews-app/` - [Book Reviews React App](src/levihobbs/react-apps/book-reviews-app/README.md) (standalone and integrated modes)
 - `src/levihobbs.Tests/` - Contains the unit test project
 
+## Bookshelf Configuration
+
+The Bookshelf Configuration page (Admin > Bookshelf Configuration) does two things primarily:
+1. controls how bookshelves appear as filter tags on the Book Reviews page and 
+2. is used to determine genres and sub-genres.
+
+### How to Use
+1. **Enable Custom Mappings**: Check "Enable Custom Bookshelf Mappings" to gain control over which bookshelves appear as filter tags
+2. **Create/Remove Groupings**: Use "Add New Grouping" to combine related bookshelves under a single filter tag, or remove groupings you no longer need
+3. **Configure Genres**: Check the "Is Genre Based" checkbox on individual bookshelves or bookshelf groupings to mark them as genres. When you mark a bookshelf grouping as genre-based, all bookshelves within it are automatically marked as genre-based too, representing a genre with subgenres.
+
+### Technical Details
+- **Controller**: `src/levihobbs/Controllers/AdminController.cs` (methods: `BookshelfConfiguration()` GET/POST)
+- **View**: `src/levihobbs/Views/Admin/BookshelfConfiguration.cshtml`
+- **ViewModel**: `src/levihobbs/Models/BookshelfConfigurationViewModel.cs`
+- **Database**: `ApplicationDbContext` in `src/levihobbs/Data/ApplicationDbContext.cs` handles EF Core configuration for PostgreSQL
+
 ## SCSS Compilation
 
 ### Directory Structure
