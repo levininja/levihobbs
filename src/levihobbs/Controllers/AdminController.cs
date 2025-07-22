@@ -541,6 +541,8 @@ namespace levihobbs.Controllers
                     }
                 }
                 
+                await UpdateGenres();
+                
                 int saveResult = await _context.SaveChangesAsync();
                 ViewBag.SuccessMessage = "Bookshelf configuration saved successfully.";
             }
@@ -553,7 +555,77 @@ namespace levihobbs.Controllers
             return await BookshelfConfiguration();
         }
         
+        private async Task UpdateGenres()
+        {
+            // Wipe out the data in the genres table
+            await _context.Database.ExecuteSqlRawAsync("DELETE FROM \"Genres\"");
 
+            // Get all bookshelves and bookshelfGroupings where the user marked that they are genre-based
+            var genreBookshelves = await _context.Bookshelves
+                .Where(bs => bs.IsGenreBased)
+                .Include(bs => bs.BookshelfGroupings)
+                .ToListAsync();
+
+            var genreGroupings = await _context.BookshelfGroupings
+                .Where(bg => bg.IsGenreBased)
+                .ToListAsync();
+
+            var genres = new List<Genre>();
+
+            // Process groupings first to establish parents
+            foreach (var grouping in genreGroupings)
+            {
+                genres.Add(new Genre
+                {
+                    Name = FormatGenreName(grouping.DisplayName ?? grouping.Name),
+                    ParentName = null
+                });
+            }
+
+            // Process bookshelves
+            foreach (var bookshelf in genreBookshelves)
+            {
+                // parentName gets set based on if you have bookshelves in a bookshelf groupings and the bookshelf groupings is genre-based
+                var parentGrouping = bookshelf.BookshelfGroupings.FirstOrDefault(bg => bg.IsGenreBased);
+                genres.Add(new Genre
+                {
+                    Name = FormatGenreName(bookshelf.DisplayName ?? bookshelf.Name),
+                    ParentName = parentGrouping != null ? FormatGenreName(parentGrouping.DisplayName ?? parentGrouping.Name) : null
+                });
+            }
+
+            // Remove duplicates, sort, and set sortOrder automatically based on alphabetical
+            var distinctGenres = genres
+                .GroupBy(g => g.Name)
+                .Select(g => g.First())
+                .OrderBy(g => g.Name)
+                .ToList();
+
+            for (int i = 0; i < distinctGenres.Count; i++)
+            {
+                distinctGenres[i].SortOrder = i + 1;
+            }
+
+            _context.Genres.AddRange(distinctGenres);
+        }
+
+        private string FormatGenreName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return string.Empty;
+            }
+
+            // look for "sf" and convert those to "Science Fiction"
+            if (name.Equals("sf", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Science Fiction";
+            }
+
+            // if there is any data like "epic-fantasy" that it is converted to the right format...all genre names should look like "Epic Fantasy"
+            var textInfo = new CultureInfo("en-US", false).TextInfo;
+            return textInfo.ToTitleCase(name.Replace('-', ' '));
+        }
 
 
         #endregion

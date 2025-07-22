@@ -17,6 +17,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Bookshelf> Bookshelves { get; set; } = null!;
     public DbSet<BookshelfGrouping> BookshelfGroupings { get; set; } = null!;
     public DbSet<Tone> Tones { get; set; } = null!;
+    public DbSet<Genre> Genres { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -87,6 +88,10 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<BookshelfGrouping>()
             .HasIndex(bg => bg.Name)
             .IsUnique();
+
+        modelBuilder.Entity<Genre>()
+            .HasIndex(g => g.Name)
+            .IsUnique();
             
         // Configure self-referencing relationship for Tone
         modelBuilder.Entity<Tone>(entity =>
@@ -101,4 +106,4 @@ public class ApplicationDbContext : DbContext
                 .IsUnique();
         });
     }
-} 
+}
