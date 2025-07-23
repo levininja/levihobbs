@@ -184,12 +184,25 @@ namespace levihobbs.Tests.Controllers
 
             // Assert - Verify genres were created
             var genresProperty = typeof(ApplicationDbContext).GetProperty("Genres");
-            genresProperty.Should().NotBeNull("Genre sync requires Genres DbSet to exist");
+            if (genresProperty == null)
+            {
+                Assert.True(false, "Genre sync requires Genres DbSet to exist");
+                return;
+            }
             
-            var genresDbSet = genresProperty!.GetValue(_context);
-            genresDbSet.Should().NotBeNull("Genres DbSet should be accessible");
+            var genresDbSet = genresProperty.GetValue(_context);
+            if (genresDbSet == null)
+            {
+                Assert.True(false, "Genres DbSet should be accessible");
+                return;
+            }
             
-            var count = ((IQueryable<Genre>)genresDbSet).Count();
+            if (!TryGetGenresCount(genresDbSet, out int count))
+            {
+                Assert.True(false, "Could not get genres count - Genre functionality may not be properly implemented");
+                return;
+            }
+            
             count.Should().BeGreaterThan(0, "Genre sync should have created genre records");
 
             _context.Dispose();
@@ -226,12 +239,24 @@ namespace levihobbs.Tests.Controllers
 
             // Assert - Check if genre name was converted to title case
             var genresProperty = typeof(ApplicationDbContext).GetProperty("Genres");
-            genresProperty.Should().NotBeNull("Genre sync requires Genres DbSet to exist");
+            if (genresProperty == null)
+            {
+                Assert.True(false, "Genre sync requires Genres DbSet to exist");
+                return;
+            }
             
-            var genresDbSet = genresProperty!.GetValue(_context);
-            genresDbSet.Should().NotBeNull("Genres DbSet should be accessible");
+            var genresDbSet = genresProperty.GetValue(_context);
+            if (genresDbSet == null)
+            {
+                Assert.True(false, "Genres DbSet should be accessible");
+                return;
+            }
             
-            var genresList = ((IQueryable<Genre>)genresDbSet).ToList();
+            if (!TryGetGenresList(genresDbSet, out var genresList))
+            {
+                Assert.True(false, "Could not retrieve genres list - Genre functionality may not be properly implemented");
+                return;
+            }
 
             genresList.Should().NotBeNull();
             genresList!.Count.Should().BeGreaterThan(0, "Genre sync should have created records");
@@ -277,12 +302,25 @@ namespace levihobbs.Tests.Controllers
 
             // Assert
             var genresProperty = typeof(ApplicationDbContext).GetProperty("Genres");
-            genresProperty.Should().NotBeNull("Genre sync requires Genres DbSet to exist");
+            if (genresProperty == null)
+            {
+                Assert.True(false, "Genre sync requires Genres DbSet to exist");
+                return;
+            }
             
-            var genresDbSet = genresProperty!.GetValue(_context);
-            genresDbSet.Should().NotBeNull("Genres DbSet should be accessible");
+            var genresDbSet = genresProperty.GetValue(_context);
+            if (genresDbSet == null)
+            {
+                Assert.True(false, "Genres DbSet should be accessible");
+                return;
+            }
             
-            var genresList = ((IQueryable<Genre>)genresDbSet).ToList();
+            // Try to get the list using multiple approaches
+            if (!TryGetGenresList(genresDbSet, out var genresList))
+            {
+                Assert.True(false, "Could not retrieve genres list - Genre functionality may not be properly implemented");
+                return;
+            }
 
             genresList.Should().NotBeNull();
             genresList!.Count.Should().BeGreaterThan(0, "Genre sync should have created records");
@@ -324,12 +362,24 @@ namespace levihobbs.Tests.Controllers
 
             // Assert - Verify alphabetical sort order
             var genresProperty = typeof(ApplicationDbContext).GetProperty("Genres");
-            genresProperty.Should().NotBeNull("Genre sync requires Genres DbSet to exist");
+            if (genresProperty == null)
+            {
+                Assert.True(false, "Genre sync requires Genres DbSet to exist");
+                return;
+            }
             
-            var genresDbSet = genresProperty!.GetValue(_context);
-            genresDbSet.Should().NotBeNull("Genres DbSet should be accessible");
+            var genresDbSet = genresProperty.GetValue(_context);
+            if (genresDbSet == null)
+            {
+                Assert.True(false, "Genres DbSet should be accessible");
+                return;
+            }
             
-            var genresList = ((IQueryable<Genre>)genresDbSet).ToList();
+            if (!TryGetGenresList(genresDbSet, out var genresList))
+            {
+                Assert.True(false, "Could not retrieve genres list - Genre functionality may not be properly implemented");
+                return;
+            }
 
             genresList.Should().NotBeNull();
             genresList!.Count.Should().BeGreaterThan(1, "Should have multiple genres to test sort order");
@@ -376,12 +426,24 @@ namespace levihobbs.Tests.Controllers
 
             // Assert
             var genresProperty = typeof(ApplicationDbContext).GetProperty("Genres");
-            genresProperty.Should().NotBeNull("Genre sync requires Genres DbSet to exist");
+            if (genresProperty == null)
+            {
+                Assert.True(false, "Genre sync requires Genres DbSet to exist");
+                return;
+            }
             
-            var genresDbSet = genresProperty!.GetValue(_context);
-            genresDbSet.Should().NotBeNull("Genres DbSet should be accessible");
+            var genresDbSet = genresProperty.GetValue(_context);
+            if (genresDbSet == null)
+            {
+                Assert.True(false, "Genres DbSet should be accessible");
+                return;
+            }
             
-            var genresList = ((IQueryable<Genre>)genresDbSet).ToList();
+            if (!TryGetGenresList(genresDbSet, out var genresList))
+            {
+                Assert.True(false, "Could not retrieve genres list - Genre functionality may not be properly implemented");
+                return;
+            }
             
             genresList.Should().NotBeNull();
             genresList!.Count.Should().BeGreaterThan(0, "Genre sync should have created records");
@@ -453,13 +515,105 @@ namespace levihobbs.Tests.Controllers
             genresPropertyForAssert.Should().NotBeNull("Genre sync requires Genres DbSet to exist");
             
             var genresDbSetForAssert = genresPropertyForAssert!.GetValue(_context);
-            genresDbSetForAssert.Should().NotBeNull("Genres DbSet should be accessible");
+            if (genresDbSetForAssert == null)
+            {
+                Assert.True(false, "Genres DbSet should be accessible");
+                return;
+            }
             
-            var count = ((IQueryable<Genre>)genresDbSetForAssert).Count();
+            if (!TryGetGenresCount(genresDbSetForAssert, out int count))
+            {
+                Assert.True(false, "Could not get genres count - Genre functionality may not be properly implemented");
+                return;
+            }
             
             count.Should().Be(1, "Should have cleared old genres and added only new ones");
 
             _context.Dispose();
+        }
+        
+        /// <summary>
+        /// Helper method to safely retrieve genres list without throwing exceptions
+        /// </summary>
+        private bool TryGetGenresList(object genresDbSet, out System.Collections.IList? genresList)
+        {
+            genresList = null;
+            
+            try
+            {
+                // Try multiple approaches to get the list
+                
+                // Approach 1: Dynamic (works when types are properly set up)
+                try
+                {
+                    dynamic dynamicDbSet = genresDbSet;
+                    genresList = dynamicDbSet.ToList();
+                    return true;
+                }
+                catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
+                {
+                    // Extension method not found via dynamic - try reflection
+                }
+                
+                // Approach 2: Cast to IEnumerable and enumerate manually
+                if (genresDbSet is System.Collections.IEnumerable enumerable)
+                {
+                    var list = new List<object>();
+                    foreach (var item in enumerable)
+                    {
+                        list.Add(item);
+                    }
+                    genresList = list;
+                    return true;
+                }
+                
+                return false;
+            }
+            catch (Exception)
+            {
+                // Any other exception means the functionality isn't working
+                return false;
+            }
+        }
+        
+        /// <summary>
+        /// Helper method to safely get count of genres without throwing exceptions
+        /// </summary>
+        private bool TryGetGenresCount(object genresDbSet, out int count)
+        {
+            count = 0;
+            
+            try
+            {
+                // Try dynamic first
+                try
+                {
+                    dynamic dynamicDbSet = genresDbSet;
+                    count = dynamicDbSet.Count();
+                    return true;
+                }
+                catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
+                {
+                    // Extension method not found via dynamic - try enumeration
+                }
+                
+                // Try manual enumeration
+                if (genresDbSet is System.Collections.IEnumerable enumerable)
+                {
+                    count = 0;
+                    foreach (var item in enumerable)
+                    {
+                        count++;
+                    }
+                    return true;
+                }
+                
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 
