@@ -2,11 +2,32 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0.411-alpine3.22@sha256:071ec6075f01f91ceaef
 
 WORKDIR /app
 
-# Copy sln and project folders
+# Install Node.js and npm for client-side dependencies and SCSS compilation
+RUN apk add --update nodejs npm
+
+# Install Bower globally for client-side package management
+RUN npm install -g bower
+
+# Copy project files
 COPY . .
 
-# Restore deps for all projects
+# Install npm dependencies for SCSS compilation
+RUN cd src/levihobbs && npm install
+
+# Install client-side dependencies (Bootstrap, jQuery, etc.)
+RUN cd src/levihobbs && bower install --allow-root
+
+# Compile SCSS to CSS
+RUN cd src/levihobbs && npm run scss
+
+# Restore .NET dependencies
 RUN dotnet restore
 
-# Build & run tests
-RUN ["sh"] 
+# Build all projects
+RUN dotnet build --no-restore
+
+# Expose the port that the web application will run on
+EXPOSE 8080
+
+# Default command is shell for flexibility (allows both test running and web hosting)
+CMD ["sh"] 
