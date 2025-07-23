@@ -14,6 +14,9 @@ namespace levihobbs
         public static void Main(string[] args)
         {
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+            
+            // Detect if running in Docker container
+            bool isRunningInContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
 
             // Add services to the container.
             builder.Services.AddControllersWithViews()
@@ -22,9 +25,19 @@ namespace levihobbs
             // Add Memory Cache
             builder.Services.AddMemoryCache();
 
-            // Add PostgreSQL
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            // Configure database based on environment
+            if (isRunningInContainer)
+            {
+                // Docker: Use in-memory database for demonstration
+                builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                    options.UseInMemoryDatabase("LevihobsInMemoryDb"));
+            }
+            else
+            {
+                // Local development: Use PostgreSQL
+                builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            }
 
             // Add reCAPTCHA service
             builder.Services.AddScoped<IReCaptchaService, ReCaptchaService>();
@@ -58,15 +71,27 @@ namespace levihobbs
             builder.Services.AddScoped<AdminController>();
 
 
-            // Configure Kestrel
-            builder.WebHost.ConfigureKestrel(serverOptions =>
+            // Configure Kestrel - Docker-aware configuration
+            if (isRunningInContainer)
             {
-                serverOptions.ListenLocalhost(5000); // HTTP
-                serverOptions.ListenLocalhost(5001, listenOptions =>
+                // Docker configuration: HTTP only on port 8080
+                builder.WebHost.ConfigureKestrel(serverOptions =>
                 {
-                    listenOptions.UseHttps();
-                }); // HTTPS
-            });
+                    serverOptions.ListenAnyIP(8080); // HTTP only for Docker
+                });
+            }
+            else
+            {
+                // Development configuration: HTTP on 5000, HTTPS on 5001
+                builder.WebHost.ConfigureKestrel(serverOptions =>
+                {
+                    serverOptions.ListenLocalhost(5000); // HTTP
+                    serverOptions.ListenLocalhost(5001, listenOptions =>
+                    {
+                        listenOptions.UseHttps();
+                    }); // HTTPS
+                });
+            }
 
             WebApplication app = builder.Build();
 
@@ -96,7 +121,12 @@ namespace levihobbs
                 });
             }
 
-            app.UseHttpsRedirection();
+            // Only use HTTPS redirection when not in Docker
+            if (!isRunningInContainer)
+            {
+                app.UseHttpsRedirection();
+            }
+            
             app.UseStaticFiles(); // Always use static files middleware
 
             app.UseRouting();

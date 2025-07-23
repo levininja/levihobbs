@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
-namespace levihobbs.Tests.Controllers
+namespace levihobbs.Tests
 {
     /// <summary>
     /// Tests to verify the Genre model class exists and has required properties
