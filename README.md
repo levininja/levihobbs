@@ -16,7 +16,7 @@ This application depends on the **book-data-api** service, which should be runni
 
 - **book-data-api**: Handles all book review data, bookshelves, and tone management
 - **levihobbs.com**: This main website (runs on port 5000/5001)
-- **book-tones-api**: Handles tone analysis (runs on port 5010)
+- **book-tones-api**: An AI-powered service that suggests tones for books based on their content and characteristics (runs on port 5010)
 
 ## Getting Started
 
