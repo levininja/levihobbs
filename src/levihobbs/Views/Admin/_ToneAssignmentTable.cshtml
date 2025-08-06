@@ -1,6 +1,7 @@
+@using BookDataApi.Dtos
 @{
-    List<BookReviewToneItem>? bookReviews = ViewData["BookReviews"] as List<levihobbs.Models.BookReviewToneItem>;
-    List<ToneGroup>? toneGroups = ViewData["ToneGroups"] as List<levihobbs.Models.ToneGroup>;
+    List<BookReviewToneItemDto>? bookReviews = ViewData["BookReviews"] as List<BookReviewToneItemDto>;
+    List<ToneGroupDto>? toneGroups = ViewData["ToneGroups"] as List<ToneGroupDto>;
     string? inputPrefix = ViewData["InputPrefix"] as string;
     if (bookReviews == null || toneGroups == null || inputPrefix == null)
     {
@@ -14,7 +15,7 @@
         <thead>
             <tr>
                 <th class="column-header book-info">Book Review</th>
-                @foreach (ToneGroup group in toneGroups)
+                @foreach (ToneGroupDto group in toneGroups)
                 {
                     <th class="column-header tone-column @group.ColorClass">@group.DisplayName Tones</th>
                 }
@@ -24,7 +25,7 @@
         <tbody>
             @for (int i = 0; i < bookReviews.Count; i++)
             {
-                BookReviewToneItem bookReview = bookReviews[i];
+                BookReviewToneItemDto bookReview = bookReviews[i];
                 <tr>
                     <td class="book-info">
                         <div class="book-title">@bookReview.Title</div>
@@ -49,8 +50,8 @@
                             <div class="selected-tones-list">
                                 @foreach (int toneId in bookReview.AssignedToneIds)
                                 {
-                                    levihobbs.Models.ToneDisplayItem? tone = toneGroups.SelectMany(g => g.Tones).FirstOrDefault(t => t.Id == toneId);
-                                    ToneGroup? group = toneGroups.FirstOrDefault(g => g.Tones.Any(t => t.Id == toneId));
+                                    ToneDisplayItemDto? tone = toneGroups.SelectMany(g => g.Tones).FirstOrDefault(t => t.Id == toneId);
+                                    ToneGroupDto? group = toneGroups.FirstOrDefault(g => g.Tones.Any(t => t.Id == toneId));
                                     if (tone != null && group != null)
                                     {
                                         <span class="tone-tag @group.ColorClass selected" data-tone-id="@toneId">
@@ -69,10 +70,10 @@
                         </div>
                     </td>
                     
-                    @foreach (levihobbs.Models.ToneGroup group in toneGroups)
+                    @foreach (ToneGroupDto group in toneGroups)
                     {
                         <td class="tone-column">
-                            @foreach (levihobbs.Models.ToneDisplayItem tone in group.Tones)
+                            @foreach (ToneDisplayItemDto tone in group.Tones)
                             {
                                 bool isSelected = bookReview.AssignedToneIds.Contains(tone.Id);
                                 bool isSuggested = bookReview.SuggestedToneIds.Contains(tone.Id);
@@ -93,7 +94,7 @@
                             <div>
                                 @foreach (int toneId in bookReview.SuggestedToneIds)
                                 {
-                                    ToneDisplayItem? tone = toneGroups.SelectMany(g => g.Tones).FirstOrDefault(t => t.Id == toneId);
+                                    ToneDisplayItemDto? tone = toneGroups.SelectMany(g => g.Tones).FirstOrDefault(t => t.Id == toneId);
                                     if (tone != null)
                                     {
                                         <span class="tone-tag tone-other suggested"

@@ -43,7 +43,7 @@ const getApiConfig = (): ApiConfig => {
     const config = window.bookReviewsConfig;
     memoizedConfig = {
       useMock: config.standaloneMode, // standaloneMode: true = use mock, false = use real API
-      baseUrl: '' // Use relative URLs when in C# website
+      baseUrl: config.standaloneMode ? '' : 'http://localhost:5020' // Use book-tone-api on port 5020 when not in standalone mode
     };
   } else {
     // Fallback to environment variables for standalone mode

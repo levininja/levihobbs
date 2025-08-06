@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using levihobbs.Data;
 using levihobbs.Models;
 using levihobbs.Services;
+using BookDataApi.Dtos;
 
 namespace levihobbs.Controllers
 {
@@ -33,18 +34,18 @@ namespace levihobbs.Controllers
             {
                 _logger.LogError(ex, "Cannot connect to book-data-api");
                 TempData["Error"] = "Cannot connect to book-data-api. Please ensure book-data-api is running on port 5020.";
-                return View(new BookshelfConfigurationViewModel());
+                return View(new BookshelfConfigurationDto());
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching bookshelf configuration");
                 TempData["Error"] = "An error occurred while fetching bookshelf configuration.";
-                return View(new BookshelfConfigurationViewModel());
+                return View(new BookshelfConfigurationDto());
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(BookshelfConfigurationViewModel model)
+        public async Task<IActionResult> Update(BookshelfConfigurationDto model)
         {
             try
             {

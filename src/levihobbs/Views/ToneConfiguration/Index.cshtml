@@ -1,4 +1,4 @@
-@model levihobbs.Models.ToneConfigurationViewModel
+@model List<BookDataApi.Dtos.ToneItemDto>
 @{
     ViewData["Title"] = "Tone Configuration";
 }
@@ -9,13 +9,13 @@
 
 @section Scripts {
 <script>
-    let toneCounter = @Model.Tones.Count;
+    let toneCounter = @Model.Count;
     let subtoneCounters = {};
     
     // Initialize subtone counters
-    @for (int i = 0; i < Model.Tones.Count; i++)
+    @for (int i = 0; i < Model.Count; i++)
     {
-        <text>subtoneCounters[@i] = @Model.Tones[i].Subtones.Count;</text>
+        <text>subtoneCounters[@i] = @Model[i].Subtones.Count;</text>
     }
     
     function addTone() {
@@ -101,35 +101,35 @@
             <p>Configure the tones and their subtones. Tones can have multiple subtones, but subtones cannot have further nested tones.</p>
             
             <div id="tones-container">
-                @for (int i = 0; i < Model.Tones.Count; i++)
+                @for (int i = 0; i < Model.Count; i++)
                 {
                     <div class="tone-item">
-                        <input type="hidden" asp-for="Tones[i].Id" />
+                        <input type="hidden" name="[i].Id" value="@Model[i].Id" />
                         <div class="row">
                             <div class="col-md-6">
-                                <label asp-for="Tones[i].Name">Tone Name:</label>
-                                <input type="text" class="form-control" asp-for="Tones[i].Name" required />
+                                <label>Tone Name:</label>
+                                <input type="text" class="form-control" name="[i].Name" value="@Model[i].Name" required />
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="Tones[i].Description">Description:</label>
-                                <input type="text" class="form-control" asp-for="Tones[i].Description" />
+                                <label>Description:</label>
+                                <input type="text" class="form-control" name="[i].Description" value="@Model[i].Description" />
                             </div>
                         </div>
                         
                         <div class="subtones-container">
-                            @for (int j = 0; j < Model.Tones[i].Subtones.Count; j++)
+                            @for (int j = 0; j < Model[i].Subtones.Count; j++)
                             {
                                 <div class="subtone-item">
-                                    <input type="hidden" asp-for="Tones[i].Subtones[j].Id" />
-                                    <input type="hidden" asp-for="Tones[i].Subtones[j].ParentId" />
+                                    <input type="hidden" name="[i].Subtones[j].Id" value="@Model[i].Subtones[j].Id" />
+                                    <input type="hidden" name="[i].Subtones[j].ParentId" value="@Model[i].Subtones[j].ParentId" />
                                     <div class="row">
                                         <div class="col-md-5">
-                                            <label asp-for="Tones[i].Subtones[j].Name">Subtone Name:</label>
-                                            <input type="text" class="form-control" asp-for="Tones[i].Subtones[j].Name" required />
+                                            <label>Subtone Name:</label>
+                                            <input type="text" class="form-control" name="[i].Subtones[j].Name" value="@Model[i].Subtones[j].Name" required />
                                         </div>
                                         <div class="col-md-5">
-                                            <label asp-for="Tones[i].Subtones[j].Description">Description:</label>
-                                            <input type="text" class="form-control" asp-for="Tones[i].Subtones[j].Description" />
+                                            <label>Description:</label>
+                                            <input type="text" class="form-control" name="[i].Subtones[j].Description" value="@Model[i].Subtones[j].Description" />
                                         </div>
                                         <div class="col-md-2 d-flex align-items-end">
                                             <button type="button" class="btn btn-remove" onclick="removeSubtone(this)">Remove</button>
@@ -159,15 +159,15 @@
 
 <script type="text/template" id="tone-template">
     <div class="tone-item">
-        <input type="hidden" name="Tones[[INDEX]].Id" value="0" />
+        <input type="hidden" name="[[INDEX]].Id" value="0" />
         <div class="row">
             <div class="col-md-6">
                 <label>Tone Name:</label>
-                <input type="text" class="form-control" name="Tones[[INDEX]].Name" required />
+                <input type="text" class="form-control" name="[[INDEX]].Name" required />
             </div>
             <div class="col-md-6">
                 <label>Description:</label>
-                <input type="text" class="form-control" name="Tones[[INDEX]].Description" />
+                <input type="text" class="form-control" name="[[INDEX]].Description" />
             </div>
         </div>
         
@@ -182,16 +182,16 @@
 
 <script type="text/template" id="subtone-template">
     <div class="subtone-item">
-        <input type="hidden" name="Tones[[TONE_INDEX]].Subtones[[SUBTONE_INDEX]].Id" value="0" />
-        <input type="hidden" name="Tones[[TONE_INDEX]].Subtones[[SUBTONE_INDEX]].ParentId" value="0" />
+        <input type="hidden" name="[[TONE_INDEX]].Subtones[[SUBTONE_INDEX]].Id" value="0" />
+        <input type="hidden" name="[[TONE_INDEX]].Subtones[[SUBTONE_INDEX]].ParentId" value="0" />
         <div class="row">
             <div class="col-md-5">
                 <label>Subtone Name:</label>
-                <input type="text" class="form-control" name="Tones[[TONE_INDEX]].Subtones[[SUBTONE_INDEX]].Name" required />
+                <input type="text" class="form-control" name="[[TONE_INDEX]].Subtones[[SUBTONE_INDEX]].Name" required />
             </div>
             <div class="col-md-5">
                 <label>Description:</label>
-                <input type="text" class="form-control" name="Tones[[TONE_INDEX]].Subtones[[SUBTONE_INDEX]].Description" />
+                <input type="text" class="form-control" name="[[TONE_INDEX]].Subtones[[SUBTONE_INDEX]].Description" />
             </div>
             <div class="col-md-2 d-flex align-items-end">
                 <button type="button" class="btn btn-remove" onclick="removeSubtone(this)">Remove</button>

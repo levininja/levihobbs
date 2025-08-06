@@ -1,4 +1,5 @@
 using levihobbs.Models;
+using BookDataApi.Dtos;
 
 namespace levihobbs.Services
 {
@@ -20,12 +21,12 @@ namespace levihobbs.Services
         Task<Tone?> GetToneAsync(int id);
         
         // Admin operations
-        Task<BookshelfConfigurationViewModel> GetBookshelfConfigurationAsync();
-        Task<bool> UpdateBookshelfConfigurationAsync(BookshelfConfigurationViewModel model);
-        Task<ToneConfigurationViewModel> GetToneConfigurationAsync();
-        Task<bool> UpdateToneConfigurationAsync(ToneConfigurationViewModel model);
-        Task<ToneAssignmentViewModel> GetToneAssignmentAsync();
-        Task<bool> UpdateToneAssignmentAsync(ToneAssignmentViewModel model);
+        Task<BookshelfConfigurationDto> GetBookshelfConfigurationAsync();
+        Task<bool> UpdateBookshelfConfigurationAsync(BookshelfConfigurationDto model);
+        Task<List<ToneItemDto>> GetToneConfigurationAsync();
+        Task<bool> UpdateToneConfigurationAsync(List<ToneItemDto> tones);
+        Task<ToneAssignmentDto> GetToneAssignmentAsync();
+        Task<bool> UpdateToneAssignmentAsync(ToneAssignmentDto model);
         Task<bool> ImportBookReviewsAsync(IFormFile file);
     }
 } 

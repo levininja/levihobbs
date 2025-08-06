@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using levihobbs.Models;
 using Microsoft.Extensions.Configuration;
+using BookDataApi.Dtos;
 
 namespace levihobbs.Services
 {
@@ -194,7 +195,7 @@ namespace levihobbs.Services
         }
 
         // Admin operations
-        public async Task<BookshelfConfigurationViewModel> GetBookshelfConfigurationAsync()
+        public async Task<BookshelfConfigurationDto> GetBookshelfConfigurationAsync()
         {
             try
             {
@@ -202,22 +203,22 @@ namespace levihobbs.Services
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<BookshelfConfigurationViewModel>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new BookshelfConfigurationViewModel();
+                return JsonSerializer.Deserialize<BookshelfConfigurationDto>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new BookshelfConfigurationDto();
             }
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "Cannot connect to book-data-api at {BaseUrl}. Please ensure book-data-api is running on port 5020.", _baseUrl);
                 Console.WriteLine($"ERROR: Cannot connect to book-data-api at {_baseUrl}. Please ensure book-data-api is running on port 5020.");
-                return new BookshelfConfigurationViewModel();
+                return new BookshelfConfigurationDto();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting bookshelf configuration from API");
-                return new BookshelfConfigurationViewModel();
+                return new BookshelfConfigurationDto();
             }
         }
 
-        public async Task<bool> UpdateBookshelfConfigurationAsync(BookshelfConfigurationViewModel model)
+        public async Task<bool> UpdateBookshelfConfigurationAsync(BookshelfConfigurationDto model)
         {
             try
             {
@@ -237,9 +238,10 @@ namespace levihobbs.Services
                 _logger.LogError(ex, "Error updating bookshelf configuration via API");
                 return false;
             }
+
         }
 
-        public async Task<ToneConfigurationViewModel> GetToneConfigurationAsync()
+        public async Task<List<ToneItemDto>> GetToneConfigurationAsync()
         {
             try
             {
@@ -247,26 +249,26 @@ namespace levihobbs.Services
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<ToneConfigurationViewModel>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new ToneConfigurationViewModel();
+                return JsonSerializer.Deserialize<List<ToneItemDto>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<ToneItemDto>();
             }
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "Cannot connect to book-data-api at {BaseUrl}. Please ensure book-data-api is running on port 5020.", _baseUrl);
                 Console.WriteLine($"ERROR: Cannot connect to book-data-api at {_baseUrl}. Please ensure book-data-api is running on port 5020.");
-                return new ToneConfigurationViewModel();
+                return new List<ToneItemDto>();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting tone configuration from API");
-                return new ToneConfigurationViewModel();
+                return new List<ToneItemDto>();
             }
         }
 
-        public async Task<bool> UpdateToneConfigurationAsync(ToneConfigurationViewModel model)
+        public async Task<bool> UpdateToneConfigurationAsync(List<ToneItemDto> tones)
         {
             try
             {
-                var json = JsonSerializer.Serialize(model);
+                var json = JsonSerializer.Serialize(tones);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync($"{_baseUrl}/api/tones/configuration", content);
                 return response.IsSuccessStatusCode;
@@ -284,7 +286,7 @@ namespace levihobbs.Services
             }
         }
 
-        public async Task<ToneAssignmentViewModel> GetToneAssignmentAsync()
+        public async Task<ToneAssignmentDto> GetToneAssignmentAsync()
         {
             try
             {
@@ -292,22 +294,22 @@ namespace levihobbs.Services
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<ToneAssignmentViewModel>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new ToneAssignmentViewModel();
+                return JsonSerializer.Deserialize<ToneAssignmentDto>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new ToneAssignmentDto();
             }
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "Cannot connect to book-data-api at {BaseUrl}. Please ensure book-data-api is running on port 5020.", _baseUrl);
                 Console.WriteLine($"ERROR: Cannot connect to book-data-api at {_baseUrl}. Please ensure book-data-api is running on port 5020.");
-                return new ToneAssignmentViewModel();
+                return new ToneAssignmentDto();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting tone assignment from API");
-                return new ToneAssignmentViewModel();
+                return new ToneAssignmentDto();
             }
         }
 
-        public async Task<bool> UpdateToneAssignmentAsync(ToneAssignmentViewModel model)
+        public async Task<bool> UpdateToneAssignmentAsync(ToneAssignmentDto model)
         {
             try
             {

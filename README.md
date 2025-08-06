@@ -12,11 +12,27 @@ Before you begin, ensure you have the following installed:
 
 ## Dependencies
 
-This application depends on the **book-data-api** service, which should be running on `http://localhost:5020`. 
+This application has a **one-way dependency** on the **book-data-api** service, which should be running on `http://localhost:5020`. 
 
-- **book-data-api**: Handles all book review data, bookshelves, and tone management
-- **levihobbs.com**: This main website (runs on port 5000/5001)
+- **book-data-api**: Handles all book review data, bookshelves, and tone management (runs on port 5020)
+- **levihobbs.com**: This main website (runs on port 5000/5001) - **depends on book-data-api**
 - **book-tones-api**: An AI-powered service that suggests tones for books based on their content and characteristics (runs on port 5010)
+
+### Important: Project Dependencies
+
+**levihobbs.com** has a direct project reference to **book-data-api** to share DTO classes. This means:
+
+- **book-data-api** can run independently without levihobbs.com
+- **levihobbs.com** requires book-data-api to be available during build time
+- Both codebases must be installed in adjacent folders in your development environment
+- The DTO classes are defined in book-data-api and consumed by levihobbs.com
+
+**Required folder structure:**
+```
+develop/
+├── levihobbs/          # This project
+└── book-data-api/      # Must be adjacent to this project
+```
 
 ## Getting Started
 
