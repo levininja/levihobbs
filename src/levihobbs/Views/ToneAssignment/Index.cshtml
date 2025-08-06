@@ -1,0 +1,381 @@
+@model levihobbs.Models.ToneAssignmentViewModel
+@{
+    ViewData["Title"] = "Tone Assignment";
+}
+
+@section Styles {
+<style>
+    .tone-assignment-container {
+        overflow-x: auto;
+    }
+    
+    .tone-assignment-table {
+        min-width: 1200px;
+        white-space: nowrap;
+    }
+    
+    .tone-assignment-table th,
+    .tone-assignment-table td {
+        vertical-align: top;
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+    }
+    
+    .book-info {
+        min-width: 300px;
+        max-width: 300px;
+        white-space: normal;
+    }
+    
+    .tone-column {
+        min-width: 200px;
+        max-width: 200px;
+        white-space: normal;
+    }
+    
+    .suggestions-column {
+        min-width: 200px;
+        max-width: 200px;
+        white-space: normal;
+    }
+    
+    .tone-tag {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        margin: 0.125rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: bold;
+        border: 2px solid transparent;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+    
+    .tone-tag:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .tone-tag.suggested {
+        border-color: #28a745;
+        border-style: dashed;
+    }
+    
+    .tone-tag.selected {
+        border-color: #007bff;
+        border-style: solid;
+        font-weight: bold;
+    }
+    
+    /* Pastel color classes */
+    .tone-blue { background-color: #e3f2fd; color: #1565c0; }
+    .tone-green { background-color: #daeeda; color: #2e7d32; }
+    .tone-purple { background-color: #f3e5f5; color: #7b1fa2; }
+    .tone-pink { background-color: #fce4ec; color: #c2185b; }
+    .tone-orange { background-color: #f6e6cc; color: #be5804; }
+    .tone-teal { background-color: #d9edec; color: #00695c; }
+    .tone-yellow { background-color: #fffde7; color: #907713; }
+    .tone-red { background-color: #ffebee; color: #c30a0a; }
+    .tone-grey { background-color: #e9e6e6; color: #424242; }
+    .tone-aqua { background-color: #caf4e7; color: #147c63; }
+        
+    .book-title {
+        font-weight: bold;
+        margin-bottom: 0.25rem;
+    }
+    
+    .book-author {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .book-genres {
+        color: #007bff;
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .review-link {
+        color: #6c757d;
+        text-decoration: none;
+        font-size: 0.8rem;
+    }
+    
+    .review-link:hover {
+        color: #007bff;
+        text-decoration: underline;
+    }
+    
+
+    
+    .column-header {
+        font-weight: bold;
+        text-align: center;
+        background-color: #f8f9fa;
+    }
+    
+    .save-section {
+        position: sticky;
+        bottom: 0;
+        background-color: white;
+        padding: 1rem;
+        border-top: 2px solid #dee2e6;
+        box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .selected-tones {
+        margin-top: 0.5rem;
+    }
+    
+    .selected-tones-list {
+        margin-top: 0.25rem;
+    }
+    
+    .selected-tones .tone-tag {
+        font-size: 0.75rem;
+        padding: 0.125rem 0.375rem;
+        margin: 0.0625rem;
+        cursor: default;
+        pointer-events: none;
+    }
+    
+    .selected-tones.hidden {
+        display: none;
+    }
+
+    .suggestions-column .suggest-btn {
+        padding: 8px 16px;
+        margin-top: 4px;
+        font-size: 14px;
+        color: blue;
+        background-color: #eeeeff;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 2rem 0 1rem 0;
+        color: #333;
+    }
+    
+    .accordion-toggle {
+        text-decoration: none;
+        color: #333;
+        display: block;
+        padding: 10px 15px;
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: -1px;
+    }
+    
+    .accordion-toggle:hover {
+        text-decoration: none;
+        color: #333;
+        background-color: #e7e7e7;
+    }
+    
+    .accordion-toggle.collapsed {
+        background-color: #f5f5f5;
+    }
+    
+    .accordion-toggle:not(.collapsed) {
+        background-color: #e7f3ff;
+        color: #0c63e4;
+    }
+</style>
+}
+
+@section Scripts {
+<script>
+    // Initialize Bootstrap tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        $('[data-toggle="tooltip"]').tooltip({
+            html: true,
+            placement: 'bottom',
+            template: '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner" style="max-width: 800px; width: 800px; font-size: 1rem;"></div></div>'
+        });
+    });
+
+    function toggleTone(bookReviewId, toneId, element) {
+        const isSelected = element.classList.contains('selected');
+        const hiddenInput = document.querySelector(`input[name="BookReviews[${getBookReviewIndex(bookReviewId)}].AssignedToneIds"][value="${toneId}"], input[name="BooksWithTones[${getBooksWithTonesIndex(bookReviewId)}].AssignedToneIds"][value="${toneId}"]`);
+        
+        if (isSelected) {
+            element.classList.remove('selected');
+            if (hiddenInput) {
+                hiddenInput.remove();
+            }
+            // Remove from selected tones display
+            removeToneFromSelectedDisplay(bookReviewId, toneId);
+        } else {
+            element.classList.add('selected');
+            if (!hiddenInput) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                
+                // Determine if this is in the main table or the accordion table
+                const bookReviewIndex = getBookReviewIndex(bookReviewId);
+                const booksWithTonesIndex = getBooksWithTonesIndex(bookReviewId);
+                
+                if (bookReviewIndex !== -1) {
+                    input.name = `BookReviews[${bookReviewIndex}].AssignedToneIds`;
+                } else if (booksWithTonesIndex !== -1) {
+                    input.name = `BooksWithTones[${booksWithTonesIndex}].AssignedToneIds`;
+                }
+                
+                input.value = toneId;
+                document.getElementById(`book-${bookReviewId}-inputs`).appendChild(input);
+            }
+            // Add to selected tones display
+            addToneToSelectedDisplay(bookReviewId, toneId, element);
+        }
+    }
+    
+    function getBookReviewIndex(bookReviewId) {
+        const bookReviews = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BookReviews.Select(br => br.Id)));
+        return bookReviews.indexOf(bookReviewId);
+    }
+    
+    function getBooksWithTonesIndex(bookReviewId) {
+        const booksWithTones = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BooksWithTones.Select(br => br.Id)));
+        return booksWithTones.indexOf(bookReviewId);
+    }
+    
+    function applySuggestion(bookReviewId, toneId) {
+        const toneElement = document.querySelector(`[data-book="${bookReviewId}"][data-tone="${toneId}"]`);
+        if (toneElement && !toneElement.classList.contains('selected')) {
+            toggleTone(bookReviewId, toneId, toneElement);
+        }
+    }
+    
+    function applyAllSuggestions(bookReviewId) {
+        const suggestionElements = document.querySelectorAll(`[data-book="${bookReviewId}"].suggested`);
+        suggestionElements.forEach(element => {
+            const toneId = element.getAttribute('data-tone');
+            applySuggestion(bookReviewId, parseInt(toneId));
+        });
+    }
+    
+    function addToneToSelectedDisplay(bookReviewId, toneId, element) {
+        const selectedTonesSection = document.querySelector(`#book-${bookReviewId}-inputs`).closest('td').querySelector('.selected-tones');
+        const selectedTonesContainer = selectedTonesSection.querySelector('.selected-tones-list');
+        const toneName = element.textContent.trim();
+        
+        // Find the correct color class by looking for the tone in the tone groups
+        let colorClass = Array.from(element.classList).find(cls => cls.startsWith('tone-') && cls !== 'tone-tag');
+        if (!colorClass || colorClass === 'tone-other') {
+            // If we can't find a proper color class or it's tone-other, find the correct one
+            const toneGroups = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ToneGroups.Select(g => new { g.Name, g.ColorClass, Tones = g.Tones.Select(t => new { t.Id, t.Name }) })));
+            for (const group of toneGroups) {
+                if (group.Tones.some(t => t.Id === toneId)) {
+                    colorClass = group.ColorClass;
+                    break;
+                }
+            }
+        }
+        
+        // Show the section if it's hidden
+        selectedTonesSection.style.display = 'block';
+        
+        // Check if tone is already in the display
+        const existingTone = selectedTonesContainer.querySelector(`[data-tone-id="${toneId}"]`);
+        if (!existingTone) {
+            const toneTag = document.createElement('span');
+            toneTag.className = `tone-tag ${colorClass} selected`;
+            toneTag.setAttribute('data-tone-id', toneId);
+            toneTag.textContent = toneName;
+            selectedTonesContainer.appendChild(toneTag);
+        }
+    }
+    
+    function removeToneFromSelectedDisplay(bookReviewId, toneId) {
+        const selectedTonesSection = document.querySelector(`#book-${bookReviewId}-inputs`).closest('td').querySelector('.selected-tones');
+        const selectedTonesContainer = selectedTonesSection.querySelector('.selected-tones-list');
+        const toneElement = selectedTonesContainer.querySelector(`[data-tone-id="${toneId}"]`);
+        if (toneElement) {
+            toneElement.remove();
+            
+            // If no more selected tones, hide the entire section
+            if (selectedTonesContainer.children.length === 0) {
+                selectedTonesSection.style.display = 'none';
+            }
+        }
+    }
+
+</script>
+}
+
+<div class="container-fluid">
+    <h1>Tone Assignment</h1>
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+    
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div>@error.ErrorMessage</div>
+            }
+        </div>
+    }
+    
+    <form asp-action="Update" method="post">
+        <!-- Books Without Tones Section -->
+        <div class="section-title">Books Without Tones Assigned Yet</div>
+        
+        @if (Model.BookReviews.Any())
+        {
+            @await Html.PartialAsync("_ToneAssignmentTable", new ViewDataDictionary(ViewData) { 
+                { "BookReviews", Model.BookReviews }, 
+                { "ToneGroups", Model.ToneGroups },
+                { "InputPrefix", "BookReviews" }
+            })
+        }
+        else
+        {
+            <div class="alert alert-info">All books with review content have been assigned tones!</div>
+        }
+        
+        <!-- Books With Tones Section (Accordion) -->
+        @if (Model.BooksWithTones.Any())
+        {
+            <div class="panel-group mt-4" id="booksWithTonesAccordion">
+                <div class="panel panel-default">
+                    <div class="panel-heading" id="booksWithTonesHeading">
+                        <h4 class="panel-title">
+                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#booksWithTonesAccordion" href="#booksWithTonesCollapse">
+                                Books Already Assigned Tones (@Model.BooksWithTones.Count)
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="booksWithTonesCollapse" class="panel-collapse collapse" aria-labelledby="booksWithTonesHeading">
+                        <div class="panel-body">
+                            @await Html.PartialAsync("_ToneAssignmentTable", new ViewDataDictionary(ViewData) { 
+                                { "BookReviews", Model.BooksWithTones }, 
+                                { "ToneGroups", Model.ToneGroups },
+                                { "InputPrefix", "BooksWithTones" }
+                            })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        
+        <div class="save-section">
+            <button type="submit" class="btn btn-primary">Save Tone Assignments</button>
+            <a href="@Url.Action("ToneAssignment")" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

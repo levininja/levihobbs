@@ -1,0 +1,240 @@
+@model Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateDictionary
+@{
+    ViewData["Title"] = "Import Book Reviews";
+}
+
+<div class="container">
+    <h1>Import Book Reviews from Goodreads</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>How to download your Goodreads export file</h5>
+        </div>
+        <div class="card-body">
+            <ol>
+                <li>Go to <strong>My Books</strong> on Goodreads</li>
+                <li>Under <strong>Tools</strong>, click <strong>Import/Export</strong></li>
+                <li>Click <strong>Export</strong></li>
+                <li>When the export is finished, click the <strong>"Your export from [timestamp]"</strong> link to download it</li>
+            </ol>
+            <p>Once you've downloaded your export, drag and drop the file to the area below to upload.</p>
+        </div>
+    </div>
+    
+    @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage))
+    {
+        <div class="alert alert-success">
+            @ViewBag.SuccessMessage
+        </div>
+    }
+    
+    @if (ViewBag.DuplicateCount > 0)
+    {
+        <div class="alert alert-info">
+            Detected @ViewBag.DuplicateCount duplicate reviews. Skipping duplicates.
+        </div>
+    }
+    
+    @if (!Model.IsValid)
+    {
+        <div class="alert alert-danger">
+            <ul>
+                @foreach (var error in Model.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" asp-action="Import" id="uploadForm">
+                <div class="mb-3">
+                    <label for="file" class="form-label">Upload Goodreads CSV Export</label>
+                    <div class="drop-zone" id="dropZone">
+                        <div class="drop-zone__prompt">
+                            <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+                            <p>Drag and drop your CSV file here</p>
+                            <p class="text-muted">or</p>
+                            <input type="file" class="form-control" id="file" name="file" accept=".csv" required>
+                        </div>
+                        <div class="drop-zone__thumb d-none">
+                            <div class="drop-zone__prompt">
+                                <i class="fas fa-file-csv fa-3x mb-3"></i>
+                                <p class="drop-zone__filename"></p>
+                                <button type="button" class="btn btn-sm btn-danger d-none" id="removeFile">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Upload and Import</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('file');
+            const submitBtn = document.getElementById('submitBtn');
+            const removeBtn = document.getElementById('removeFile');
+            const thumb = document.querySelector('.drop-zone__thumb');
+            const filename = document.querySelector('.drop-zone__filename');
+
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            // Highlight drop zone when item is dragged over it
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+
+            // Handle dropped files
+            dropZone.addEventListener('drop', handleDrop, false);
+
+            // Handle file input change
+            fileInput.addEventListener('change', handleFileSelect, false);
+
+            // Handle remove button
+            removeBtn.addEventListener('click', removeFile, false);
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            function highlight(e) {
+                dropZone.classList.add('drop-zone--over');
+            }
+
+            function unhighlight(e) {
+                dropZone.classList.remove('drop-zone--over');
+            }
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+
+            function handleFileSelect(e) {
+                const files = e.target.files;
+                handleFiles(files);
+            }
+
+            function handleFiles(files) {
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+                        fileInput.files = files;
+                        updateThumbnail(file);
+                        submitBtn.disabled = false;
+                    } else {
+                        alert('Please upload a CSV file');
+                        removeFile();
+                    }
+                }
+            }
+
+            function updateThumbnail(file) {
+                filename.textContent = file.name;
+                thumb.classList.remove('d-none');
+                removeBtn.classList.remove('d-none');
+            }
+
+            function removeFile() {
+                fileInput.value = '';
+                thumb.classList.add('d-none');
+                removeBtn.classList.add('d-none');
+                submitBtn.disabled = true;
+            }
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .d-none {
+            display: none;
+        }
+
+        .card{
+            padding: 20px;
+        }
+
+        .btn-primary{
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+
+        .drop-zone {
+            width: 100%;
+            min-height: 200px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: "Quicksand", sans-serif;
+            font-weight: 500;
+            font-size: 20px;
+            cursor: pointer;
+            color: #cccccc;
+            border: 4px dashed #009578;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone--over {
+            border-color: #000;
+            background-color: rgba(0, 149, 120, 0.1);
+        }
+
+        .drop-zone__prompt {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .drop-zone__thumb {
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #cccccc;
+            background-size: cover;
+            position: relative;
+        }
+
+        .drop-zone__thumb::after {
+            content: attr(data-label);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 5px 0;
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.75);
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .drop-zone__filename{
+            color: black;
+        }
+    </style>
+}
