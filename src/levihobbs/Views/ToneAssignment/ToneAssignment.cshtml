@@ -1,4 +1,4 @@
-@model BookDataApi.Dtos.ToneAssignmentDto
+@model levihobbs.Models.ToneAssignmentViewModel
 @{
     ViewData["Title"] = "Tone Assignment";
 }
@@ -268,7 +268,7 @@
         let colorClass = Array.from(element.classList).find(cls => cls.startsWith('tone-') && cls !== 'tone-tag');
         if (!colorClass || colorClass === 'tone-other') {
             // If we can't find a proper color class or it's tone-other, find the correct one
-            const toneGroups = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ToneGroups.Select(g => new { g.Name, g.ColorClass, Tones = g.Tones.Select(t => new { t.Id, t.Name }) })));
+            const toneGroups = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ToneColorGroupings.Select(g => new { g.Name, g.ColorClass, Tones = g.Tones.Select(t => new { t.Id, t.Name }) })));
             for (const group of toneGroups) {
                 if (group.Tones.some(t => t.Id === toneId)) {
                     colorClass = group.ColorClass;
@@ -339,7 +339,7 @@
         {
             @await Html.PartialAsync("_ToneAssignmentTable", new ViewDataDictionary(ViewData) { 
                 { "BookReviews", Model.BookReviews }, 
-                { "ToneGroups", Model.ToneGroups },
+                { "ToneColorGroupings", Model.ToneColorGroupings },
                 { "InputPrefix", "BookReviews" }
             })
         }
@@ -364,7 +364,7 @@
                         <div class="panel-body">
                             @await Html.PartialAsync("_ToneAssignmentTable", new ViewDataDictionary(ViewData) { 
                                 { "BookReviews", Model.BooksWithTones }, 
-                                { "ToneGroups", Model.ToneGroups },
+                                { "ToneColorGroupings", Model.ToneColorGroupings },
                                 { "InputPrefix", "BooksWithTones" }
                             })
                         </div>

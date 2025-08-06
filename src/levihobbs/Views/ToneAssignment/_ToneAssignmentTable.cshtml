@@ -1,9 +1,9 @@
 @using BookDataApi.Dtos
 @{
     List<BookReviewToneItemDto>? bookReviews = ViewData["BookReviews"] as List<BookReviewToneItemDto>;
-    List<ToneGroupDto>? toneGroups = ViewData["ToneGroups"] as List<ToneGroupDto>;
+    List<ToneColorGrouping>? toneColorGroupings = ViewData["ToneColorGroupings"] as List<ToneColorGrouping>;
     string? inputPrefix = ViewData["InputPrefix"] as string;
-    if (bookReviews == null || toneGroups == null || inputPrefix == null)
+    if (bookReviews == null || toneColorGroupings == null || inputPrefix == null)
     {
         <text>Required data is missing.</text>
         return;
@@ -15,7 +15,7 @@
         <thead>
             <tr>
                 <th class="column-header book-info">Book Review</th>
-                @foreach (ToneGroupDto group in toneGroups)
+                @foreach (ToneColorGrouping group in toneColorGroupings)
                 {
                     <th class="column-header tone-column @group.ColorClass">@group.DisplayName Tones</th>
                 }
@@ -50,8 +50,8 @@
                             <div class="selected-tones-list">
                                 @foreach (int toneId in bookReview.AssignedToneIds)
                                 {
-                                    ToneDisplayItemDto? tone = toneGroups.SelectMany(g => g.Tones).FirstOrDefault(t => t.Id == toneId);
-                                    ToneGroupDto? group = toneGroups.FirstOrDefault(g => g.Tones.Any(t => t.Id == toneId));
+                                    Tone? tone = toneColorGroupings.SelectMany(g => g.Tones).FirstOrDefault(t => t.Id == toneId);
+                                    ToneColorGrouping? group = toneColorGroupings.FirstOrDefault(g => g.Tones.Any(t => t.Id == toneId));
                                     if (tone != null && group != null)
                                     {
                                         <span class="tone-tag @group.ColorClass selected" data-tone-id="@toneId">
@@ -70,10 +70,10 @@
                         </div>
                     </td>
                     
-                    @foreach (ToneGroupDto group in toneGroups)
+                    @foreach (ToneColorGrouping group in toneColorGroupings)
                     {
                         <td class="tone-column">
-                            @foreach (ToneDisplayItemDto tone in group.Tones)
+                            @foreach (Tone tone in group.Tones)
                             {
                                 bool isSelected = bookReview.AssignedToneIds.Contains(tone.Id);
                                 bool isSuggested = bookReview.SuggestedToneIds.Contains(tone.Id);
@@ -94,7 +94,7 @@
                             <div>
                                 @foreach (int toneId in bookReview.SuggestedToneIds)
                                 {
-                                    ToneDisplayItemDto? tone = toneGroups.SelectMany(g => g.Tones).FirstOrDefault(t => t.Id == toneId);
+                                    Tone? tone = toneColorGroupings.SelectMany(g => g.Tones).FirstOrDefault(t => t.Id == toneId);
                                     if (tone != null)
                                     {
                                         <span class="tone-tag tone-other suggested"

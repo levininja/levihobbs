@@ -245,11 +245,28 @@ namespace levihobbs.Services
         {
             try
             {
+                // BREAKPOINT: About to make API call to get tone configuration
+                _logger.LogInformation("Making API call to get tone configuration from {BaseUrl}/api/tones/configuration", _baseUrl);
+                
                 var response = await _httpClient.GetAsync($"{_baseUrl}/api/tones/configuration");
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<ToneItemDto>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<ToneItemDto>();
+                
+                // BREAKPOINT: Raw JSON response received
+                _logger.LogInformation("Raw JSON response from tone configuration API: {Json}", json);
+                
+                var result = JsonSerializer.Deserialize<List<ToneItemDto>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<ToneItemDto>();
+                
+                // BREAKPOINT: Deserialized result
+                _logger.LogInformation("Deserialized {Count} tone items from API response", result.Count);
+                foreach (var tone in result)
+                {
+                    _logger.LogInformation("Tone: Id={Id}, Name={Name}, ParentId={ParentId}, SubtonesCount={SubtonesCount}", 
+                        tone.Id, tone.Name, tone.ParentId, tone.Subtones?.Count ?? 0);
+                }
+                
+                return result;
             }
             catch (HttpRequestException ex)
             {
