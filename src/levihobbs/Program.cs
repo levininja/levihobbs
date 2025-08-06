@@ -31,28 +31,25 @@ namespace levihobbs
             builder.Services.Configure<ReCaptchaSettings>(
                 builder.Configuration.GetSection("ReCaptcha"));
 
-            // Configure Google Custom Search settings
-            builder.Services.Configure<GoogleCustomSearchSettings>(
-                builder.Configuration.GetSection("GoogleCustomSearch"));
+
 
             // Add HttpClient
             builder.Services.AddHttpClient();
 
             // Add SubstackApiClient
             builder.Services.AddHttpClient<ISubstackApiClient, SubstackApiClient>();
-
-            // Add GoodreadsRssService
-            builder.Services.AddScoped<IGoodreadsRssService, GoodreadsRssService>();
+            
+            // Add HttpClient for AdminController to call book-data-api
+            builder.Services.AddHttpClient();
+            
+            // Add BookDataApiService
+            builder.Services.AddHttpClient<IBookDataApiService, BookDataApiService>();
+            builder.Services.AddScoped<IBookDataApiService, BookDataApiService>();
 
             // Add ReaderController
             builder.Services.AddScoped<ReaderController>();
             
             builder.Services.AddScoped<IMockDataService, MockDataService>();
-
-            // Add BookCoverService
-            builder.Services.AddScoped<IBookCoverService, BookCoverService>();
-
-            builder.Services.AddScoped<IBookReviewSearchService, BookReviewSearchService>();
 
             // Add AdminController
             builder.Services.AddScoped<AdminController>();
@@ -73,8 +70,11 @@ namespace levihobbs
             // Log environment and configuration after building the app
             var logger = app.Services.GetRequiredService<ILogger<Program>>();
             logger.LogInformation("Current environment: {Environment}", app.Environment.EnvironmentName);
-            logger.LogInformation("Google Custom Search settings: {Settings}", 
-                app.Configuration.GetSection("GoogleCustomSearch").Get<GoogleCustomSearchSettings>());
+
+            // Log the book-data-api configuration
+            var baseUrl = builder.Configuration["BookDataApi:BaseUrl"] ?? "http://localhost:5020";
+            logger.LogInformation("Book-data-api configured to use: {BaseUrl}", baseUrl);
+            logger.LogInformation("Note: The application will check API availability when making requests.");
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

@@ -10,13 +10,27 @@ Before you begin, ensure you have the following installed:
 - [Node.js and npm](https://nodejs.org/) (for SCSS compilation)
 - An IDE (like Visual Studio, VS Code, or Rider)
 
+## Dependencies
+
+This application depends on the **book-data-api** service, which should be running on `http://localhost:5020`. 
+
+- **book-data-api**: Handles all book review data, bookshelves, and tone management
+- **levihobbs.com**: This main website (runs on port 5000/5001)
+- **book-tones-api**: Handles tone analysis (runs on port 5010)
+
 ## Getting Started
 
 1. **Extract the Project**
    - Extract the contents of the zip file to a location of your choice
    - Open the extracted folder in your preferred IDE
 
-2. **Database Setup**
+2. **Start Required Services**
+   - **book-data-api**: Must be running on `http://localhost:5020`
+   - **book-tones-api**: Must be running on `http://localhost:5010` (if using tone analysis features)
+   
+   The application will show clear error messages in the console and UI if these services are not available.
+
+3. **Database Setup**
    - Install PostgreSQL if you haven't already
    - Create a new database named `levihobbs`
    - During PostgreSQL installation, you would have set up a superuser (usually named 'postgres')
@@ -28,29 +42,29 @@ Before you begin, ensure you have the following installed:
      ```
      Replace `your_postgres_password` with the password you set during PostgreSQL installation. If you're using a different username than 'postgres', update that as well.
 
-3. **Development Credentials**
+4. **Development Credentials**
    - Copy `appsettings.Development.template.json` to `appsettings.Development.json`
    - Contact another developer to get the necessary credentials for:
      - Google Custom Search API key and Search Engine ID
      - ReCaptcha site key
    - These credentials are required for features like book cover image search and form validation
 
-4. **Install .NET Dependencies**
+5. **Install .NET Dependencies**
    ```bash
    dotnet restore
    ```
 
-5. **Install Node.js Dependencies** (for SCSS compilation)
+6. **Install Node.js Dependencies** (for SCSS compilation)
    ```bash
    npm install
    ```
 
-6. **Apply Database Migrations**
+7. **Apply Database Migrations**
    ```bash
    dotnet ef database update
    ```
 
-7. **Compile SCSS to CSS**
+8. **Compile SCSS to CSS**
    ```bash
    npm run build
    ```
@@ -59,13 +73,15 @@ Before you begin, ensure you have the following installed:
    npm run scss:watch
    ```
 
-8. **Run the Application**
+9. **Run the Application**
    > **Note:** When running `dotnet run` from the root directory, you need to specify the project path: `dotnet run --project src/levihobbs/levihobbs.csproj`. Alternatively, you can `cd` into the `src/levihobbs` directory first and then run the commands.
    
    ```bash
    dotnet run --project src/levihobbs/levihobbs.csproj
    ```
    The application should now be running at `https://localhost:5001` or `http://localhost:5000`
+
+   **Important**: The application will check for the book-data-api on startup and display an error message if it's not available.
 
 ## Development
 
@@ -149,6 +165,14 @@ If you encounter any issues:
 6. **Running the Application**
    - If you get port conflicts, you can modify the ports in `Properties/launchSettings.json`
    - Make sure no other application is using ports 5000 or 5001
+
+7. **API Connection Issues**
+   - If you see "Cannot connect to book-data-api" errors, ensure the book-data-api service is running on port 5020
+   - If you see "Cannot connect to book-tones-api" errors, ensure the book-tones-api service is running on port 5010
+   - Check that the services are accessible by visiting their health endpoints:
+     - `http://localhost:5020/health` (book-data-api)
+     - `http://localhost:5010/health` (book-tones-api)
+   - Verify that your firewall isn't blocking these ports
 
 ## License
 
