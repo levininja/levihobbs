@@ -30,7 +30,6 @@ namespace levihobbs.Controllers
                 // Get tone assignment data (which includes the tones)
                 ToneAssignmentDto toneAssignmentData = await _bookDataApiService.GetToneAssignmentAsync();
                 
-                // Use the tones from the assignment data instead of making a separate API call
                 List<ToneItemDto> tones = toneAssignmentData.Tones ?? new List<ToneItemDto>();
                 
                 // Create tone color groupings
@@ -41,7 +40,8 @@ namespace levihobbs.Controllers
                 {
                     BookReviews = toneAssignmentData.BookReviews ?? new List<BookReviewToneItemDto>(),
                     BooksWithTones = toneAssignmentData.BooksWithTones ?? new List<BookReviewToneItemDto>(),
-                    ToneColorGroupings = toneColorGroupings
+                    ToneColorGroupings = toneColorGroupings,
+                    AllTones = tones
                 };
 
                 return View(viewModel);
@@ -58,60 +58,6 @@ namespace levihobbs.Controllers
                 TempData["Error"] = "An error occurred while fetching tone assignment.";
                 return View(new ToneAssignmentViewModel());
             }
-        }
-
-        /// <summary>
-        /// Creates tone color groupings for display in the tone assignment interface.
-        /// Groups parent tones with their subtones and creates a separate group for standalone tones.
-        /// </summary>
-        /// <param name="allTones">List of all tones from the API</param>
-        /// <returns>List of tone color groupings</returns>
-        private List<ToneColorGrouping> CreateToneColorGroupings(List<ToneItemDto> allTones)
-        {
-            const string otherTonesGroupName = "Other Tones";
-            
-            // Find parent tones with subtones
-            var parentTonesWithSubtones = allTones.Where(pt => pt.Subtones.Any()).ToList();
-            
-            // Put the tone groupings together
-            List<ToneColorGrouping> toneColorGroupings = parentTonesWithSubtones.Select((pt, index) => 
-            {
-                var grouping = new ToneColorGrouping
-                {
-                    Name = pt.Name,
-                    DisplayName = pt.Name,
-                    ColorClass = GetColorClassForTone(index),
-                    Tones = new[] { pt }.Concat(pt.Subtones.OrderBy(st => st.Name))
-                        .Select(t => new Tone
-                        {
-                            Id = t.Id,
-                            Name = t.Name,
-                            Description = t.Description
-                        }).ToList()
-                };
-                
-                return grouping;
-            }).ToList();
-
-            // Find standalone tones
-            var standaloneTones = allTones.Where(pt => !pt.Subtones.Any() && pt.ParentId == null).ToList();
-            
-            // Add a group for all stand-alone tones that don't have children
-            var otherTonesGrouping = new ToneColorGrouping
-            {
-                Name = otherTonesGroupName,
-                DisplayName = otherTonesGroupName,
-                ColorClass = GetColorClassForTone(-1), // -1 is a special case for the uncategorized tones group
-                Tones = standaloneTones.Select(pt => new Tone {
-                    Id = pt.Id,
-                    Name = pt.Name,
-                    Description = pt.Description
-                }).ToList()
-            };
-            
-            toneColorGroupings.Add(otherTonesGrouping);
-
-            return toneColorGroupings;
         }
 
         [HttpPost]
@@ -186,6 +132,61 @@ namespace levihobbs.Controllers
         }
 
         /// <summary>
+        /// Creates tone color groupings for display in the tone assignment interface.
+        /// Groups parent tones with their subtones and creates a separate group for standalone tones.
+        /// </summary>
+        /// <param name="allTones">List of all tones from the API</param>
+        /// <returns>List of tone color groupings</returns>
+        private List<ToneColorGrouping> CreateToneColorGroupings(List<ToneItemDto> allTones)
+        {
+            const string otherTonesGroupName = "Other";
+            
+            // Find parent tones with subtones
+            var parentTonesWithSubtones = allTones.Where(pt => pt.Subtones.Any()).ToList();
+            
+            // Put the tone groupings together
+            List<ToneColorGrouping> toneColorGroupings = parentTonesWithSubtones.Select((pt, index) => 
+            {
+                var grouping = new ToneColorGrouping
+                {
+                    Name = pt.Name,
+                    DisplayName = pt.Name,
+                    ColorClass = GetColorClassForTone(index),
+                    Tones = new[] { pt }.Concat(pt.Subtones.OrderBy(st => st.Name))
+                        .Select(t => new Tone
+                        {
+                            Id = t.Id,
+                            Name = t.Name,
+                            Description = t.Description
+                        }).ToList()
+                };
+                
+                return grouping;
+            }).ToList();
+
+            // Find standalone tones
+            var standaloneTones = allTones.Where(pt => !pt.Subtones.Any() && pt.ParentId == null).ToList();
+            
+            // Add a group for all stand-alone tones that don't have children
+            var otherTonesGrouping = new ToneColorGrouping
+            {
+                Name = otherTonesGroupName,
+                DisplayName = otherTonesGroupName,
+                ColorClass = GetColorClassForTone(-1), // -1 is a special case for the uncategorized tones group
+                Tones = standaloneTones.Select(pt => new Tone {
+                    Id = pt.Id,
+                    Name = pt.Name,
+                    Description = pt.Description
+                }).ToList()
+            };
+            
+            toneColorGroupings.Add(otherTonesGrouping);
+
+            return toneColorGroupings;
+        }
+
+
+        /// <summary>
         /// Returns a CSS class name for color coding tone groups based on the tone's index.
         /// </summary>
         /// <param name="toneIndex">The index of the tone in the list of parent tones. Used to consistently assign colors. Special case of -1 for 
@@ -199,8 +200,9 @@ namespace levihobbs.Controllers
                 return "tone-grey";
 
             // Generate consistent pastel colors based on tone index
-            string[] colors = new[] { "tone-aqua", "tone-blue", "tone-purple",  "tone-teal",  "tone-red",  "tone-yellow", "tone-indigo",
-            "tone-brown", "tone-pink", "tone-orange", "tone-green", "tone-lime", "tone-cyan", "tone-magenta", "tone-amber" };
+            string[] colors = new[] { "tone-blue", "tone-purple",   "tone-red", "tone-orange",  "tone-teal",  "tone-yellow",
+                 "tone-pink", "tone-brown",  "tone-green","tone-indigo","tone-grey",
+                "tone-aqua",  "tone-lime", "tone-cyan", "tone-magenta", "tone-amber"};
             // Use modulo to handle cases where there are more tones than colors
             return colors[toneIndex % colors.Length];
         }

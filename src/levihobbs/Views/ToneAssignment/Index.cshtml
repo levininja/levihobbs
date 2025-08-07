@@ -7,8 +7,17 @@
     <link rel="stylesheet" href="~/css/tone-assignment.css" />
 }
 
+<!-- Banner Messages Container -->
+<div id="bannerMessages" class="banner-messages"></div>
+
 @section Scripts {
 <script>
+    // Global variables for tracking processing state
+    let currentBatchId = null;
+    let statusCheckInterval = null;
+    let processingBookIds = [];
+    let allTones = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AllTones.Select(t => t.Name)));
+    
     // Initialize Bootstrap tooltips
     document.addEventListener('DOMContentLoaded', function() {
         $('[data-toggle="tooltip"]').tooltip({
@@ -23,12 +32,14 @@
             const booksWithoutTones = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BookReviews.Select(br => br.Id)));
             
             if (booksWithoutTones.length === 0) {
-                alert('No books without tone assignments available for processing.');
+                showBannerMessage('No books without tone assignments available for processing.', 'warning');
                 return;
             }
             
             const selectedBookIds = booksWithoutTones.slice(0, batchSize);
-            const bookIdsParam = selectedBookIds.map(id => `bookIds=${id}`).join('&');
+            
+            // Grey out the first X rows
+            greyOutProcessingRows(selectedBookIds);
             
             // Disable button during processing
             const button = this;
@@ -36,21 +47,39 @@
             button.disabled = true;
             button.textContent = 'Processing...';
             
-            fetch(`/api/BookToneRecommendations?${bookIdsParam}`, {
+            // Make API call to process books
+            const bookIdsParam = selectedBookIds.map(id => `bookIds=${id}`).join('&');
+            
+            fetch(`https://localhost:5010/api/BookToneRecommendations?${bookIdsParam}`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    'Content-Type': 'application/json'
                 }
             }).then(response => {
                 if (response.ok) {
-                    alert(`Successfully sent ${selectedBookIds.length} books for AI processing.`);
+                    return response.json();
                 } else {
-                    alert('Failed to send books for processing. Please try again.');
+                    throw new Error('Failed to send books for processing');
                 }
+            }).then(data => {
+                currentBatchId = data.batchId;
+                processingBookIds = selectedBookIds;
+                
+                showBannerMessage(`Successfully sent ${selectedBookIds.length} books for AI processing. Batch ID: ${data.batchId}`, 'info');
+                
+                // Start checking status every 15 minutes (900000 ms)
+                statusCheckInterval = setInterval(() => {
+                    checkBatchStatus(currentBatchId);
+                }, 900000);
+                
+                // Check status immediately
+                checkBatchStatus(currentBatchId);
             }).catch(error => {
                 console.error('AI processing request failed:', error);
-                alert('Failed to send books for processing. Please try again.');
+                showBannerMessage('Failed to send books for processing. Please try again.', 'error');
+                
+                // Re-enable the rows
+                enableProcessingRows(selectedBookIds);
             }).finally(() => {
                 // Re-enable button
                 button.disabled = false;
@@ -58,6 +87,167 @@
             });
         });
     });
+    
+    function greyOutProcessingRows(bookIds) {
+        bookIds.forEach(bookId => {
+            const row = document.querySelector(`tr[data-book-id="${bookId}"]`);
+            if (row)
+                row.classList.add('processing-row');
+        });
+    }
+    
+    function enableProcessingRows(bookIds) {
+        bookIds.forEach(bookId => {
+            const row = document.querySelector(`tr[data-book-id="${bookId}"]`);
+            if (row)
+                row.classList.remove('processing-row');
+        });
+    }
+    
+    function checkBatchStatus(batchId) {
+        fetch(`https://localhost:5010/api/BookToneRecommendations/batch/${batchId}/status`)
+            .then(response => {
+                if (response.ok)
+                    return response.json();
+                else
+                    throw new Error('Failed to get batch status');
+            })
+            .then(data => {
+                if (data.status === 'Processing') {
+                    // Keep rows greyed out, no change to banner
+                    return;
+                } else if (data.status === 'Failed') {
+                    // Enable rows and show error banner
+                    enableProcessingRows(processingBookIds);
+                    showBannerMessage(`Processing failed for books: ${processingBookIds.join(', ')}. Batch ID: ${batchId}`, 'error');
+                    
+                    // Clear interval
+                    if (statusCheckInterval) {
+                        clearInterval(statusCheckInterval);
+                        statusCheckInterval = null;
+                    }
+                } else if (data.status === 'Completed') {
+                    // Show success banner and get recommendations
+                    showBannerMessage(`Successfully processed books: ${processingBookIds.join(', ')}`, 'success');
+                    enableProcessingRows(processingBookIds);
+                    
+                    // Get recommendations for each book
+                    processingBookIds.forEach(bookId => {
+                        getBookRecommendations(bookId);
+                    });
+                    
+                    // Clear interval
+                    if (statusCheckInterval) {
+                        clearInterval(statusCheckInterval);
+                        statusCheckInterval = null;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Status check failed:', error);
+            });
+    }
+    
+    function getBookRecommendations(bookId) {
+        fetch(`https://localhost:5010/api/BookToneRecommendations/${bookId}`)
+            .then(response => {
+                if (response.ok)
+                    return response.json();
+                else
+                    throw new Error('Failed to get recommendations');
+            })
+            .then(data => {
+                if (data.recommendations && data.recommendations.length > 0)
+                    addRecommendationsToBook(bookId, data.recommendations);
+            })
+            .catch(error => {
+                console.error('Failed to get recommendations for book', bookId, error);
+            });
+    }
+    
+    function addRecommendationsToBook(bookId, recommendations) {
+        const suggestionsColumn = document.querySelector(`tr[data-book-id="${bookId}"] .suggestions-column`);
+        if (!suggestionsColumn) {
+            showBannerMessage(`Error: Could not find suggestions column for book ID ${bookId}`, 'error');
+            return;
+        }
+        
+        recommendations.forEach(rec => {
+            const toneName = rec.tone;
+            const isApprovedTone = allTones.includes(toneName);
+            
+            const toneTag = document.createElement('span');
+            toneTag.className = `tone-tag ai-recommendation ${isApprovedTone ? '' : 'not-approved'}`;
+            toneTag.setAttribute('data-recommendation-id', rec.recommendationId);
+            toneTag.setAttribute('data-book-id', bookId);
+            toneTag.setAttribute('data-tone-name', toneName);
+            
+            if (isApprovedTone)
+                toneTag.onclick = () => applySuggestion(bookId, toneName);
+            
+            toneTag.innerHTML = `
+                ${toneName}
+                <button class="thumbs-down-btn" onclick="giveFeedback(${rec.recommendationId}, event, false)">
+                    👎
+                </button>
+            `;
+            
+            suggestionsColumn.appendChild(toneTag);
+        });
+    }
+    
+    function giveFeedback(recommendationId, event, isPositive = false) {
+        if (event)
+            event.stopPropagation();
+        
+        const feedbackValue = isPositive ? 1 : -1;
+        
+        fetch(`https://localhost:5010/api/BookToneRecommendations/${recommendationId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(feedbackValue)
+        }).then(response => {
+            if (response.ok) {
+                if (event) {
+                    // Mark the recommendation as feedback given
+                    const toneTag = event.target.closest('.tone-tag');
+                    toneTag.classList.add('feedback-given');
+                    event.target.classList.add('disabled');
+                }
+                
+                showBannerMessage('Feedback successfully recorded', 'success');
+            } else {
+                showBannerMessage('Failed to record feedback', 'error');
+            }
+        }).catch(error => {
+            console.error('Feedback request failed:', error);
+            showBannerMessage('Failed to record feedback', 'error');
+        });
+    }
+    
+    function showBannerMessage(message, type) {
+        const bannerContainer = document.getElementById('bannerMessages');
+        const banner = document.createElement('div');
+        banner.className = `banner-message ${type}`;
+        
+        const messageId = 'banner-' + Date.now();
+        banner.id = messageId;
+        
+        banner.innerHTML = `
+            <span>${message}</span>
+            <button class="banner-close" onclick="closeBanner('${messageId}')">&times;</button>
+        `;
+        
+        bannerContainer.appendChild(banner);
+    }
+    
+    function closeBanner(bannerId) {
+        const banner = document.getElementById(bannerId);
+        if (banner)
+            banner.remove();
+    }
 
     function toggleTone(bookReviewId, toneId, element) {
         const isSelected = element.classList.contains('selected');
@@ -104,10 +294,30 @@
         return booksWithTones.indexOf(bookReviewId);
     }
     
-    function applySuggestion(bookReviewId, toneId) {
-        const toneElement = document.querySelector(`[data-book="${bookReviewId}"][data-tone="${toneId}"]`);
+    function applySuggestion(bookReviewId, toneName) {
+        // AI recommendation - find the tone by name
+        const toneElement = document.querySelector(`[data-book="${bookReviewId}"][data-tone-name="${toneName}"]`);
         if (toneElement && !toneElement.classList.contains('selected')) {
-            toggleTone(bookReviewId, toneId, toneElement);
+            // Find the actual tone ID from the tone groups
+            const toneGroups = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ToneColorGroupings.Select(g => new { g.Name, g.ColorClass, Tones = g.Tones.Select(t => new { t.Id, t.Name }) })));
+            let foundToneId = null;
+            
+            for (const group of toneGroups) {
+                const tone = group.Tones.find(t => t.Name === toneName);
+                if (tone) {
+                    foundToneId = tone.Id;
+                    break;
+                }
+            }
+            
+            if (foundToneId) {
+                toggleTone(bookReviewId, foundToneId, toneElement);
+                
+                // Give positive feedback when recommendation is applied
+                const recommendationId = toneElement.getAttribute('data-recommendation-id');
+                if (recommendationId)
+                    giveFeedback(parseInt(recommendationId), null, true);
+            }
         }
     }
     
@@ -192,13 +402,12 @@
     
     <div class="batch-processing-section mb-4">
         <h4>AI Tone Recommendations</h4>
-        <p class="text-muted">Send books without tone assignments to AI for batch processing and tone recommendations.</p>
         <div class="form-inline">
             <label for="batchSize" class="mr-2">Number of books to process:</label>
-            <input type="number" id="batchSize" class="form-control mr-2" min="1" max="10" value="3" style="width: 80px;">
+            <input type="number" id="batchSize" class="form-control mr-2 batch-size-input" min="1" max="10" value="1">
             <button type="button" id="sendForProcessing" class="btn btn-info">Send for AI Processing</button>
         </div>
-        <small class="form-text text-muted">This will send the first X books without tone assignments to the AI for tone recommendations.</small>
+        <small class="form-text text-muted">Send the top X books to AI to generate tone recommendations.</small>
     </div>
     
     @if (TempData["SuccessMessage"] != null)
