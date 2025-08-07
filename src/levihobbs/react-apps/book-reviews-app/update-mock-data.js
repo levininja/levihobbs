@@ -53,15 +53,15 @@ const generatePreviewText = (review) => {
 
 // Bookshelf mappings (you'll need to update these based on your actual data)
 const bookshelfMappings = {
-  'favorites': { id: 196, name: "favorites", displayName: "favorites" },
-  'featured': { id: 219, name: "featured", displayName: "featured" },
-  '2025-reading-list': { id: 192, name: "2025-reading-list", displayName: "2025-reading-list" },
-  'ancient-greek': { id: 191, name: "ancient-greek", displayName: "ancient-greek" },
-  'history-of-lit': { id: 190, name: "history-of-lit", displayName: "history-of-lit" },
-  'high-fantasy': { id: 211, name: "high-fantasy", displayName: "high-fantasy" },
-  'philosophy': { id: 195, name: "philosophy", displayName: "philosophy" },
-  'friends': { id: 194, name: "friends", displayName: "friends" },
-  'childrens': { id: 228, name: "childrens", displayName: "childrens" }
+  'favorites': { id: 196, name: "favorites" },
+'featured': { id: 219, name: "featured" },
+'2025-reading-list': { id: 192, name: "2025-reading-list" },
+'ancient-greek': { id: 191, name: "ancient-greek" },
+'history-of-lit': { id: 190, name: "history-of-lit" },
+'high-fantasy': { id: 211, name: "high-fantasy" },
+'philosophy': { id: 195, name: "philosophy" },
+'friends': { id: 194, name: "friends" },
+'childrens': { id: 228, name: "childrens" }
 };
 
 // Function to extract bookshelves from searchable string
@@ -105,15 +105,15 @@ const generateTypeScriptContent = () => {
 
 // Real bookshelves from database
 export const mockBookshelves: Bookshelf[] = [
-  { id: 196, name: "favorites", displayName: "favorites" },
-  { id: 219, name: "featured", displayName: "featured" },
-  { id: 192, name: "2025-reading-list", displayName: "2025-reading-list" },
-  { id: 191, name: "ancient-greek", displayName: "ancient-greek" },
-  { id: 190, name: "history-of-lit", displayName: "history-of-lit" },
-  { id: 211, name: "high-fantasy", displayName: "high-fantasy" },
-  { id: 195, name: "philosophy", displayName: "philosophy" },
-  { id: 194, name: "friends", displayName: "friends" },
-  { id: 228, name: "childrens", displayName: "childrens" }
+  { id: 196, name: "favorites" },
+  { id: 219, name: "featured" },
+  { id: 192, name: "2025-reading-list" },
+  { id: 191, name: "ancient-greek" },
+  { id: 190, name: "history-of-lit" },
+  { id: 211, name: "high-fantasy" },
+  { id: 195, name: "philosophy" },
+  { id: 194, name: "friends" },
+  { id: 228, name: "childrens" }
 ];
 
 // Mock bookshelf groupings (empty for now since database has none)

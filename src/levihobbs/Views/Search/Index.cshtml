@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let html = `<h4>Found ${results.length} result(s)</h4><div class="row">`;
         
         results.forEach(book => {
-            const bookshelfNames = book.bookshelves.map(bs => bs.displayName || bs.name).join(', ');
+            const bookshelfNames = book.bookshelves.map(bs => bs.name).join(', ');
             const coverImageSrc = book.coverImageId ? `/api/BookCover?bookTitle=${encodeURIComponent(book.title)}&bookReviewId=${book.id}` : '/images/no-cover.jpg';
             
             html += `

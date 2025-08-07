@@ -1,5 +1,5 @@
 @using Microsoft.AspNetCore.Mvc.ModelBinding
-@model BookDataApi.Dtos.BookshelfConfigurationDto
+@model levihobbs.Models.BookshelfConfigurationViewModel
 @{
     ViewData["Title"] = "Bookshelf Configuration";
 }
@@ -52,8 +52,8 @@
 
 @section Scripts {
 <script>
-    let groupingCounter = @Model.Groupings.Count;
-    const bookshelves = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Bookshelves));
+    let groupingCounter = @Model.Configuration.Groupings.Count;
+    const bookshelves = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Configuration.Bookshelves));
     
     function toggleCustomMappings() {
         const enabled = document.getElementById('EnableCustomMappings').checked;
@@ -98,7 +98,7 @@
             const label = document.createElement('label');
             label.className = 'form-check-label';
             label.htmlFor = input.id;
-            label.textContent = bs.DisplayName || bs.Name;
+            label.textContent = bs.Name;
             div.appendChild(input);
             div.appendChild(label);
             container.appendChild(div);
@@ -243,9 +243,14 @@
 <div class="container">
     <h1>Bookshelf Configuration</h1>
     
-    @if (ViewBag.SuccessMessage != null)
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
     {
-        <div class="alert alert-success">@ViewBag.SuccessMessage</div>
+        <div class="alert alert-success">@Model.SuccessMessage</div>
+    }
+    
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
     }
     
     @if (!ViewData.ModelState.IsValid)
@@ -261,7 +266,7 @@
     <form asp-action="Update" method="post">
         <div class="config-section">
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" asp-for="EnableCustomMappings" id="EnableCustomMappings" onchange="toggleCustomMappings()">
+                <input class="form-check-input" type="checkbox" asp-for="Configuration.EnableCustomMappings" id="EnableCustomMappings" onchange="toggleCustomMappings()">
                 <label class="form-check-label" for="EnableCustomMappings">
                     <strong>Enable Custom Bookshelf Mappings</strong>
                 </label>
@@ -280,20 +285,20 @@
                 even if they are not explicitly selected here. This ensures that grouped bookshelves are always available as filter options.
             </div>
             <div class="bookshelf-list">
-                @for (int i = 0; i < Model.Bookshelves.Count; i++)
+                @for (int i = 0; i < Model.Configuration.Bookshelves.Count; i++)
                 {
                     <div class="bookshelf-item">
-                        <input type="hidden" asp-for="Bookshelves[i].Id" />
-                        <input type="hidden" asp-for="Bookshelves[i].Name" />
-                        <input type="hidden" asp-for="Bookshelves[i].DisplayName" />
+                        <input type="hidden" asp-for="Configuration.Bookshelves[i].Id" />
+                        <input type="hidden" asp-for="Configuration.Bookshelves[i].Name" />
+
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" asp-for="Bookshelves[i].Display" id="bookshelf_@i">
+                            <input class="form-check-input" type="checkbox" asp-for="Configuration.Bookshelves[i].Display" id="bookshelf_@i">
                             <label class="form-check-label" for="bookshelf_@i">
-                                @(Model.Bookshelves[i].DisplayName ?? Model.Bookshelves[i].Name)
+                                @Model.Configuration.Bookshelves[i].Name
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" asp-for="Bookshelves[i].IsGenreBased" id="bookshelf_genre_@i">
+                            <input class="form-check-input" type="checkbox" asp-for="Configuration.Bookshelves[i].IsGenreBased" id="bookshelf_genre_@i">
                             <label class="form-check-label" for="bookshelf_genre_@i">
                                 Genre-based
                             </label>
@@ -308,22 +313,19 @@
             <p>Create groupings that combine multiple bookshelves under a single filter tag:</p>
             
             <div id="groupings-container">
-                @for (int i = 0; i < Model.Groupings.Count; i++)
+                @for (int i = 0; i < Model.Configuration.Groupings.Count; i++)
                 {
                     <div class="grouping-form">
-                        <input type="hidden" asp-for="Groupings[i].Id" />
+                        <input type="hidden" asp-for="Configuration.Groupings[i].Id" />
                         <div class="row">
                             <div class="col-md-6">
-                                <label asp-for="Groupings[i].Name">Grouping Name:</label>
-                                <input type="text" class="form-control" asp-for="Groupings[i].Name" required />
+                                <label asp-for="Configuration.Groupings[i].Name">Grouping Name:</label>
+                                <input type="text" class="form-control" asp-for="Configuration.Groupings[i].Name" required />
                             </div>
-                            <div class="col-md-6">
-                                <label asp-for="Groupings[i].DisplayName">Display Name (optional):</label>
-                                <input type="text" class="form-control" asp-for="Groupings[i].DisplayName" />
-                            </div>
+
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" asp-for="Groupings[i].IsGenreBased" id="grouping_genre_@i" />
+                            <input class="form-check-input" type="checkbox" asp-for="Configuration.Groupings[i].IsGenreBased" id="grouping_genre_@i" />
                             <label class="form-check-label" for="grouping_genre_@i">
                                 Genre-based
                             </label>
@@ -331,16 +333,16 @@
                         <div class="grouping-controls">
                             <label>Select Bookshelves for this Grouping:</label>
                             <div class="bookshelf-list" data-bookshelves>
-                                @foreach (var bookshelf in Model.Bookshelves)
+                                @foreach (var bookshelf in Model.Configuration.Bookshelves)
                                 {
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" 
-                                               name="Groupings[@i].SelectedBookshelfIds" 
+                                               name="Configuration.Groupings[@i].SelectedBookshelfIds" 
                                                value="@bookshelf.Id"
                                                id="@($"grouping_{i}_bookshelf_{bookshelf.Id}")"
-                                               @(Model.Groupings[i].SelectedBookshelfIds.Contains(bookshelf.Id) ? "checked" : "") />
+                                               @(Model.Configuration.Groupings[i].SelectedBookshelfIds.Contains(bookshelf.Id) ? "checked" : "") />
                                         <label class="form-check-label" for="@($"grouping_{i}_bookshelf_{bookshelf.Id}")">
-                                            @(bookshelf.DisplayName ?? bookshelf.Name)
+                                            @bookshelf.Name
                                         </label>
                                     </div>
                                 }
@@ -369,10 +371,7 @@
                 <label>Grouping Name:</label>
                 <input type="text" class="form-control" name="Groupings[[INDEX]].Name" required />
             </div>
-            <div class="col-md-6">
-                <label>Display Name (optional):</label>
-                <input type="text" class="form-control" name="Groupings[[INDEX]].DisplayName" />
-            </div>
+
         </div>
         <div class="form-check">
             <input class="form-check-input" type="checkbox" name="Groupings[[INDEX]].IsGenreBased" value="true" id="grouping_genre_[INDEX]" />

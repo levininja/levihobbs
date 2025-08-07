@@ -25,31 +25,51 @@ namespace levihobbs.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var viewModel = new BookshelfConfigurationViewModel();
+            
             try
             {
-                var viewModel = await _bookDataApiService.GetBookshelfConfigurationAsync();
+                _logger.LogInformation("Fetching bookshelf configuration from API...");
+                viewModel.Configuration = await _bookDataApiService.GetBookshelfConfigurationAsync();
+                _logger.LogInformation("Received configuration with {BookshelvesCount} bookshelves and {GroupingsCount} groupings", 
+                    viewModel.Configuration?.Bookshelves?.Count ?? 0,
+                    viewModel.Configuration?.Groupings?.Count ?? 0);
+                
+                // Check for success/error messages from TempData
+                if (TempData["Success"] != null)
+                {
+                    viewModel.SuccessMessage = TempData["Success"]?.ToString();
+                }
+                if (TempData["Error"] != null)
+                {
+                    viewModel.ErrorMessage = TempData["Error"]?.ToString();
+                    viewModel.HasErrors = true;
+                }
+                
                 return View(viewModel);
             }
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "Cannot connect to book-data-api");
-                TempData["Error"] = "Cannot connect to book-data-api. Please ensure book-data-api is running on port 5020.";
-                return View(new BookshelfConfigurationDto());
+                viewModel.ErrorMessage = "Cannot connect to book-data-api. Please ensure book-data-api is running on port 5020.";
+                viewModel.HasErrors = true;
+                return View(viewModel);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching bookshelf configuration");
-                TempData["Error"] = "An error occurred while fetching bookshelf configuration.";
-                return View(new BookshelfConfigurationDto());
+                viewModel.ErrorMessage = "An error occurred while fetching bookshelf configuration.";
+                viewModel.HasErrors = true;
+                return View(viewModel);
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(BookshelfConfigurationDto model)
+        public async Task<IActionResult> Update(BookshelfConfigurationViewModel model)
         {
             try
             {
-                var success = await _bookDataApiService.UpdateBookshelfConfigurationAsync(model);
+                var success = await _bookDataApiService.UpdateBookshelfConfigurationAsync(model.Configuration ?? new BookshelfConfigurationDto());
                 if (success)
                 {
                     TempData["Success"] = "Bookshelf configuration updated successfully.";

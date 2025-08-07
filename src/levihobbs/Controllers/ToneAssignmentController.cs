@@ -48,8 +48,8 @@ namespace levihobbs.Controllers
                 // Create the ViewModel with all the data
                 ToneAssignmentViewModel viewModel = new ToneAssignmentViewModel
                 {
-                    BookReviews = toneAssignmentData.BookReviews,
-                    BooksWithTones = toneAssignmentData.BooksWithTones,
+                    BookReviews = toneAssignmentData.BookReviews ?? new List<BookReviewToneItemDto>(),
+                    BooksWithTones = toneAssignmentData.BooksWithTones ?? new List<BookReviewToneItemDto>(),
                     ToneColorGroupings = toneColorGroupings
                 };
 

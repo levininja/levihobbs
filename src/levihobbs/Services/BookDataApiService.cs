@@ -199,7 +199,7 @@ namespace levihobbs.Services
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{_baseUrl}/api/bookshelves/configuration");
+                var response = await _httpClient.GetAsync($"{_baseUrl}/api/bookshelves");
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
@@ -224,7 +224,7 @@ namespace levihobbs.Services
             {
                 var json = JsonSerializer.Serialize(model);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync($"{_baseUrl}/api/bookshelves/configuration", content);
+                var response = await _httpClient.PostAsync($"{_baseUrl}/api/bookshelves", content);
                 return response.IsSuccessStatusCode;
             }
             catch (HttpRequestException ex)

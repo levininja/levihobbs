@@ -1,4 +1,4 @@
- Id  |           Name            |        DisplayName        
+ Id  |           Name        
 -----+---------------------------+---------------------------
  209 | 2024-reading-list         | 2024-reading-list
  206 | 2024-science-fiction      | 2024-science-fiction
