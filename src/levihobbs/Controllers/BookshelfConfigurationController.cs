@@ -29,11 +29,7 @@ namespace levihobbs.Controllers
             
             try
             {
-                _logger.LogInformation("Fetching bookshelf configuration from API...");
                 viewModel.Configuration = await _bookDataApiService.GetBookshelfConfigurationAsync();
-                _logger.LogInformation("Received configuration with {BookshelvesCount} bookshelves and {GroupingsCount} groupings", 
-                    viewModel.Configuration?.Bookshelves?.Count ?? 0,
-                    viewModel.Configuration?.Groupings?.Count ?? 0);
                 
                 // Check for success/error messages from TempData
                 if (TempData["Success"] != null)
