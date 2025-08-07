@@ -54,14 +54,16 @@
                                     ToneColorGrouping? group = toneColorGroupings.FirstOrDefault(g => g.Tones.Any(t => t.Id == toneId));
                                     if (tone != null && group != null)
                                     {
-                                        <span class="tone-tag @group.ColorClass selected" data-tone-id="@toneId">
+                                        <span class="tone-tag @group.ColorClass selected removable" data-tone-id="@toneId" data-book-id="@bookReview.Id" onclick="removeToneAssignment(@bookReview.Id, @toneId)">
                                             @tone.Name
+                                            <span class="remove-tone-x">&times;</span>
                                         </span>
                                     }
                                     else
                                     {
-                                        <span class="tone-tag tone-grey selected" data-tone-id="@toneId">
+                                        <span class="tone-tag tone-grey selected removable" data-tone-id="@toneId" data-book-id="@bookReview.Id" onclick="removeToneAssignment(@bookReview.Id, @toneId)">
                                             Tone ID @toneId (not found)
+                                            <span class="remove-tone-x">&times;</span>
                                         </span>
                                     }
                                 }

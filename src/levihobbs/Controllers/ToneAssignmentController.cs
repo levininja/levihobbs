@@ -204,6 +204,5 @@ namespace levihobbs.Controllers
             // Use modulo to handle cases where there are more tones than colors
             return colors[toneIndex % colors.Length];
         }
-
     }
 } 

@@ -15,7 +15,7 @@
     }
     
     .bookshelf-list {
-        max-height: 300px;
+        max-height: 600px;
         overflow-y: auto;
         border: 1px solid #dee2e6;
         padding: 1rem;
@@ -79,6 +79,13 @@
             genreCheckbox.addEventListener('change', function() {
                 handleGroupingGenreBasedChange(this);
             });
+        }
+        
+        // Set up event handler for the non-fiction checkbox in the new grouping
+        const nonFictionCheckbox = newGrouping.querySelector('input[id^="grouping_nonfiction_"]');
+        if (nonFictionCheckbox) {
+            // Initially disable the non-fiction checkbox
+            nonFictionCheckbox.disabled = true;
         }
         
         groupingCounter++;
@@ -167,17 +174,7 @@
         // Handle bookshelf genre-based checkboxes
         document.querySelectorAll('input[id^="bookshelf_genre_"]').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
-                const index = this.id.replace('bookshelf_genre_', '');
-                const displayCheckbox = document.getElementById(`bookshelf_${index}`);
-                
-                if (this.checked) {
-                    // Auto-select display checkbox and disable it
-                    displayCheckbox.checked = true;
-                    displayCheckbox.disabled = true;
-                } else {
-                    // Re-enable display checkbox
-                    displayCheckbox.disabled = false;
-                }
+                handleBookshelfGenreBasedChange(this);
             });
         });
         
@@ -192,28 +189,44 @@
     function handleInitialGenreBasedState() {
         // Handle initial state for individual bookshelves
         document.querySelectorAll('input[id^="bookshelf_genre_"]').forEach(checkbox => {
-            if (checkbox.checked) {
-                const index = checkbox.id.replace('bookshelf_genre_', '');
-                const displayCheckbox = document.getElementById(`bookshelf_${index}`);
-                if (displayCheckbox) {
-                    displayCheckbox.checked = true;
-                    displayCheckbox.disabled = true;
-                }
-            }
+            handleBookshelfGenreBasedChange(checkbox);
         });
         
         // Handle initial state for groupings
         document.querySelectorAll('input[id^="grouping_genre_"]').forEach(checkbox => {
-            if (checkbox.checked) {
-                handleGroupingGenreBasedChange(checkbox);
-            }
+            handleGroupingGenreBasedChange(checkbox);
         });
+    }
+    
+    function handleBookshelfGenreBasedChange(checkbox) {
+        const index = checkbox.id.replace('bookshelf_genre_', '');
+        const displayCheckbox = document.getElementById(`bookshelf_${index}`);
+        const nonFictionCheckbox = document.getElementById(`bookshelf_nonfiction_${index}`);
+        
+        if (checkbox.checked) {
+            // Auto-select display checkbox and disable it
+            displayCheckbox.checked = true;
+            displayCheckbox.disabled = true;
+            // Enable non-fiction checkbox
+            if (nonFictionCheckbox) {
+                nonFictionCheckbox.disabled = false;
+            }
+        } else {
+            // Re-enable display checkbox
+            displayCheckbox.disabled = false;
+            // Disable and uncheck non-fiction checkbox
+            if (nonFictionCheckbox) {
+                nonFictionCheckbox.checked = false;
+                nonFictionCheckbox.disabled = true;
+            }
+        }
     }
     
     function handleGroupingGenreBasedChange(checkbox) {
         const index = checkbox.id.replace('grouping_genre_', '');
         const groupingForm = checkbox.closest('.grouping-form');
         const bookshelfCheckboxes = groupingForm.querySelectorAll('input[name$="].BookshelfIds"]:checked');
+        const nonFictionCheckbox = document.getElementById(`grouping_nonfiction_${index}`);
         
         bookshelfCheckboxes.forEach(bsCheckbox => {
             const bookshelfId = bsCheckbox.value;
@@ -236,6 +249,20 @@
                 }
             }
         });
+        
+        // Handle non-fiction checkbox for the grouping
+        if (checkbox.checked) {
+            // Enable non-fiction checkbox for grouping
+            if (nonFictionCheckbox) {
+                nonFictionCheckbox.disabled = false;
+            }
+        } else {
+            // Disable and uncheck non-fiction checkbox for grouping
+            if (nonFictionCheckbox) {
+                nonFictionCheckbox.checked = false;
+                nonFictionCheckbox.disabled = true;
+            }
+        }
     }
 </script>
 }
@@ -298,9 +325,15 @@
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" asp-for="Configuration.Bookshelves[i].IsGenreBased" id="bookshelf_genre_@i">
+                            <input class="form-check-input" type="checkbox" asp-for="Configuration.Bookshelves[i].IsGenreBased" id="bookshelf_genre_@i" checked="@(Model.Configuration.Bookshelves[i].IsGenreBased || !Model.Configuration.Bookshelves.Any())">
                             <label class="form-check-label" for="bookshelf_genre_@i">
                                 Genre-based
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" asp-for="Configuration.Bookshelves[i].IsNonFictionGenre" id="bookshelf_nonfiction_@i" disabled="@(!Model.Configuration.Bookshelves[i].IsGenreBased)">
+                            <label class="form-check-label" for="bookshelf_nonfiction_@i">
+                                Non-fiction
                             </label>
                         </div>
                     </div>
@@ -325,9 +358,15 @@
 
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" asp-for="Configuration.Groupings[i].IsGenreBased" id="grouping_genre_@i" />
+                            <input class="form-check-input" type="checkbox" asp-for="Configuration.Groupings[i].IsGenreBased" id="grouping_genre_@i" checked="@(Model.Configuration.Groupings[i].IsGenreBased || !Model.Configuration.Groupings.Any())" />
                             <label class="form-check-label" for="grouping_genre_@i">
                                 Genre-based
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" asp-for="Configuration.Groupings[i].IsNonFictionGenre" id="grouping_nonfiction_@i" disabled="@(!Model.Configuration.Groupings[i].IsGenreBased)" />
+                            <label class="form-check-label" for="grouping_nonfiction_@i">
+                                Non-fiction
                             </label>
                         </div>
                         <div class="grouping-controls">
@@ -374,10 +413,17 @@
 
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="Configuration.Groupings[[INDEX]].IsGenreBased" value="true" id="grouping_genre_[INDEX]" />
+            <input class="form-check-input" type="checkbox" name="Configuration.Groupings[[INDEX]].IsGenreBased" value="true" id="grouping_genre_[INDEX]" checked />
             <input type="hidden" name="Configuration.Groupings[[INDEX]].IsGenreBased" value="false" />
             <label class="form-check-label" for="grouping_genre_[INDEX]">
                 Genre-based
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="Configuration.Groupings[[INDEX]].IsNonFictionGenre" value="true" id="grouping_nonfiction_[INDEX]" disabled />
+            <input type="hidden" name="Configuration.Groupings[[INDEX]].IsNonFictionGenre" value="false" />
+            <label class="form-check-label" for="grouping_nonfiction_[INDEX]">
+                Non-fiction
             </label>
         </div>
         <div class="grouping-controls">

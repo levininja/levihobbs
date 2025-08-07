@@ -4,194 +4,7 @@
 }
 
 @section Styles {
-<style>
-    .tone-assignment-container {
-        overflow-x: auto;
-    }
-    
-    .tone-assignment-table {
-        min-width: 1200px;
-        white-space: nowrap;
-    }
-    
-    .tone-assignment-table th,
-    .tone-assignment-table td {
-        vertical-align: top;
-        padding: 1rem;
-        border: 1px solid #dee2e6;
-    }
-    
-    .book-info {
-        min-width: 300px;
-        max-width: 300px;
-        white-space: normal;
-    }
-    
-    .tone-column {
-        min-width: 200px;
-        max-width: 200px;
-        white-space: normal;
-    }
-    
-    .suggestions-column {
-        min-width: 200px;
-        max-width: 200px;
-        white-space: normal;
-    }
-    
-    .tone-tag {
-        display: inline-block;
-        padding: 0.25rem 0.5rem;
-        margin: 0.125rem;
-        border-radius: 0.25rem;
-        cursor: pointer;
-        font-size: 0.8rem;
-        font-weight: bold;
-        border: 2px solid transparent;
-        transition: all 0.2s ease;
-        user-select: none;
-    }
-    
-    .tone-tag:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .tone-tag.suggested {
-        border-color: #28a745;
-        border-style: dashed;
-    }
-    
-    .tone-tag.selected {
-        border-color: #007bff;
-        border-style: solid;
-        font-weight: bold;
-    }
-    
-    /* Pastel color classes */
-    .tone-blue { background-color: #e3f2fd; color: #1565c0; }
-    .tone-green { background-color: #daeeda; color: #2e7d32; }
-    .tone-purple { background-color: #f3e5f5; color: #7b1fa2; }
-    .tone-pink { background-color: #fce4ec; color: #c2185b; }
-    .tone-orange { background-color: #f6e6cc; color: #be5804; }
-    .tone-teal { background-color: #d9edec; color: #00695c; }
-    .tone-yellow { background-color: #fffde7; color: #907713; }
-    .tone-red { background-color: #ffebee; color: #c30a0a; }
-    .tone-grey { background-color: #e9e6e6; color: #424242; }
-    .tone-aqua { background-color: #caf4e7; color: #147c63; }
-    .tone-brown { background-color: #f5f0eb; color: #8d6e63; }
-    .tone-indigo { background-color: #e8eaf6; color: #3f51b5; }
-    .tone-lime { background-color: #f9fbe7; color: #827717; }
-    .tone-cyan { background-color: #e0f2f1; color: #00695c; }
-    .tone-magenta { background-color: #fce4ec; color: #c2185b; }
-    .tone-amber { background-color: #fff8e1; color: #f57f17; }
-        
-    .book-title {
-        font-weight: bold;
-        margin-bottom: 0.25rem;
-    }
-    
-    .book-author {
-        color: #666;
-        font-size: 0.9rem;
-        margin-bottom: 0.25rem;
-    }
-    
-    .book-genres {
-        color: #007bff;
-        font-size: 0.8rem;
-        margin-bottom: 0.25rem;
-    }
-    
-    .review-link {
-        color: #6c757d;
-        text-decoration: none;
-        font-size: 0.8rem;
-    }
-    
-    .review-link:hover {
-        color: #007bff;
-        text-decoration: underline;
-    }
-    
-
-    
-    .column-header {
-        font-weight: bold;
-        text-align: center;
-        background-color: #f8f9fa;
-    }
-    
-    .save-section {
-        position: sticky;
-        bottom: 0;
-        background-color: white;
-        padding: 1rem;
-        border-top: 2px solid #dee2e6;
-        box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .selected-tones {
-        margin-top: 0.5rem;
-    }
-    
-    .selected-tones-list {
-        margin-top: 0.25rem;
-    }
-    
-    .selected-tones .tone-tag {
-        font-size: 0.75rem;
-        padding: 0.125rem 0.375rem;
-        margin: 0.0625rem;
-        cursor: default;
-        pointer-events: none;
-    }
-    
-    .selected-tones.hidden {
-        display: none;
-    }
-
-    .suggestions-column .suggest-btn {
-        padding: 8px 16px;
-        margin-top: 4px;
-        font-size: 14px;
-        color: blue;
-        background-color: #eeeeff;
-    }
-    
-    .section-title {
-        font-size: 1.5rem;
-        font-weight: bold;
-        margin: 2rem 0 1rem 0;
-        color: #333;
-    }
-    
-    .accordion-toggle {
-        text-decoration: none;
-        color: #333;
-        display: block;
-        padding: 10px 15px;
-        background-color: #f5f5f5;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        margin-bottom: -1px;
-    }
-    
-    .accordion-toggle:hover {
-        text-decoration: none;
-        color: #333;
-        background-color: #e7e7e7;
-    }
-    
-    .accordion-toggle.collapsed {
-        background-color: #f5f5f5;
-    }
-    
-    .accordion-toggle:not(.collapsed) {
-        background-color: #e7f3ff;
-        color: #0c63e4;
-    }
-</style>
+    <link rel="stylesheet" href="~/css/tone-assignment.css" />
 }
 
 @section Scripts {
@@ -202,6 +15,47 @@
             html: true,
             placement: 'bottom',
             template: '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner" style="max-width: 800px; width: 800px; font-size: 1rem;"></div></div>'
+        });
+        
+        // Handle AI processing button click
+        document.getElementById('sendForProcessing').addEventListener('click', function() {
+            const batchSize = parseInt(document.getElementById('batchSize').value);
+            const booksWithoutTones = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BookReviews.Select(br => br.Id)));
+            
+            if (booksWithoutTones.length === 0) {
+                alert('No books without tone assignments available for processing.');
+                return;
+            }
+            
+            const selectedBookIds = booksWithoutTones.slice(0, batchSize);
+            const bookIdsParam = selectedBookIds.map(id => `bookIds=${id}`).join('&');
+            
+            // Disable button during processing
+            const button = this;
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Processing...';
+            
+            fetch(`/api/BookToneRecommendations?${bookIdsParam}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                }
+            }).then(response => {
+                if (response.ok) {
+                    alert(`Successfully sent ${selectedBookIds.length} books for AI processing.`);
+                } else {
+                    alert('Failed to send books for processing. Please try again.');
+                }
+            }).catch(error => {
+                console.error('AI processing request failed:', error);
+                alert('Failed to send books for processing. Please try again.');
+            }).finally(() => {
+                // Re-enable button
+                button.disabled = false;
+                button.textContent = originalText;
+            });
         });
     });
 
@@ -290,9 +144,11 @@
         const existingTone = selectedTonesContainer.querySelector(`[data-tone-id="${toneId}"]`);
         if (!existingTone) {
             const toneTag = document.createElement('span');
-            toneTag.className = `tone-tag ${colorClass} selected`;
+            toneTag.className = `tone-tag ${colorClass} selected removable`;
             toneTag.setAttribute('data-tone-id', toneId);
-            toneTag.textContent = toneName;
+            toneTag.setAttribute('data-book-id', bookReviewId);
+            toneTag.onclick = () => removeToneAssignment(bookReviewId, toneId);
+            toneTag.innerHTML = `${toneName}<span class="remove-tone-x">&times;</span>`;
             selectedTonesContainer.appendChild(toneTag);
         }
     }
@@ -310,12 +166,40 @@
             }
         }
     }
+    
+    function removeToneAssignment(bookReviewId, toneId) {
+        // Remove the tone from the selected display
+        removeToneFromSelectedDisplay(bookReviewId, toneId);
+        
+        // Remove the hidden input for this tone
+        const hiddenInput = document.querySelector(`input[name="BookReviews[${getBookReviewIndex(bookReviewId)}].AssignedToneIds"][value="${toneId}"], input[name="BooksWithTones[${getBooksWithTonesIndex(bookReviewId)}].AssignedToneIds"][value="${toneId}"]`);
+        if (hiddenInput) {
+            hiddenInput.remove();
+        }
+        
+        // Remove the selected class from the tone tag in the tone columns
+        const toneElement = document.querySelector(`[data-book="${bookReviewId}"][data-tone="${toneId}"]`);
+        if (toneElement) {
+            toneElement.classList.remove('selected');
+        }
+    }
 
 </script>
 }
 
 <div class="container-fluid">
     <h1>Tone Assignment</h1>
+    
+    <div class="batch-processing-section mb-4">
+        <h4>AI Tone Recommendations</h4>
+        <p class="text-muted">Send books without tone assignments to AI for batch processing and tone recommendations.</p>
+        <div class="form-inline">
+            <label for="batchSize" class="mr-2">Number of books to process:</label>
+            <input type="number" id="batchSize" class="form-control mr-2" min="1" max="10" value="3" style="width: 80px;">
+            <button type="button" id="sendForProcessing" class="btn btn-info">Send for AI Processing</button>
+        </div>
+        <small class="form-text text-muted">This will send the first X books without tone assignments to the AI for tone recommendations.</small>
+    </div>
     
     @if (TempData["SuccessMessage"] != null)
     {
