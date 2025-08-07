@@ -27,23 +27,14 @@ namespace levihobbs.Controllers
         {
             try
             {
-                // BREAKPOINT: Starting tone assignment index action
-                _logger.LogInformation("ToneAssignment Index action started");
-                
-                // Get both tone assignment data and tone configuration
-                _logger.LogInformation("Fetching tone assignment data...");
+                // Get tone assignment data (which includes the tones)
                 ToneAssignmentDto toneAssignmentData = await _bookDataApiService.GetToneAssignmentAsync();
-                _logger.LogInformation("Tone assignment data received: {BookReviewsCount} book reviews, {BooksWithTonesCount} books with tones", 
-                    toneAssignmentData.BookReviews?.Count ?? 0, toneAssignmentData.BooksWithTones?.Count ?? 0);
                 
-                _logger.LogInformation("Fetching tone configuration...");
-                List<ToneItemDto> tones = await _bookDataApiService.GetToneConfigurationAsync();
-                _logger.LogInformation("Tone configuration received: {TonesCount} tones", tones.Count);
+                // Use the tones from the assignment data instead of making a separate API call
+                List<ToneItemDto> tones = toneAssignmentData.Tones ?? new List<ToneItemDto>();
                 
                 // Create tone color groupings
-                _logger.LogInformation("Creating tone color groupings...");
                 List<ToneColorGrouping> toneColorGroupings = CreateToneColorGroupings(tones);
-                _logger.LogInformation("Tone color groupings created: {GroupingsCount} groupings", toneColorGroupings.Count);
                 
                 // Create the ViewModel with all the data
                 ToneAssignmentViewModel viewModel = new ToneAssignmentViewModel
@@ -53,7 +44,6 @@ namespace levihobbs.Controllers
                     ToneColorGroupings = toneColorGroupings
                 };
 
-                _logger.LogInformation("ViewModel created successfully, returning view");
                 return View(viewModel);
             }
             catch (HttpRequestException ex)
@@ -80,25 +70,12 @@ namespace levihobbs.Controllers
         {
             const string otherTonesGroupName = "Other Tones";
             
-            // BREAKPOINT: Starting tone color groupings creation
-            _logger.LogInformation("CreateToneColorGroupings called with {Count} tones", allTones.Count);
-            
-            // Log all incoming tones for debugging
-            foreach (var tone in allTones)
-            {
-                _logger.LogInformation("Input tone: Id={Id}, Name={Name}, ParentId={ParentId}, SubtonesCount={SubtonesCount}", 
-                    tone.Id, tone.Name, tone.ParentId, tone.Subtones?.Count ?? 0);
-            }
-            
-            // BREAKPOINT: Finding parent tones with subtones
+            // Find parent tones with subtones
             var parentTonesWithSubtones = allTones.Where(pt => pt.Subtones.Any()).ToList();
-            _logger.LogInformation("Found {Count} parent tones with subtones", parentTonesWithSubtones.Count);
             
             // Put the tone groupings together
             List<ToneColorGrouping> toneColorGroupings = parentTonesWithSubtones.Select((pt, index) => 
             {
-                _logger.LogInformation("Creating grouping for parent tone: {Name} with {SubtonesCount} subtones", pt.Name, pt.Subtones.Count);
-                
                 var grouping = new ToneColorGrouping
                 {
                     Name = pt.Name,
@@ -113,13 +90,11 @@ namespace levihobbs.Controllers
                         }).ToList()
                 };
                 
-                _logger.LogInformation("Created grouping '{Name}' with {TonesCount} tones", grouping.Name, grouping.Tones.Count);
                 return grouping;
             }).ToList();
 
-            // BREAKPOINT: Finding standalone tones
+            // Find standalone tones
             var standaloneTones = allTones.Where(pt => !pt.Subtones.Any() && pt.ParentId == null).ToList();
-            _logger.LogInformation("Found {Count} standalone tones (no subtones and no parent)", standaloneTones.Count);
             
             // Add a group for all stand-alone tones that don't have children
             var otherTonesGrouping = new ToneColorGrouping
@@ -134,16 +109,7 @@ namespace levihobbs.Controllers
                 }).ToList()
             };
             
-            _logger.LogInformation("Created 'Other Tones' grouping with {TonesCount} tones", otherTonesGrouping.Tones.Count);
             toneColorGroupings.Add(otherTonesGrouping);
-
-            // BREAKPOINT: Final result
-            _logger.LogInformation("Final result: {GroupingsCount} tone color groupings created", toneColorGroupings.Count);
-            foreach (var grouping in toneColorGroupings)
-            {
-                _logger.LogInformation("Grouping: {Name} ({ColorClass}) with {TonesCount} tones", 
-                    grouping.Name, grouping.ColorClass, grouping.Tones.Count);
-            }
 
             return toneColorGroupings;
         }
@@ -151,6 +117,36 @@ namespace levihobbs.Controllers
         [HttpPost]
         public async Task<IActionResult> Update(ToneAssignmentViewModel model)
         {
+            _logger.LogInformation("ToneAssignment Update POST received");
+            _logger.LogInformation("Model validation state: {IsValid}", ModelState.IsValid);
+            
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Model state is invalid. Errors:");
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    _logger.LogWarning("Validation error: {ErrorMessage}", error.ErrorMessage);
+                }
+            }
+            
+            _logger.LogInformation("BookReviews count: {Count}", model.BookReviews?.Count ?? 0);
+            _logger.LogInformation("BooksWithTones count: {Count}", model.BooksWithTones?.Count ?? 0);
+            
+            // Log details about the first book review as an example
+            if (model.BookReviews != null && model.BookReviews.Any())
+            {
+                var firstBook = model.BookReviews.First();
+                _logger.LogInformation("First BookReview {Id} ({Title}) - AssignedToneIds: [{ToneIds}]", 
+                    firstBook.Id, firstBook.Title, string.Join(", ", firstBook.AssignedToneIds));
+            }
+            
+            if (model.BooksWithTones != null && model.BooksWithTones.Any())
+            {
+                var firstBookWithTones = model.BooksWithTones.First();
+                _logger.LogInformation("First BookWithTones {Id} ({Title}) - AssignedToneIds: [{ToneIds}]", 
+                    firstBookWithTones.Id, firstBookWithTones.Title, string.Join(", ", firstBookWithTones.AssignedToneIds));
+            }
+            
             try
             {
                 // Convert ViewModel back to DTO for API call
@@ -160,13 +156,18 @@ namespace levihobbs.Controllers
                     BooksWithTones = model.BooksWithTones
                 };
                 
+                _logger.LogInformation("Calling book-data-api UpdateToneAssignmentAsync");
                 var success = await _bookDataApiService.UpdateToneAssignmentAsync(dto);
+                _logger.LogInformation("UpdateToneAssignmentAsync result: {Success}", success);
+                
                 if (success)
                 {
+                    _logger.LogInformation("Tone assignment updated successfully");
                     TempData["Success"] = "Tone assignment updated successfully.";
                 }
                 else
                 {
+                    _logger.LogWarning("Failed to update tone assignment - API returned false");
                     TempData["Error"] = "Failed to update tone assignment. Please ensure book-data-api is running on port 5020.";
                 }
             }
@@ -198,8 +199,10 @@ namespace levihobbs.Controllers
                 return "tone-grey";
 
             // Generate consistent pastel colors based on tone index
-            string[] colors = new[] { "tone-blue", "tone-purple",  "tone-aqua",  "tone-teal", "tone-orange", "tone-pink", "tone-yellow", "tone-green", "tone-red" };
-            return colors[toneIndex];
+            string[] colors = new[] { "tone-aqua", "tone-blue", "tone-purple",  "tone-teal",  "tone-red",  "tone-yellow", "tone-indigo",
+            "tone-brown", "tone-pink", "tone-orange", "tone-green", "tone-lime", "tone-cyan", "tone-magenta", "tone-amber" };
+            // Use modulo to handle cases where there are more tones than colors
+            return colors[toneIndex % colors.Length];
         }
 
     }

@@ -253,18 +253,9 @@ namespace levihobbs.Services
 
                 var json = await response.Content.ReadAsStringAsync();
                 
-                // BREAKPOINT: Raw JSON response received
-                _logger.LogInformation("Raw JSON response from tone configuration API: {Json}", json);
-                
                 var result = JsonSerializer.Deserialize<List<ToneItemDto>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<ToneItemDto>();
                 
-                // BREAKPOINT: Deserialized result
                 _logger.LogInformation("Deserialized {Count} tone items from API response", result.Count);
-                foreach (var tone in result)
-                {
-                    _logger.LogInformation("Tone: Id={Id}, Name={Name}, ParentId={ParentId}, SubtonesCount={SubtonesCount}", 
-                        tone.Id, tone.Name, tone.ParentId, tone.Subtones?.Count ?? 0);
-                }
                 
                 return result;
             }
@@ -330,9 +321,24 @@ namespace levihobbs.Services
         {
             try
             {
+                _logger.LogInformation("UpdateToneAssignmentAsync called with {BookReviewsCount} book reviews and {BooksWithTonesCount} books with tones", 
+                    model.BookReviews?.Count ?? 0, model.BooksWithTones?.Count ?? 0);
+                
                 var json = JsonSerializer.Serialize(model);
+                _logger.LogInformation("Serialized JSON length: {Length} characters", json.Length);
+                
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync($"{_baseUrl}/api/tones/assignment", content);
+                
+                _logger.LogInformation("API response status: {StatusCode}", response.StatusCode);
+                _logger.LogInformation("API response is success: {IsSuccess}", response.IsSuccessStatusCode);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("API returned error status. Content: {ErrorContent}", errorContent);
+                }
+                
                 return response.IsSuccessStatusCode;
             }
             catch (HttpRequestException ex)
