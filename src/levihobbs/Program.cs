@@ -31,7 +31,16 @@ namespace levihobbs
             builder.Services.Configure<ReCaptchaSettings>(
                 builder.Configuration.GetSection("ReCaptcha"));
 
-
+            // Add CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
+            });
 
             // Add HttpClient
             builder.Services.AddHttpClient();
@@ -100,8 +109,14 @@ namespace levihobbs
             app.UseStaticFiles(); // Always use static files middleware
 
             app.UseRouting();
+            
+            // Use CORS
+            app.UseCors("AllowAll");
 
             app.UseAuthorization();
+
+            // Map API controllers (for attribute routing)
+            app.MapControllers();
 
             // Specific route for book reviews React app
             app.MapControllerRoute(

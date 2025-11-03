@@ -13,10 +13,10 @@ vi.mock('../../src/services/api', () => ({
   }
 }));
 
-// Filter mock data to get only books with "favorites" bookshelf
-const mockFavoritesBooks: BookReview[] = mockBookReviews.filter(book => 
-  book.bookshelves.some(bookshelf => bookshelf.name === "favorites")
-);
+    // Filter mock data to get only books with "Favorites" bookshelf
+    const mockFavoritesBooks: BookReview[] = mockBookReviews.filter(book =>
+      book.bookshelves.some(bookshelf => bookshelf.name === "Favorites")
+    );
 
 const mockSearchResults: BookReview[] = [
   {
@@ -43,14 +43,14 @@ const mockSearchResults: BookReview[] = [
 const mockViewModel: BookReviewsViewModel = {
   category: "Book Reviews",
   allBookshelves: [
-    { id: 1, name: "favorites" },
-    { id: 2, name: "science-fiction" }
+    { id: 1, name: "Favorites" },
+    { id: 2, name: "Science Fiction" }
   ],
   allBookshelfGroupings: [
     { id: 1, name: "Fiction", bookshelves: [] },
     { id: 2, name: "Non-Fiction", bookshelves: [] }
   ],
-  selectedShelf: "favorites",
+  selectedShelf: "Favorites",
   selectedGrouping: undefined,
   showRecentOnly: false,
   useCustomMappings: false,

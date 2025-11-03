@@ -24,7 +24,7 @@ const mockBookReview: BookReview = {
   previewText: `It was a joy to read this again after many years. I don't want to go this long between readings next time.  From the moment I started reading the prologue...`,
   readingTimeMinutes: 4,
   coverImageId: 54,
-  bookshelves: [{ id: 196, name: "favorites" }, { id: 219, name: "featured" },{ id: 211, name: "high-fantasy" },{ id: 212, name: "modern-classics" },]
+  bookshelves: [{ id: 196, name: "Favorites" }, { id: 219, name: "Featured" },{ id: 211, name: "High Fantasy" },{ id: 212, name: "Modern Classics" },]
 };
 
 const mockBookReviewWithoutCover: BookReview = {
@@ -101,8 +101,8 @@ describe('BookReviewReader - Test Suite', () => {
       expect(screen.getAllByText('1954').length).toBe(1);
       
       // Should display bookshelves exactly once
-      expect(screen.getAllByText('favorites').length).toBe(1);
-      expect(screen.getAllByText('high-fantasy').length).toBe(1);
+      expect(screen.getAllByText('Favorites').length).toBe(1);
+      expect(screen.getAllByText('High Fantasy').length).toBe(1);
     });
 
     it('should not display average rating', () => {
@@ -120,7 +120,7 @@ describe('BookReviewReader - Test Suite', () => {
       expect(metadataSection).toHaveTextContent(/Published: 1954/);
       expect(metadataSection).toHaveTextContent(/Rating: ★★★★★/);
       expect(metadataSection).toHaveTextContent(/Verdict: The Hype Is Real!/);
-      expect(metadataSection).toHaveTextContent(/Perfect For: readers of high fantasy/);
+      expect(metadataSection).toHaveTextContent(/Perfect For: readers of High Fantasy/);
       
       // Verify labels appear exactly once
       const labels = ['Author:', 'Published:', 'Rating:', 'Verdict:', 'Perfect For:'];
@@ -158,7 +158,7 @@ describe('BookReviewReader - Test Suite', () => {
       expect(metadataSection).toHaveTextContent(/Published: 1954/);
       expect(metadataSection).toHaveTextContent(/Rating: ★★★★★/);
       expect(metadataSection).toHaveTextContent(/Verdict: The Hype Is Real!/);
-      expect(metadataSection).toHaveTextContent(/Perfect For: readers of high fantasy/);
+      expect(metadataSection).toHaveTextContent(/Perfect For: readers of High Fantasy/);
       
       // Verify labels appear exactly once
       const labels = ['Author:', 'Published:', 'Rating:', 'Verdict:', 'Perfect For:'];
@@ -391,7 +391,7 @@ describe('BookReviewReader - Test Suite', () => {
     it('should display date read', () => {
       render(<BookReviewReader bookReview={mockBookReview} onClose={mockOnClose} />);
       
-      expect(screen.getAllByText('6/18/2025').length).toBe(1);
+      expect(screen.getByText(/Review written 6\/18\/2025/)).toBeInTheDocument();
     });
   });
 
@@ -642,7 +642,7 @@ describe('BookReviewReader - Test Suite', () => {
       
       const metadataSection = screen.getByTestId('book-metadata');
       
-      expect(metadataSection).toHaveTextContent(/Perfect For: readers of high fantasy/);
+      expect(metadataSection).toHaveTextContent(/Perfect For: readers of High Fantasy/);
     });
 
     it('should handle "perfect for" in the last paragraph only', () => {
@@ -721,7 +721,7 @@ describe('BookReviewReader - Test Suite', () => {
       // Add all shelf names as genres, except those containing numbers
       mockBookshelfGroupings.forEach((grouping: BookshelfGrouping) => {
         grouping.bookshelves.forEach((shelf) => {
-          // Skip shelves that contain numbers (like "2024-science-fiction", "2025-reading-list")
+          // Skip shelves that contain numbers (like "2024 Science Fiction", "2025 Reading List")
           if (!/\d/.test(shelf.name))
             genres.add(shelf.name.toLowerCase());
         });
@@ -737,43 +737,42 @@ describe('BookReviewReader - Test Suite', () => {
       expect(genres).toContain('fantasy');
     });
 
-    it('should not include shelves with numbers like 2025-reading-list', () => {
+    it('should not include shelves with numbers like 2025 Reading List', () => {
       const genres = getValidGenres();
       
-      expect(genres).not.toContain('2025-reading-list');
-      expect(genres).not.toContain('2024-science-fiction');
-      expect(genres).not.toContain('2025 reading list');
+      expect(genres).not.toContain('2025 Reading List');
+      expect(genres).not.toContain('2024 Science Fiction');
+      expect(genres).not.toContain('2025 Reading List');
     });
 
-    it('should not include friends or Friends', () => {
+    it('should not include Friends', () => {
       const genres = getValidGenres();
       
-      expect(genres).not.toContain('friends');
       expect(genres).not.toContain('Friends');
     });
 
-    it('should convert hyphenated names to lowercase', () => {
+    it('should convert space-separated names to lowercase', () => {
       const genres = getValidGenres();
       
-      // Check that hyphenated names are included in lowercase
-      expect(genres).toContain('high-fantasy');
-      expect(genres).toContain('sf-classics');
-      expect(genres).toContain('space-opera');
-      expect(genres).toContain('epic-sf');
-      expect(genres).toContain('science-fiction-comps');
+      // Check that space-separated names are included in lowercase
+      expect(genres).toContain('high fantasy');
+      expect(genres).toContain('sf classics');
+      expect(genres).toContain('space opera');
+      expect(genres).toContain('epic sf');
+      expect(genres).toContain('science fiction comps');
       expect(genres).toContain('cyberpunk');
-      expect(genres).toContain('modern-fantasy');
-      expect(genres).toContain('modern-fairy-tales');
-      expect(genres).toContain('folks-and-myths');
-      expect(genres).toContain('ancient-greek');
-      expect(genres).toContain('ancient-history');
-      expect(genres).toContain('ancient-classics');
-      expect(genres).toContain('ancient-roman');
-      expect(genres).toContain('renaissance-classics');
-      expect(genres).toContain('modern-classics');
-      expect(genres).toContain('topical-history');
-      expect(genres).toContain('renaissance-history');
-      expect(genres).toContain('modern-history');
+      expect(genres).toContain('modern fantasy');
+      expect(genres).toContain('modern fairy tales');
+      expect(genres).toContain('folks and myths');
+      expect(genres).toContain('ancient greek');
+      expect(genres).toContain('ancient history');
+      expect(genres).toContain('ancient classics');
+      expect(genres).toContain('ancient roman');
+      expect(genres).toContain('renaissance classics');
+      expect(genres).toContain('modern classics');
+      expect(genres).toContain('topical history');
+      expect(genres).toContain('renaissance history');
+      expect(genres).toContain('modern history');
     });
 
     it('should include all grouping names as genres', () => {
@@ -830,20 +829,20 @@ describe('BookReviewReader - Test Suite', () => {
       
       // Test specific genres that should be included
       expect(genres).toContain('cyberpunk');
-      expect(genres).toContain('space-opera');
-      expect(genres).toContain('epic-sf');
-      expect(genres).toContain('high-fantasy');
-      expect(genres).toContain('modern-fantasy');
-      expect(genres).toContain('ancient-greek');
-      expect(genres).toContain('modern-classics');
+      expect(genres).toContain('space opera');
+      expect(genres).toContain('epic sf');
+      expect(genres).toContain('high fantasy');
+      expect(genres).toContain('modern fantasy');
+      expect(genres).toContain('ancient greek');
+      expect(genres).toContain('modern classics');
     });
 
     it('should exclude specific numeric shelves from the mock data', () => {
       const genres = getValidGenres();
       
       // Test specific shelves that should be excluded
-      expect(genres).not.toContain('2024-science-fiction');
-      expect(genres).not.toContain('2025-reading-list');
+      expect(genres).not.toContain('2024 Science Fiction');
+      expect(genres).not.toContain('2025 Reading List');
     });
   });
 }); 

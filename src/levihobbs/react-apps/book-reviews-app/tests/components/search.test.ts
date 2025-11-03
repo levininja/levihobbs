@@ -81,12 +81,12 @@ describe('BookReviewApi - Simplified Test Suite', () => {
     });
 
     describe('should filter by bookshelf', () => {
-      it('should return bookreviews from "favorites" shelf', async () => {
-        const result = await bookReviewApi.browseBookReviews(undefined, 'favorites');
-        expect(result.selectedShelf).toBe('favorites');
+      it('should return bookreviews from "Favorites" shelf', async () => {
+        const result = await bookReviewApi.browseBookReviews(undefined, 'Favorites');
+        expect(result.selectedShelf).toBe('Favorites');
         expect(result.bookReviews.length).toBeGreaterThan(0);
         result.bookReviews.forEach(bookReview => {
-          const hasFavoritesBookshelf = bookReview.bookshelves.some(bs => bs.name === 'favorites');
+          const hasFavoritesBookshelf = bookReview.bookshelves.some(bs => bs.name === 'Favorites');
           expect(hasFavoritesBookshelf).toBe(true);
         });
       });
@@ -103,7 +103,7 @@ describe('BookReviewApi - Simplified Test Suite', () => {
         const result = await bookReviewApi.browseBookReviews('Science Fiction');
         expect(result.selectedGrouping).toBe('Science Fiction');
         expect(result.bookReviews.length).toBeGreaterThan(0);
-        const sfBookshelves = ['sf-classics', 'space-opera', 'epic-sf', 'science-fiction-comps', 'cyberpunk', '2024-science-fiction'];
+        const sfBookshelves = ['SF Classics', 'Space Opera', 'Epic SF', 'Science Fiction Comps', 'Cyberpunk', '2024 Science Fiction'];
         result.bookReviews.forEach(bookReview => {
           const hasSfBookshelf = bookReview.bookshelves.some(bs => sfBookshelves.includes(bs.name));
           expect(hasSfBookshelf).toBe(true);

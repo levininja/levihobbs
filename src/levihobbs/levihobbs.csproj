@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../../book-data-api/book-data-api.csproj" />
+    <ProjectReference Include="../../../../BookDataApi.Shared/BookDataApi.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

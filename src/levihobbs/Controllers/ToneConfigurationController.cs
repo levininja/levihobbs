@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using levihobbs.Data;
 using levihobbs.Models;
 using levihobbs.Services;
-using BookDataApi.Dtos;
+using BookDataApi.Shared.Dtos;
 
 namespace levihobbs.Controllers
 {

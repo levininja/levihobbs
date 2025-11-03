@@ -1,4 +1,4 @@
-@using BookDataApi.Dtos
+@using BookDataApi.Shared.Dtos
 @{
     List<BookReviewToneItemDto>? bookReviews = ViewData["BookReviews"] as List<BookReviewToneItemDto>;
     List<ToneColorGrouping>? toneColorGroupings = ViewData["ToneColorGroupings"] as List<ToneColorGrouping>;
@@ -84,7 +84,7 @@
                             @foreach (Tone tone in group.Tones)
                             {
                                 bool isSelected = bookReview.AssignedToneIds.Contains(tone.Id);
-                                bool isSuggested = bookReview.SuggestedToneIds.Contains(tone.Id);
+                                bool isSuggested = bookReview.AssignedToneIds.Contains(tone.Id);
                                 <span class="tone-tag @group.ColorClass @(isSelected ? "selected" : "") @(isSuggested ? "suggested" : "")"
                                       data-book="@bookReview.Id"
                                       data-tone="@tone.Id"
@@ -97,10 +97,10 @@
                     }
                     
                     <td class="suggestions-column">
-                        @if (bookReview.SuggestedToneIds.Any())
+                        @if (bookReview.AssignedToneIds.Any())
                         {
                             <div>
-                                @foreach (int toneId in bookReview.SuggestedToneIds)
+                                @foreach (int toneId in bookReview.AssignedToneIds)
                                 {
                                     Tone? tone = toneColorGroupings.SelectMany(g => g.Tones).FirstOrDefault(t => t.Id == toneId);
                                     if (tone != null)

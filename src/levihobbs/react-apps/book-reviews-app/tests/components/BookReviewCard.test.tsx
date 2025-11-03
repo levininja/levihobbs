@@ -30,8 +30,7 @@ describe('BookReviewCard', () => {
     
     expect(screen.getByText('Test Book')).toBeInTheDocument();
     expect(screen.getByText('by John Doe')).toBeInTheDocument();
-    expect(screen.getByText('My Rating: 4/5')).toBeInTheDocument();
-    expect(screen.getByText('Average: 3.8/5')).toBeInTheDocument();
+    expect(screen.getByText('★★★★☆')).toBeInTheDocument();
   });
 
   it('calls onClick when clicked', () => {

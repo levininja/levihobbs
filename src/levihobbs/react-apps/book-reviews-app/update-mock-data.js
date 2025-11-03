@@ -53,15 +53,15 @@ const generatePreviewText = (review) => {
 
 // Bookshelf mappings (you'll need to update these based on your actual data)
 const bookshelfMappings = {
-  'favorites': { id: 196, name: "favorites" },
-'featured': { id: 219, name: "featured" },
-'2025-reading-list': { id: 192, name: "2025-reading-list" },
-'ancient-greek': { id: 191, name: "ancient-greek" },
-'history-of-lit': { id: 190, name: "history-of-lit" },
-'high-fantasy': { id: 211, name: "high-fantasy" },
-'philosophy': { id: 195, name: "philosophy" },
-'friends': { id: 194, name: "friends" },
-'childrens': { id: 228, name: "childrens" }
+  'favorites': { id: 196, name: "Favorites" },
+'featured': { id: 219, name: "Featured" },
+'2025-reading-list': { id: 192, name: "2025 Reading List" },
+'ancient-greek': { id: 191, name: "Ancient Greek" },
+'history-of-lit': { id: 190, name: "History of Lit" },
+'high-fantasy': { id: 211, name: "High Fantasy" },
+'philosophy': { id: 195, name: "Philosophy" },
+'friends': { id: 194, name: "Friends" },
+'childrens': { id: 228, name: "Childrens" }
 };
 
 // Function to extract bookshelves from searchable string
@@ -105,15 +105,16 @@ const generateTypeScriptContent = () => {
 
 // Real bookshelves from database
 export const mockBookshelves: Bookshelf[] = [
-  { id: 196, name: "favorites" },
-  { id: 219, name: "featured" },
-  { id: 192, name: "2025-reading-list" },
-  { id: 191, name: "ancient-greek" },
-  { id: 190, name: "history-of-lit" },
-  { id: 211, name: "high-fantasy" },
-  { id: 195, name: "philosophy" },
-  { id: 194, name: "friends" },
-  { id: 228, name: "childrens" }
+  { id: 196, name: "Favorites" },
+  { id: 219, name: "Featured" },
+  { id: 192, name: "2025 Reading List" },
+  { id: 191, name: "Ancient Greek" },
+  { id: 191, name: "Ancient Greek" },
+  { id: 190, name: "History of Lit" },
+  { id: 211, name: "High Fantasy" },
+  { id: 195, name: "Philosophy" },
+  { id: 194, name: "Friends" },
+  { id: 228, name: "Childrens" }
 ];
 
 // Mock bookshelf groupings (empty for now since database has none)

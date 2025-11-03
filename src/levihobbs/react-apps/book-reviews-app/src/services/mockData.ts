@@ -4,11 +4,11 @@ import type { BookshelfGrouping } from '../types/BookReviewTypes';
 import { generatePreviewText, calculateReadingTime } from '../utils/bookReviewUtils';
 
 export const specialtyShelves: string[] = [
-  "favorites",
-  "featured", 
-  "2025-reading-list",
-  "history-of-lit",
-  "friends"
+  "Favorites",
+  "Featured", 
+  "2025 Reading List",
+  "History of Lit",
+  "Friends"
 ];
 
 // Long review content variables to avoid repetition
@@ -33,52 +33,52 @@ export const mockBookshelfGroupings: BookshelfGrouping[] = [
     id: 7,
     name: "History",
     bookshelves: [
-      { id: 202, name: "topical-history" },
-      { id: 214, name: "ancient-history" },
-      { id: 214, name: "renaissance-history" },
-      { id: 227, name: "modern-history" }
+      { id: 202, name: "Topical History" },
+      { id: 214, name: "Ancient History" },
+      { id: 214, name: "Renaissance History" },
+      { id: 227, name: "Modern History" }
     ]
   },
   {
     id: 8,
     name: "Science Fiction",
     bookshelves: [
-      { id: 189, name: "sf-classics" },
-      { id: 201, name: "space-opera" },
-      { id: 203, name: "epic-sf" },
-      { id: 204, name: "science-fiction-comps" },
-      { id: 205, name: "cyberpunk" },
-      { id: 206, name: "2024-science-fiction" }
+      { id: 189, name: "SF Classics" },
+      { id: 201, name: "Space Opera" },
+      { id: 203, name: "Epic SF" },
+      { id: 204, name: "Science Fiction Comps" },
+      { id: 205, name: "Cyberpunk" },
+      { id: 206, name: "2024 Science Fiction" }
     ]
   },
   {
     id: 9,
     name: "Fantasy",
     bookshelves: [
-      { id: 207, name: "high-fantasy" },
-      { id: 208, name: "modern-fantasy" },
-      { id: 209, name: "modern-fairy-tales" },
-      { id: 210, name: "folks-and-myths" }
+      { id: 207, name: "High Fantasy" },
+      { id: 208, name: "Modern Fantasy" },
+      { id: 209, name: "Modern Fairy Tales" },
+      { id: 210, name: "Folks and Myths" }
     ]
   },
   {
     id: 10,
     name: "Ancient Classics",
     bookshelves: [
-      { id: 211, name: "ancient-greek" },
-      { id: 214, name: "ancient-history" },
-      { id: 212, name: "ancient-classics" },
-      { id: 213, name: "ancient-roman" }
+      { id: 211, name: "Ancient Greek" },
+      { id: 214, name: "Ancient History" },
+      { id: 212, name: "Ancient Classics" },
+      { id: 213, name: "Ancient Roman" }
     ]
   },
   {
     id: 11,
     name: "Classics",
     bookshelves: [
-      { id: 211, name: "ancient-greek" },
-      { id: 213, name: "ancient-roman" },
-      { id: 215, name: "renaissance-classics" },
-      { id: 216, name: "modern-classics" }
+      { id: 211, name: "Ancient Greek" },
+      { id: 213, name: "Ancient Roman" },
+      { id: 215, name: "Renaissance Classics" },
+      { id: 216, name: "Modern Classics" }
     ]
   }
 ]; 
@@ -101,7 +101,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(finalEclipseReview),
     readingTimeMinutes: calculateReadingTime(finalEclipseReview),
     coverImageId: null,
-    bookshelves: [{ id: 203, name: "epic-sf" },{ id: 194, name: "friends" }],
+          bookshelves: [{ id: 203, name: "Epic SF" },{ id: 194, name: "Friends" }],
     toneTags: ["gritty", "mystical", "bittersweet", "playful", "surreal", "heroic", "dramatic"]
   },
   {
@@ -121,7 +121,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(odysseyReview),
     readingTimeMinutes: calculateReadingTime(odysseyReview),
     coverImageId: null,
-    bookshelves: [{ id: 192, name: "2025-reading-list" }, { id: 191, name: "ancient-greek" }, { id: 225, name: "ancient-classics" },{ id: 190, name: "history-of-lit" }],
+          bookshelves: [{ id: 192, name: "2025 Reading List" }, { id: 191, name: "Ancient Greek" }, { id: 225, name: "Ancient Classics" },{ id: 190, name: "History of Lit" }],
     toneTags: ["fast-paced", "grotesque", "hopeful", "sweet", "philosophical", "tragic", "romantic"]
   },
   {
@@ -161,7 +161,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(tenthOfDecemberReview),
     readingTimeMinutes: calculateReadingTime(tenthOfDecemberReview),
     coverImageId: null,
-    bookshelves: [{ id: 219, name: "featured" }, { id: 196, name: "favorites" },{ id: 221, name: "modern-literary-fiction" }, { id: 205, name: "cyberpunk" }],
+          bookshelves: [{ id: 219, name: "Featured" }, { id: 196, name: "Favorites" },{ id: 221, name: "Modern Literary Fiction" }, { id: 205, name: "Cyberpunk" }],
     toneTags: ["dark", "futuristic", "surreal", "philosophical", "haunting", "melancholic", "hopeful"]
   },
   {
@@ -241,7 +241,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(thelordoftheringsReview),
     readingTimeMinutes: calculateReadingTime(thelordoftheringsReview),
     coverImageId: 54,
-    bookshelves: [{ id: 196, name: "favorites" }, { id: 219, name: "featured" },{ id: 211, name: "high-fantasy" },{ id: 212, name: "modern-classics" },],
+          bookshelves: [{ id: 196, name: "Favorites" }, { id: 219, name: "Featured" },{ id: 211, name: "High Fantasy" },{ id: 212, name: "Modern Classics" },],
     toneTags: ["suspenseful", "mystical", "tragic", "claustrophobic", "sweet", "disturbing", "atmospheric"]
   },
   {
@@ -261,7 +261,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(twelvestepsandtwelvetraditionsReview),
     readingTimeMinutes: calculateReadingTime(twelvestepsandtwelvetraditionsReview),
     coverImageId: 50,
-    bookshelves: [{ id: 196, name: "favorites" },{ id: 213, name: "psychology" },{ id: 218, name: "spirituality and theology" },]
+    bookshelves: [{ id: 196, name: "Favorites" },{ id: 213, name: "Psychology" },{ id: 218, name: "Spirituality and Theology" },]
   },
   {
     id: 1948,
@@ -280,7 +280,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(assassinsapprenticeReview),
     readingTimeMinutes: calculateReadingTime(assassinsapprenticeReview),
     coverImageId: 55,
-    bookshelves: [{ id: 196, name: "favorites" }, { id: 211, name: "high-fantasy" }],
+    bookshelves: [{ id: 196, name: "Favorites" }, { id: 211, name: "High Fantasy" }],
     toneTags: ["dramatic", "macabre", "heroic", "cynical", "cozy", "uplifting", "dark"]
   },
   {
@@ -300,7 +300,7 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(frogandtoadarefriendsReview),
     readingTimeMinutes: calculateReadingTime(frogandtoadarefriendsReview),
     coverImageId: 61,
-    bookshelves: [{ id: 196, name: "favorites" }, { id: 228, name: "childrens" },],
+    bookshelves: [{ id: 196, name: "Favorites" }, { id: 228, name: "Childrens" },],
     toneTags: ["surreal", "grotesque", "psychological", "bleak", "hopeful", "atmospheric"]
   },
   {
@@ -320,21 +320,21 @@ export const mockBookReviews: BookReview[] = [
     previewText: generatePreviewText(religiousexplanationandscientificideologyReview),
     readingTimeMinutes: calculateReadingTime(religiousexplanationandscientificideologyReview),
     coverImageId: null,
-    bookshelves: [{ id: 192, name: "2025-reading-list" }, { id: 194, name: "friends" }, { id: 195, name: "philosophy" }, { id: 218, name: "theology-and-spirituality" },]  
+    bookshelves: [{ id: 192, name: "2025 Reading List" }, { id: 194, name: "Friends" }, { id: 195, name: "Philosophy" }, { id: 218, name: "Theology and Spirituality" },]  
   }
 ]; 
 
 // Real bookshelves from database
 export const mockBookshelves: Bookshelf[] = [
-  { id: 196, name: "favorites" },
-  { id: 219, name: "featured" },
-  { id: 192, name: "2025-reading-list" },
-  { id: 191, name: "ancient-greek" },
-  { id: 190, name: "history-of-lit" },
-  { id: 211, name: "high-fantasy" },
-  { id: 195, name: "philosophy" },
-  { id: 194, name: "friends" },
-  { id: 228, name: "childrens" }
+  { id: 196, name: "Favorites" },
+  { id: 219, name: "Featured" },
+  { id: 192, name: "2025 Reading List" },
+  { id: 191, name: "Ancient Greek" },
+  { id: 190, name: "History of Lit" },
+  { id: 211, name: "High Fantasy" },
+  { id: 195, name: "Philosophy" },
+  { id: 194, name: "Friends" },
+  { id: 228, name: "Childrens" }
 ];
 
 // Re-export utility functions for convenience

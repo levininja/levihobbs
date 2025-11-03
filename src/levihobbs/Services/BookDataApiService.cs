@@ -2,7 +2,7 @@ using System.Text;
 using System.Text.Json;
 using levihobbs.Models;
 using Microsoft.Extensions.Configuration;
-using BookDataApi.Dtos;
+using BookDataApi.Shared.Dtos;
 
 namespace levihobbs.Services
 {

@@ -50,7 +50,7 @@
             // Make API call to process books
             const bookIdsParam = selectedBookIds.map(id => `bookIds=${id}`).join('&');
             
-            fetch(`https://localhost:5010/api/BookToneRecommendations?${bookIdsParam}`, {
+            fetch(`/api/BookToneRecommendationsProxy?${bookIdsParam}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -70,7 +70,7 @@
                 // Start checking status every 15 minutes (900000 ms)
                 statusCheckInterval = setInterval(() => {
                     checkBatchStatus(currentBatchId);
-                }, 900000);
+                }, 15000); // temporarily do 15 seconds
                 
                 // Check status immediately
                 checkBatchStatus(currentBatchId);
@@ -105,7 +105,7 @@
     }
     
     function checkBatchStatus(batchId) {
-        fetch(`https://localhost:5010/api/BookToneRecommendations/batch/${batchId}/status`)
+        fetch(`/api/BookToneRecommendationsProxy/batch/${batchId}/status`)
             .then(response => {
                 if (response.ok)
                     return response.json();
@@ -149,7 +149,7 @@
     }
     
     function getBookRecommendations(bookId) {
-        fetch(`https://localhost:5010/api/BookToneRecommendations/${bookId}`)
+        fetch(`/api/BookToneRecommendationsProxy/${bookId}`)
             .then(response => {
                 if (response.ok)
                     return response.json();
@@ -157,8 +157,8 @@
                     throw new Error('Failed to get recommendations');
             })
             .then(data => {
-                if (data.recommendations && data.recommendations.length > 0)
-                    addRecommendationsToBook(bookId, data.recommendations);
+                if (data && data.length > 0)
+                    addRecommendationsToBook(bookId, data);
             })
             .catch(error => {
                 console.error('Failed to get recommendations for book', bookId, error);
@@ -178,7 +178,7 @@
             
             const toneTag = document.createElement('span');
             toneTag.className = `tone-tag ai-recommendation ${isApprovedTone ? '' : 'not-approved'}`;
-            toneTag.setAttribute('data-recommendation-id', rec.recommendationId);
+            toneTag.setAttribute('data-recommendation-id', rec.id);
             toneTag.setAttribute('data-book-id', bookId);
             toneTag.setAttribute('data-tone-name', toneName);
             
@@ -187,7 +187,7 @@
             
             toneTag.innerHTML = `
                 ${toneName}
-                <button class="thumbs-down-btn" onclick="giveFeedback(${rec.recommendationId}, event, false)">
+                <button class="thumbs-down-btn" onclick="giveFeedback(${rec.id}, event, false)">
                     👎
                 </button>
             `;
@@ -201,13 +201,17 @@
             event.stopPropagation();
         
         const feedbackValue = isPositive ? 1 : -1;
+        const feedbackData = {
+            toneId: recommendationId,
+            feedback: feedbackValue
+        };
         
-        fetch(`https://localhost:5010/api/BookToneRecommendations/${recommendationId}`, {
+        fetch(`/api/BookToneRecommendationsProxy/${recommendationId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(feedbackValue)
+            body: JSON.stringify(feedbackData)
         }).then(response => {
             if (response.ok) {
                 if (event) {

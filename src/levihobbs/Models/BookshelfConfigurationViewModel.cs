@@ -1,4 +1,4 @@
-using BookDataApi.Dtos;
+using BookDataApi.Shared.Dtos;
 
 namespace levihobbs.Models
 {

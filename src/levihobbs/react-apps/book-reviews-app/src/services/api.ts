@@ -43,7 +43,7 @@ const getApiConfig = (): ApiConfig => {
     const config = window.bookReviewsConfig;
     memoizedConfig = {
       useMock: config.standaloneMode, // standaloneMode: true = use mock, false = use real API
-      baseUrl: config.standaloneMode ? '' : 'http://localhost:5020' // Use book-tone-api on port 5020 when not in standalone mode
+      baseUrl: config.standaloneMode ? '' : '' // Use same domain when not in standalone mode
     };
   } else {
     // Fallback to environment variables for standalone mode
@@ -81,7 +81,7 @@ class BookReviewApi {
     if (shelf) params.append('shelf', shelf);
     if (grouping) params.append('grouping', grouping);
     
-    const response = await this.fetchFromRealApi(`/api/BookReviewsApi?${params.toString()}`);
+    const response = await this.fetchFromRealApi(`/api/bookreviews?${params.toString()}`);
     return convertToCamelCase<BookReviewsViewModel>(response);
   }
   
@@ -107,7 +107,7 @@ class BookReviewApi {
     const params = new URLSearchParams();
     params.append('searchTerm', searchTerm);
     
-    const response = await this.fetchFromRealApi(`/api/BookReviewsApi?${params.toString()}`);
+    const response = await this.fetchFromRealApi(`/api/bookreviews?${params.toString()}`);
     return convertToCamelCase<BookReviewsViewModel>(response);
   }
   

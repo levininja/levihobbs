@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using levihobbs.Data;
 using levihobbs.Models;
 using levihobbs.Services;
-using BookDataApi.Dtos;
+using BookDataApi.Shared.Dtos;
 
 namespace levihobbs.Controllers
 {
@@ -98,8 +98,8 @@ namespace levihobbs.Controllers
                 // Convert ViewModel back to DTO for API call
                 ToneAssignmentDto dto = new ToneAssignmentDto
                 {
-                    BookReviews = model.BookReviews,
-                    BooksWithTones = model.BooksWithTones
+                    BookReviews = model.BookReviews ?? new List<BookReviewToneItemDto>(),
+                    BooksWithTones = model.BooksWithTones ?? new List<BookReviewToneItemDto>()
                 };
                 
                 _logger.LogInformation("Calling book-data-api UpdateToneAssignmentAsync");
