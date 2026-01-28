@@ -21,17 +21,24 @@
         </div>
     </div>
     
-    @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage))
+    @if (!string.IsNullOrEmpty(TempData["Success"] as string))
     {
         <div class="alert alert-success">
-            @ViewBag.SuccessMessage
+            @TempData["Success"]
         </div>
     }
-    
-    @if (ViewBag.DuplicateCount > 0)
+
+    @if (!string.IsNullOrEmpty(TempData["Error"] as string))
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    @if (TempData["DuplicateCount"] is int duplicateCount && duplicateCount > 0)
     {
         <div class="alert alert-info">
-            Detected @ViewBag.DuplicateCount duplicate reviews. Skipping duplicates.
+            Detected @duplicateCount duplicate reviews. Skipping duplicates.
         </div>
     }
     

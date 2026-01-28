@@ -165,38 +165,107 @@
             });
     }
     
+    function getSuggestionElements(bookId) {
+        const row = document.querySelector(`tr[data-book-id="${bookId}"]`);
+        if (!row)
+            return { container: null, applyButton: null };
+        
+        const column = row.querySelector('.suggestions-column');
+        if (!column)
+            return { container: null, applyButton: null };
+        
+        return {
+            container: column.querySelector('.ai-suggestions-container'),
+            applyButton: column.querySelector('.suggest-btn')
+        };
+    }
+    
+    function showSuggestionsPlaceholder(container, message) {
+        if (!container)
+            return;
+        
+        let placeholder = container.querySelector('.suggestions-placeholder');
+        if (!placeholder) {
+            placeholder = document.createElement('em');
+            placeholder.className = 'text-muted suggestions-placeholder';
+            container.appendChild(placeholder);
+        }
+        
+        placeholder.textContent = message;
+    }
+    
+    function updateApplyAllButtonState(bookId) {
+        const { container, applyButton } = getSuggestionElements(bookId);
+        if (!container || !applyButton)
+            return;
+        
+        const actionableSuggestions = container.querySelectorAll('.tone-tag.ai-recommendation:not(.feedback-given):not(.not-approved)');
+        applyButton.disabled = actionableSuggestions.length === 0;
+        
+        const hasSuggestions = container.querySelector('.tone-tag.ai-recommendation') !== null;
+        if (hasSuggestions) {
+            const placeholder = container.querySelector('.suggestions-placeholder');
+            if (placeholder)
+                placeholder.remove();
+        } else if (!container.querySelector('.suggestions-placeholder')) {
+            showSuggestionsPlaceholder(container, 'AI suggestions appear here after processing.');
+        }
+    }
+    
     function addRecommendationsToBook(bookId, recommendations) {
-        const suggestionsColumn = document.querySelector(`tr[data-book-id="${bookId}"] .suggestions-column`);
-        if (!suggestionsColumn) {
-            showBannerMessage(`Error: Could not find suggestions column for book ID ${bookId}`, 'error');
+        const { container } = getSuggestionElements(bookId);
+        
+        if (!container) {
+            showBannerMessage(`Error: Could not find suggestions container for book ID ${bookId}`, 'error');
             return;
         }
         
+        // Clear previous AI suggestions
+        container.querySelectorAll('.tone-tag.ai-recommendation').forEach(tag => tag.remove());
+        const existingPlaceholder = container.querySelector('.suggestions-placeholder');
+        if (existingPlaceholder)
+            existingPlaceholder.remove();
+        
+        let addedCount = 0;
+        
         recommendations.forEach(rec => {
             const toneName = rec.tone;
-            const isApprovedTone = allTones.includes(toneName);
+            if (!toneName)
+                return;
             
+            const isApprovedTone = allTones.includes(toneName);
             const toneTag = document.createElement('span');
-            toneTag.className = `tone-tag ai-recommendation ${isApprovedTone ? '' : 'not-approved'}`;
+            toneTag.className = `tone-tag ai-recommendation ${isApprovedTone ? '' : 'not-approved'}`.trim();
             toneTag.setAttribute('data-recommendation-id', rec.id);
             toneTag.setAttribute('data-book-id', bookId);
             toneTag.setAttribute('data-tone-name', toneName);
             
-            if (isApprovedTone)
-                toneTag.onclick = () => applySuggestion(bookId, toneName);
+            if (isApprovedTone) {
+                toneTag.addEventListener('click', () => applySuggestion(bookId, toneName, toneTag));
+            }
             
-            toneTag.innerHTML = `
-                ${toneName}
-                <button class="thumbs-down-btn" onclick="giveFeedback(${rec.id}, event, false)">
-                    👎
-                </button>
-            `;
+            const toneLabel = document.createElement('span');
+            toneLabel.className = 'tone-label';
+            toneLabel.textContent = toneName;
+            toneTag.appendChild(toneLabel);
             
-            suggestionsColumn.appendChild(toneTag);
+            const thumbsDownBtn = document.createElement('button');
+            thumbsDownBtn.className = 'thumbs-down-btn';
+            thumbsDownBtn.innerHTML = '👎';
+            thumbsDownBtn.addEventListener('click', event => giveFeedback(rec.id, event, false, toneTag));
+            toneTag.appendChild(thumbsDownBtn);
+            
+            container.appendChild(toneTag);
+            addedCount++;
         });
+        
+        if (addedCount === 0)
+            showSuggestionsPlaceholder(container, 'No AI suggestions available for this book right now.');
+        
+        updateApplyAllButtonState(bookId);
     }
     
-    function giveFeedback(recommendationId, event, isPositive = false) {
+    function giveFeedback(recommendationId, event, isPositive = false, sourceElement = null) {
         if (event)
             event.stopPropagation();
         
@@ -206,6 +275,10 @@
             feedback: feedbackValue
         };
         
+        const toneTag = event ? event.target.closest('.tone-tag') : sourceElement;
+        const bookIdAttr = toneTag ? toneTag.getAttribute('data-book-id') : null;
+        const bookId = bookIdAttr ? parseInt(bookIdAttr, 10) : null;
+        
         fetch(`/api/BookToneRecommendationsProxy/${recommendationId}`, {
             method: 'PUT',
             headers: {
@@ -214,13 +287,16 @@
             body: JSON.stringify(feedbackData)
         }).then(response => {
             if (response.ok) {
-                if (event) {
-                    // Mark the recommendation as feedback given
-                    const toneTag = event.target.closest('.tone-tag');
+                if (toneTag) {
                     toneTag.classList.add('feedback-given');
-                    event.target.classList.add('disabled');
+                    if (isPositive)
+                        toneTag.classList.add('applied');
+                    const thumbsDown = toneTag.querySelector('.thumbs-down-btn');
+                    if (thumbsDown)
+                        thumbsDown.classList.add('disabled');
                 }
-                
+                if (bookId !== null)
+                    updateApplyAllButtonState(bookId);
                 showBannerMessage('Feedback successfully recorded', 'success');
             } else {
                 showBannerMessage('Failed to record feedback', 'error');
@@ -298,9 +374,11 @@
         return booksWithTones.indexOf(bookReviewId);
     }
     
-    function applySuggestion(bookReviewId, toneName) {
+    function applySuggestion(bookReviewId, toneIdentifier, sourceElement = null) {
         // AI recommendation - find the tone by name
-        const toneElement = document.querySelector(`[data-book="${bookReviewId}"][data-tone-name="${toneName}"]`);
+        const toneName = String(toneIdentifier);
+        const escapedToneName = (typeof CSS !== 'undefined' && CSS.escape) ? CSS.escape(toneName) : toneName.replace(/"/g, '\\"');
+        const toneElement = document.querySelector(`[data-book="${bookReviewId}"][data-tone-name="${escapedToneName}"]`);
         if (toneElement && !toneElement.classList.contains('selected')) {
             // Find the actual tone ID from the tone groups
             const toneGroups = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ToneColorGroupings.Select(g => new { g.Name, g.ColorClass, Tones = g.Tones.Select(t => new { t.Id, t.Name }) })));
@@ -318,18 +396,28 @@
                 toggleTone(bookReviewId, foundToneId, toneElement);
                 
                 // Give positive feedback when recommendation is applied
-                const recommendationId = toneElement.getAttribute('data-recommendation-id');
+                const recommendationId = sourceElement?.getAttribute('data-recommendation-id');
                 if (recommendationId)
-                    giveFeedback(parseInt(recommendationId), null, true);
+                    giveFeedback(parseInt(recommendationId), null, true, sourceElement);
+                
+                if (sourceElement)
+                    sourceElement.classList.add('applied');
             }
         }
+        
+        updateApplyAllButtonState(bookReviewId);
     }
     
     function applyAllSuggestions(bookReviewId) {
-        const suggestionElements = document.querySelectorAll(`[data-book="${bookReviewId}"].suggested`);
-        suggestionElements.forEach(element => {
-            const toneId = element.getAttribute('data-tone');
-            applySuggestion(bookReviewId, parseInt(toneId));
+        const { container } = getSuggestionElements(bookReviewId);
+        if (!container)
+            return;
+        
+        const actionableSuggestions = container.querySelectorAll('.tone-tag.ai-recommendation:not(.feedback-given):not(.not-approved)');
+        actionableSuggestions.forEach(element => {
+            const toneName = element.getAttribute('data-tone-name');
+            if (toneName)
+                applySuggestion(bookReviewId, toneName, element);
         });
     }
     

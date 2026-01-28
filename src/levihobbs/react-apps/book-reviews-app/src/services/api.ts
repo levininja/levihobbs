@@ -35,8 +35,9 @@ let memoizedConfig: ApiConfig | null = null;
 // Get configuration from window object (set by C# view) or environment variables
 const getApiConfig = (): ApiConfig => {
   // Return memoized config if available
-  if (memoizedConfig)
+  if (memoizedConfig) {
     return memoizedConfig;
+  }
 
   // Check if we're in the C# website context
   if (typeof window !== 'undefined' && window.bookReviewsConfig) {
@@ -74,15 +75,18 @@ class BookReviewApi {
    * Browse functionality - returns book reviews filtered by shelf or grouping
    */
   async browseBookReviews(grouping?: string, shelf?: string): Promise<BookReviewsViewModel> {
-    if (this.config.useMock)
+    if (this.config.useMock) {
       return this.getMockBookReviews(grouping, shelf);
+    }
     
     const params = new URLSearchParams();
     if (shelf) params.append('shelf', shelf);
     if (grouping) params.append('grouping', grouping);
     
-    const response = await this.fetchFromRealApi(`/api/bookreviews?${params.toString()}`);
-    return convertToCamelCase<BookReviewsViewModel>(response);
+    const endpoint = `/api/bookreviews?${params.toString()}`;
+    const response = await this.fetchFromRealApi(endpoint);
+    const converted = convertToCamelCase<BookReviewsViewModel>(response);
+    return converted;
   }
   
   /**
@@ -93,6 +97,7 @@ class BookReviewApi {
       const searchResults = this.getMockSearchResults(searchTerm);
       
       return {
+        BookReviews: searchResults,
         category: undefined,
         allBookshelves: mockBookshelves,
         allBookshelfGroupings: mockBookshelfGroupings,
@@ -147,6 +152,7 @@ class BookReviewApi {
     
     // Return a stable object reference when possible
     return {
+      BookReviews: results,
       category: undefined,
       allBookshelves: mockBookshelves,
       allBookshelfGroupings: mockBookshelfGroupings,
@@ -217,10 +223,16 @@ class BookReviewApi {
    */
   private async fetchFromRealApi<T>(endpoint: string): Promise<T> {
     const baseUrl = this.config.baseUrl || '';
-    const response = await fetch(`${baseUrl}${endpoint}`);
-    if (!response.ok)
+    const fullUrl = `${baseUrl}${endpoint}`;
+    
+    const response = await fetch(fullUrl);
+    
+    if (!response.ok) {
       throw new Error(`API request failed: ${response.statusText}`);
-    return response.json();
+    }
+    
+    const json = await response.json();
+    return json;
   }
 }
 

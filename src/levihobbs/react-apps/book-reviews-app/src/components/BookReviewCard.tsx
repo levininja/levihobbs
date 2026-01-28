@@ -33,7 +33,6 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
           const mockImage = await bookCoverApi.getBookCover(bookReview.titleByAuthor, bookReview.id);
           setMockImageSrc(mockImage);
         } catch (error) {
-          console.warn('Failed to load mock book cover:', error);
           setMockImageSrc(null);
         }
       };
@@ -71,6 +70,9 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
 
   // Memoize bookshelves to prevent unnecessary re-renders
   const bookshelfElements = useMemo(() => {
+    if (!bookReview.bookshelves || !Array.isArray(bookReview.bookshelves)) {
+      return null;
+    }
     return bookReview.bookshelves.map(shelf => (
       <span key={shelf.id} className="tag bookshelf">
         {shelf.name}
@@ -80,7 +82,7 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
 
   // Memoize tone tags with descriptions to prevent unnecessary re-renders
   const toneTagElements = useMemo(() => {
-    if (!bookReview.tones || bookReview.tones.length === 0)
+    if (!bookReview.tones || !Array.isArray(bookReview.tones) || bookReview.tones.length === 0)
       return null;
     return bookReview.tones.map(tone => (
       <span 

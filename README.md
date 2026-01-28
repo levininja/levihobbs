@@ -20,18 +20,19 @@ This application has a **one-way dependency** on the **book-data-api** service, 
 
 ### Important: Project Dependencies
 
-**levihobbs.com** has a direct project reference to **book-data-api** to share DTO classes. This means:
+**levihobbs.com** has a direct project reference to **book-data-api** as its API for all book related data, and they both reference the project BookDataApi.Shared.Dtos.BookReviewDto to share DTO classes. This means:
 
 - **book-data-api** can run independently without levihobbs.com
 - **levihobbs.com** requires book-data-api to be available during build time
 - Both codebases must be installed in adjacent folders in your development environment
-- The DTO classes are defined in book-data-api and consumed by levihobbs.com
+- The DTO classes are defined in BookDataApi.Shared.Dtos.BookReviewDto and consumed by book-data-api and levihobbs.com
 
 **Required folder structure:**
 ```
 develop/
-├── levihobbs/          # This project
-└── book-data-api/      # Must be adjacent to this project
+├── levihobbs/                                  # This project
+└── book-data-api/                              # Must be adjacent to this project
+└── BookDataApi.Shared.Dtos.BookReviewDto/      # Must be adjacent to this project
 ```
 
 ## Getting Started

@@ -14,7 +14,23 @@ export function convertToCamelCase<T>(obj: unknown): T {
   }
 
   if (Array.isArray(obj)) {
-    return obj.map(item => convertToCamelCase(item)) as T;
+    if (!obj || obj.length === 0) {
+      return obj as T;
+    }
+    try {
+      return obj.map(item => {
+        if (item === null || item === undefined) {
+          return item;
+        }
+        try {
+          return convertToCamelCase(item);
+        } catch (error) {
+          return item;
+        }
+      }) as T;
+    } catch (error) {
+      return obj as T;
+    }
   }
 
   if (typeof obj === 'object') {
@@ -50,7 +66,10 @@ export function convertBookReviews(data: unknown[]): unknown[] {
 /**
  * Converts names like "2025-reading-list" to "2025 Reading List".
  */
-export function convertKebabCaseToDisplayCase(name: string): string {
+export function convertKebabCaseToDisplayCase(name: string | null | undefined): string {
+  if (!name || typeof name !== 'string') {
+    return '';
+  }
   return name
     .replace(/-/g, ' ')
     .split(' ')

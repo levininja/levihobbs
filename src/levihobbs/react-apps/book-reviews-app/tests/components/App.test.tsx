@@ -41,6 +41,7 @@ const mockSearchResults: BookReview[] = [
 ];
 
 const mockViewModel: BookReviewsViewModel = {
+  BookReviews: mockFavoritesBooks,
   category: "Book Reviews",
   allBookshelves: [
     { id: 1, name: "Favorites" },

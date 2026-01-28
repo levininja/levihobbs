@@ -38,14 +38,25 @@ namespace levihobbs.Controllers
 
             try
             {
-                var success = await _bookDataApiService.ImportBookReviewsAsync(file);
-                if (success)
+                var result = await _bookDataApiService.ImportBookReviewsAsync(file);
+                if (result.Success)
                 {
-                    TempData["Success"] = "Book reviews imported successfully.";
+                    if (result.DuplicateCount > 0)
+                        TempData["DuplicateCount"] = result.DuplicateCount;
+
+                    if (result.ImportedCount > 0)
+                        TempData["Success"] = $"Imported {result.ImportedCount} book reviews successfully.";
+                    else if (!string.IsNullOrWhiteSpace(result.Message))
+                        TempData["Success"] = result.Message;
+                    else
+                        TempData["Success"] = "Book reviews import completed, but no new reviews were added.";
                 }
                 else
                 {
-                    TempData["Error"] = "Failed to import book reviews. Please ensure book-data-api is running on port 5020.";
+                    if (!string.IsNullOrWhiteSpace(result.Message))
+                        TempData["Error"] = result.Message;
+                    else
+                        TempData["Error"] = "Failed to import book reviews. Please ensure book-data-api is running on port 5020.";
                 }
             }
             catch (HttpRequestException ex)

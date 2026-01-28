@@ -51,14 +51,23 @@ function App() {
 
   // Memoize tags initialization - only run when viewModel changes
   const tags = useMemo(() => {
-    if (!viewModel) 
+    try {
+      if (!viewModel) {
+        return [];
+      }
+      
+      const bookshelves = Array.isArray(viewModel.allBookshelves) ? viewModel.allBookshelves : [];
+      const bookshelfGroupings = Array.isArray(viewModel.allBookshelfGroupings) ? viewModel.allBookshelfGroupings : [];
+      const specialtyShelvesArray = Array.isArray(specialtyShelves) ? specialtyShelves : [];
+      
+      return getTags(
+        bookshelves,
+        bookshelfGroupings,
+        specialtyShelvesArray
+      );
+    } catch (error) {
       return [];
-    
-    return getTags(
-      viewModel.allBookshelves,
-      viewModel.allBookshelfGroupings,
-      specialtyShelves
-    );
+    }
   }, [viewModel]);
 
   const handleBookReviewClick = useCallback((bookReview: BookReview) => {
@@ -70,11 +79,25 @@ function App() {
   }, []);
 
   const handleResults = useCallback((results: BookReview[]) => {
-    const processedResults = results.map(review => ({
-      ...review,
-      // Convert tone tags from "heart-warming" to "Heart-Warming" etc.
-      toneTags: review.toneTags?.map(tag => convertLowerCaseKebabToUpperCaseKebab(tag)) || []
-    }));
+    if (!results || !Array.isArray(results)) {
+      setCurrentResults([]);
+      return;
+    }
+    const processedResults = results.map((review) => {
+      if (!review) {
+        return null;
+      }
+      return {
+        ...review,
+        // Convert tone tags from "heart-warming" to "Heart-Warming" etc.
+        toneTags: review.toneTags && Array.isArray(review.toneTags) 
+          ? review.toneTags.map(tag => convertLowerCaseKebabToUpperCaseKebab(tag)) 
+          : [],
+        // Ensure bookshelves and tones are arrays
+        bookshelves: review.bookshelves && Array.isArray(review.bookshelves) ? review.bookshelves : [],
+        tones: review.tones && Array.isArray(review.tones) ? review.tones : []
+      };
+    }).filter(review => review !== null) as BookReview[];
     setCurrentResults(processedResults);
   }, []);
 

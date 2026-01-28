@@ -9,8 +9,8 @@ namespace levihobbs.Services
         Task<bool> IsApiAvailableAsync();
         
         // Book Reviews
-        Task<List<BookReview>> GetBookReviewsAsync(string? displayCategory = null, string? shelf = null, string? grouping = null, bool recent = false);
-        Task<BookReview?> GetBookReviewAsync(int id);
+        Task<List<BookReviewDto>> GetBookReviewsAsync(string? displayCategory = null, string? shelf = null, string? grouping = null, bool recent = false);
+        Task<BookReviewDto?> GetBookReviewAsync(int id);
         
         // Bookshelves
         Task<List<Bookshelf>> GetBookshelvesAsync();
@@ -27,6 +27,6 @@ namespace levihobbs.Services
         Task<bool> UpdateToneConfigurationAsync(List<ToneItemDto> tones);
         Task<ToneAssignmentDto> GetToneAssignmentAsync();
         Task<bool> UpdateToneAssignmentAsync(ToneAssignmentDto model);
-        Task<bool> ImportBookReviewsAsync(IFormFile file);
+        Task<ImportBookReviewsResult> ImportBookReviewsAsync(IFormFile file);
     }
 } 

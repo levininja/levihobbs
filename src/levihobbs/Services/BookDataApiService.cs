@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Linq;
 using levihobbs.Models;
 using Microsoft.Extensions.Configuration;
 using BookDataApi.Shared.Dtos;
@@ -37,7 +38,7 @@ namespace levihobbs.Services
         }
 
         // Book Reviews
-        public async Task<List<BookReview>> GetBookReviewsAsync(string? displayCategory = null, string? shelf = null, string? grouping = null, bool recent = false)
+        public async Task<List<BookReviewDto>> GetBookReviewsAsync(string? displayCategory = null, string? shelf = null, string? grouping = null, bool recent = false)
         {
             try
             {
@@ -51,27 +52,34 @@ namespace levihobbs.Services
                 if (queryParams.Any())
                     url += "?" + string.Join("&", queryParams);
 
+                _logger.LogInformation("[GetBookReviewsAsync] Calling book-data-api: {Url}", url);
                 var response = await _httpClient.GetAsync(url);
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
-                var result = JsonSerializer.Deserialize<ApiResponse<List<BookReview>>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                return result?.Data ?? new List<BookReview>();
+                _logger.LogInformation("[GetBookReviewsAsync] Raw JSON response from book-data-api (first 500 chars): {Json}", json.Length > 500 ? json.Substring(0, 500) : json);
+                
+                // The book-data-api returns {"bookReviews":[...]}
+                var bookReviewsResponse = JsonSerializer.Deserialize<BookReviewsResponse>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                var bookReviews = bookReviewsResponse?.BookReviews ?? new List<BookReviewDto>();
+                _logger.LogInformation("[GetBookReviewsAsync] Deserialized book reviews count: {Count}", bookReviews.Count);
+                
+                return bookReviews;
             }
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "Cannot connect to book-data-api at {BaseUrl}. Please ensure book-data-api is running on port 5020.", _baseUrl);
                 Console.WriteLine($"ERROR: Cannot connect to book-data-api at {_baseUrl}. Please ensure book-data-api is running on port 5020.");
-                return new List<BookReview>();
+                return new List<BookReviewDto>();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting book reviews from API");
-                return new List<BookReview>();
+                return new List<BookReviewDto>();
             }
         }
 
-        public async Task<BookReview?> GetBookReviewAsync(int id)
+        public async Task<BookReviewDto?> GetBookReviewAsync(int id)
         {
             try
             {
@@ -79,7 +87,7 @@ namespace levihobbs.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-                    return JsonSerializer.Deserialize<BookReview>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    return JsonSerializer.Deserialize<BookReviewDto>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 }
                 return null;
             }
@@ -354,35 +362,109 @@ namespace levihobbs.Services
             }
         }
 
-        public async Task<bool> ImportBookReviewsAsync(IFormFile file)
+        public async Task<ImportBookReviewsResult> ImportBookReviewsAsync(IFormFile file)
         {
+            var result = new ImportBookReviewsResult();
             try
             {
                 using var formData = new MultipartFormDataContent();
-                using var streamContent = new StreamContent(file.OpenReadStream());
-                formData.Add(streamContent, "file", file.FileName);
+                var fileBytes = await ReadFileBytesAsync(file);
+                var contentType = string.IsNullOrWhiteSpace(file.ContentType) ? "text/csv" : file.ContentType;
+
+                // Send both common field names to maximize compatibility with book-data-api.
+                formData.Add(CreateFileContent(fileBytes, contentType), "file", file.FileName);
+                formData.Add(CreateFileContent(fileBytes, contentType), "csvFile", file.FileName);
 
                 var response = await _httpClient.PostAsync($"{_baseUrl}/api/bookreviews/import", formData);
-                return response.IsSuccessStatusCode;
+                var body = await response.Content.ReadAsStringAsync();
+
+                result.Success = response.IsSuccessStatusCode;
+                result.RawResponse = string.IsNullOrWhiteSpace(body) ? null : body;
+
+                if (!string.IsNullOrWhiteSpace(body))
+                {
+                    TryPopulateImportResultFromJson(body, result);
+                }
+
+                if (!result.Success && string.IsNullOrWhiteSpace(result.Message))
+                    result.Message = $"Import failed with status code {(int)response.StatusCode}.";
+
+                return result;
             }
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "Cannot connect to book-data-api at {BaseUrl}. Please ensure book-data-api is running on port 5020.", _baseUrl);
                 Console.WriteLine($"ERROR: Cannot connect to book-data-api at {_baseUrl}. Please ensure book-data-api is running on port 5020.");
-                return false;
+                result.Success = false;
+                result.Message = "Cannot connect to book-data-api.";
+                return result;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error importing book reviews via API");
-                return false;
+                result.Success = false;
+                result.Message = "Error importing book reviews.";
+                return result;
             }
         }
 
+        private static async Task<byte[]> ReadFileBytesAsync(IFormFile file)
+        {
+            using var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream);
+            return memoryStream.ToArray();
+        }
+
+        private static ByteArrayContent CreateFileContent(byte[] fileBytes, string contentType)
+        {
+            var content = new ByteArrayContent(fileBytes);
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+            return content;
+        }
+
+        private static void TryPopulateImportResultFromJson(string body, ImportBookReviewsResult result)
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(body);
+                var root = doc.RootElement;
+                if (root.ValueKind != JsonValueKind.Object)
+                    return;
+
+                var properties = new Dictionary<string, JsonElement>(StringComparer.OrdinalIgnoreCase);
+                foreach (var property in root.EnumerateObject())
+                    properties[property.Name] = property.Value;
+
+                if (properties.TryGetValue("success", out var successProp) &&
+                    (successProp.ValueKind == JsonValueKind.True || successProp.ValueKind == JsonValueKind.False))
+                    result.Success = successProp.GetBoolean();
+
+                if (properties.TryGetValue("importedCount", out var importedCountProp) &&
+                    importedCountProp.TryGetInt32(out var importedCount))
+                    result.ImportedCount = importedCount;
+
+                if (properties.TryGetValue("duplicateCount", out var duplicateCountProp) &&
+                    duplicateCountProp.TryGetInt32(out var duplicateCount))
+                    result.DuplicateCount = duplicateCount;
+
+                if (properties.TryGetValue("message", out var messageProp) && messageProp.ValueKind == JsonValueKind.String)
+                    result.Message = messageProp.GetString();
+            }
+            catch
+            {
+                // Ignore JSON parse errors and fall back to raw response.
+            }
+        }
 
 
         private class ApiResponse<T>
         {
             public T? Data { get; set; }
+        }
+
+        private class BookReviewsResponse
+        {
+            public List<BookReviewDto>? BookReviews { get; set; }
         }
     }
 } 

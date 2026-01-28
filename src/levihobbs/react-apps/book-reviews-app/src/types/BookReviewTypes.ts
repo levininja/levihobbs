@@ -33,6 +33,8 @@ export interface BookshelfGrouping {
 }
 
 export interface BookReviewsViewModel {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  BookReviews: any;
   category?: string;
   allBookshelves: Bookshelf[];
   allBookshelfGroupings: BookshelfGrouping[];

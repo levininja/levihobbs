@@ -19,6 +19,8 @@ export const BrowseBookReviews: React.FC<BrowseBookReviewsProps> = ({
 
   // Create lookup maps for filtering
   const lookupMaps = useMemo(() => {
+    if (!tags || !Array.isArray(tags))
+      return { tagMap: new Map() };
     const tagMap = new Map(tags.map(tag => [tag.name.toLowerCase(), tag]));
     return { tagMap };
   }, [tags]);

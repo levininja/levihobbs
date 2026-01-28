@@ -3,7 +3,6 @@ using levihobbs.Utils;
 using levihobbs.Services;
 using Microsoft.Extensions.Logging;
 using BookDataApi.Shared.Dtos;
-using levihobbs.Models;
 
 namespace levihobbs.Controllers
 {
@@ -51,31 +50,23 @@ namespace levihobbs.Controllers
         {
             try
             {
-                List<BookReview> bookReviews = await _bookDataApiService.GetBookReviewsAsync(
+                List<BookReviewDto> bookReviews = await _bookDataApiService.GetBookReviewsAsync(
                     displayCategory: null,
                     shelf: shelf,
                     grouping: grouping,
                     recent: false
                 );
                 
-                // Log book reviews count and first item details
+                // Log book reviews count
                 _logger.LogInformation("BookReviews count: {Count}", bookReviews.Count);
-                if (bookReviews.Any())
-                {
-                    BookReview firstBookReview = bookReviews.First();
-                    _logger.LogInformation("First BookReview - Id: {Id}, Title: {Title}, Author: {AuthorFirstName} {AuthorLastName}, DateRead: {DateRead}", 
-                        firstBookReview.Id, firstBookReview.Title, firstBookReview.AuthorFirstName, firstBookReview.AuthorLastName, firstBookReview.DateRead);
-                }
                 
+                // TODO: Implement search filtering once we know the exact property names on BookReviewDto
                 // Filter by search term if provided
                 if (!string.IsNullOrEmpty(searchTerm))
                 {
-                    List<BookReview> searchResults = bookReviews.Where(br => 
-                        !string.IsNullOrEmpty(br.SearchableString) &&
-                        br.SearchableString.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
-                    ).ToList();
-                    bookReviews = searchResults;
-                    _logger.LogInformation("After search filter, BookReviews count: {Count}", bookReviews.Count);
+                    _logger.LogWarning("Search filtering is not yet implemented for BookReviewDto");
+                    // For now, return all results when search term is provided
+                    // This should be implemented once we know the DTO structure
                 }
                 
                 // Get bookshelf configuration which contains bookshelves and groupings
