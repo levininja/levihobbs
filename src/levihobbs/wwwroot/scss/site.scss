@@ -1,6 +1,7 @@
-@import 'variables';
-@import 'reset';
-@import 'components/goodreads-rss-feed';
+@use 'sass:color';
+@use 'variables' as *;
+@use 'reset';
+@use 'components/goodreads-rss-feed';
 
 /* Base Styles */
 html {
@@ -61,7 +62,7 @@ p, a, span, div {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background-color: darken($color-brand-secondary, 10%);
+    background-color: color.adjust($color-brand-secondary, $lightness: -10%);
     transform: translateY(-2px);
   }
 }

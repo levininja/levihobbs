@@ -1,5 +1,6 @@
 // Reader page styling
-@import 'variables';
+@use 'sass:color';
+@use 'variables' as *;
 
 .thumbnail {
   margin-bottom: 0 !important;
@@ -106,7 +107,7 @@
     display: inline-block;
     
     &:hover {
-      background-color: darken($color-brand-primary, 10%);
+      background-color: color.adjust($color-brand-primary, $lightness: -10%);
       transform: translateY(-2px);
       box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
       text-decoration: none;
@@ -386,7 +387,7 @@
     @include shadow-md;
     
     &:hover {
-      background-color: darken($color-ui-dark, 10%);
+      background-color: color.adjust($color-ui-dark, $lightness: -10%);
     }
   }
 }

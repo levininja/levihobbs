@@ -4,8 +4,8 @@
   "description": "This is a personal website built using ASP.NET Core MVC with PostgreSQL as the database.",
   "main": "index.js",
   "scripts": {
-    "scss": "for file in wwwroot/scss/*.scss; do node-sass --output-style compressed --source-map true \"$file\" -o wwwroot/css; done",
-    "scss:watch": "nodemon --watch wwwroot/scss --ext scss --exec \"npm run scss\"",
+    "scss": "sass wwwroot/scss:wwwroot/css --style=compressed",
+    "scss:watch": "sass wwwroot/scss:wwwroot/css --watch --style=compressed",
     "start": "npm-run-all --parallel scss:watch",
     "build": "npm run scss",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,8 +14,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "node-sass": "^9.0.0",
-    "nodemon": "^3.1.10",
-    "npm-run-all": "^4.1.5"
+    "npm-run-all": "^4.1.5",
+    "sass": "^1.89.2"
   }
 }

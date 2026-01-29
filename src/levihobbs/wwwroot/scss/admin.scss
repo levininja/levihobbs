@@ -1,4 +1,4 @@
-@import 'variables';
+@use 'variables' as *;
 
 .config-section {
     margin-bottom: $spacing-xl;

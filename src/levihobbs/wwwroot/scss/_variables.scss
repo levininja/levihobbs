@@ -1,0 +1,105 @@
+// Color Variables
+$color-background: #f8f4e9;
+$color-text-primary: #333;
+$color-text-secondary: #555;
+$color-text-light: #fff;
+$color-text-muted: #777;
+$color-success: #28a745;
+
+// Brand Colors
+$color-brand-primary: #c8b1d9;
+$color-brand-secondary: #c49a33;
+$color-brand-accent: #f26d3d;
+
+// Category Colors
+$color-sci-fi: #d7c1e0;
+$color-fantasy: #c49a33;
+$color-modern: #f26d3d;
+$color-reviews: #d3bf99;  // Changed from #e7d7b8 for better contrast
+
+// UI Colors
+$color-ui-light: #f8f9fa;
+$color-ui-medium: #e9ecef;
+$color-ui-dark: #343a40;
+$color-ui-highlight: #c8b1d9;
+$color-error: #dc3545;  // Added for error messages
+
+// Link Colors
+$color-link: #007bff;
+$color-link-hover: #0056b3;
+
+// Gradient Colors
+$gradient-primary-start: #d1e4f3;
+$gradient-primary-end: #c3d8e8;
+
+// Typography
+$font-title: 'Libre Baskerville', serif;
+$font-body: 'Montserrat', sans-serif;
+$font-serif: 'Libre Baskerville', serif;
+
+// Font Weights
+$weight-normal: 400;
+$weight-medium: 500;
+$weight-semibold: 600;
+$weight-bold: 700;
+
+// Font Sizes
+$size-xs: 0.75rem;    // 12px
+$size-sm: 0.875rem;   // 14px
+$size-base: 1rem;     // 16px
+$size-md: 1.125rem;   // 18px
+$size-lg: 1.25rem;    // 20px
+$size-xl: 1.5rem;     // 24px
+$size-2xl: 1.875rem;  // 30px
+$size-3xl: 2.25rem;   // 36px
+$size-4xl: 3rem;      // 48px
+$size-5xl: 3.75rem;   // 60px
+
+// Layout
+$max-width: 1200px;
+$spacing-xs: 0.25rem;  // 4px
+$spacing-sm: 0.5rem;   // 8px
+$spacing-md: 1rem;     // 16px
+$spacing-lg: 1.5rem;   // 24px
+$spacing-xl: 2rem;     // 32px
+$spacing-2xl: 3rem;    // 48px
+
+// Border Radius
+$radius-sm: 0.25rem;   // 4px
+$radius-md: 0.5rem;    // 8px
+$radius-lg: 1rem;      // 16px
+$radius-xl: 1.5rem;    // 24px
+$radius-full: 9999px;  // Fully rounded
+
+// Shadows
+@mixin shadow-sm {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+@mixin shadow-md {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+@mixin shadow-lg {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+// Transitions
+$transition-fast: 0.2s ease;
+$transition-default: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// Z-index
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;
+
+// Breakpoints
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;

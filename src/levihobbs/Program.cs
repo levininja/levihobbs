@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using levihobbs.Data;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Net.Http.Headers;
@@ -15,6 +15,10 @@ namespace levihobbs
         {
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+            // Load secrets files (loaded last so they override appsettings)
+            string environment = builder.Environment.EnvironmentName;
+            builder.Configuration.AddJsonFile($"secrets.{environment}.json", optional: true, reloadOnChange: true);
+
             // Add services to the container.
             builder.Services.AddControllersWithViews()
                 .AddRazorRuntimeCompilation();
@@ -30,6 +34,14 @@ namespace levihobbs
             builder.Services.AddScoped<IReCaptchaService, ReCaptchaService>();
             builder.Services.Configure<ReCaptchaSettings>(
                 builder.Configuration.GetSection("ReCaptcha"));
+
+            // Add Email service
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.Configure<EmailSettings>(
+                builder.Configuration.GetSection("EmailSettings"));
+
+            builder.Services.Configure<GoodreadsSettings>(
+                builder.Configuration.GetSection("Goodreads"));
 
             // Add CORS
             builder.Services.AddCors(options =>
@@ -62,17 +74,6 @@ namespace levihobbs
 
             // Add AdminController
             builder.Services.AddScoped<AdminController>();
-
-
-            // Configure Kestrel
-            builder.WebHost.ConfigureKestrel(serverOptions =>
-            {
-                serverOptions.ListenLocalhost(5000); // HTTP
-                serverOptions.ListenLocalhost(5001, listenOptions =>
-                {
-                    listenOptions.UseHttps();
-                }); // HTTPS
-            });
 
             WebApplication app = builder.Build();
 

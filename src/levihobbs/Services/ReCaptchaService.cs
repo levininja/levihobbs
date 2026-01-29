@@ -1,16 +1,19 @@
+using System;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
+using System.Text.Json;
+using levihobbs.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
-using levihobbs.Models;
-using System.Text.Json.Serialization;
+using Google.Api.Gax.ResourceNames;
+using Google.Cloud.RecaptchaEnterprise.V1;
 
 namespace levihobbs.Services;
 
 public interface IReCaptchaService
 {
     Task<bool> VerifyResponseAsync(string response);
+    Task<bool> VerifyV3TokenAsync(string token, string action);
 }
 
 public class ReCaptchaService : IReCaptchaService
@@ -59,19 +62,61 @@ public class ReCaptchaService : IReCaptchaService
 
         return false;
     }
+
+    public async Task<bool> VerifyV3TokenAsync(string token, string action)
+    {
+        return await CreateAssessmentAsync(token, action);
+    }
+
+    // Create an assessment to analyze the risk of a UI action.
+    // Uses ReCaptcha Enterprise API. Project ID, site key, etc. come from config or defaults.
+    private async Task<bool> CreateAssessmentAsync(string token, string recaptchaAction)
+    {
+        string projectId = "levihobbs-develo-1748119893067";
+        string siteKey = _settings.SiteKey;
+        if (string.IsNullOrEmpty(siteKey))
+            siteKey = "6LdcI1ksAAAAAGY5uCGXIsooV6dwk0oavhvwrtWs";
+
+        try
+        {
+            RecaptchaEnterpriseServiceClient client = RecaptchaEnterpriseServiceClient.Create();
+            ProjectName projectName = new ProjectName(projectId);
+
+            CreateAssessmentRequest createAssessmentRequest = new CreateAssessmentRequest
+            {
+                Assessment = new Assessment
+                {
+                    Event = new Event
+                    {
+                        SiteKey = siteKey,
+                        Token = token,
+                        ExpectedAction = recaptchaAction
+                    }
+                },
+                ParentAsProjectName = projectName
+            };
+
+            Assessment response = await Task.Run(() => client.CreateAssessment(createAssessmentRequest));
+
+            if (response.TokenProperties.Valid == false)
+            {
+                _logger.LogWarning("reCAPTCHA assessment failed: {Reason}", response.TokenProperties.InvalidReason);
+                return false;
+            }
+
+            if (response.TokenProperties.Action != recaptchaAction)
+            {
+                _logger.LogWarning("reCAPTCHA action mismatch: expected {Expected}, got {Actual}", recaptchaAction, response.TokenProperties.Action);
+                return false;
+            }
+
+            _logger.LogInformation("reCAPTCHA score: {Score}", (decimal)response.RiskAnalysis.Score);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "reCAPTCHA Enterprise assessment failed");
+            return false;
+        }
+    }
 }
-
-public class ReCaptchaVerifyResponse
-{
-    [JsonPropertyName("success")]
-    public bool Success { get; set; }
-
-    [JsonPropertyName("challenge_ts")]
-    public string ChallengeTs { get; set; } = string.Empty;
-
-    [JsonPropertyName("hostname")]
-    public string Hostname { get; set; } = string.Empty;
-
-    [JsonPropertyName("error-codes")]
-    public string[] ErrorCodes { get; set; } = Array.Empty<string>();
-} 

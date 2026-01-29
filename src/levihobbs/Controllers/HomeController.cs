@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -20,19 +20,25 @@ namespace levihobbs.Controllers
         private readonly ISubstackApiClient _substackApiClient;
         private readonly IOptions<ReCaptchaSettings> _reCaptchaSettings;
         private readonly IReCaptchaService _reCaptchaService;
+        private readonly IEmailService _emailService;
+        private readonly IOptions<EmailSettings> _emailSettings;
 
         public HomeController(
             ILogger<HomeController> logger,
             ApplicationDbContext context,
             ISubstackApiClient substackApiClient,
             IOptions<ReCaptchaSettings> reCaptchaSettings,
-            IReCaptchaService reCaptchaService)
+            IReCaptchaService reCaptchaService,
+            IEmailService emailService,
+            IOptions<EmailSettings> emailSettings)
         {
             _logger = logger;
             _context = context;
             _substackApiClient = substackApiClient;
             _reCaptchaSettings = reCaptchaSettings;
             _reCaptchaService = reCaptchaService;
+            _emailService = emailService;
+            _emailSettings = emailSettings;
         }
 
         public IActionResult Index()
@@ -136,6 +142,79 @@ namespace levihobbs.Controllers
                 await _context.SaveChangesAsync();
                 
                 return StatusCode(500, new { message = "An error occurred while processing your subscription" });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ContactInquiry([FromForm] ContactFormModel model, [FromForm] string serviceType, [FromForm] string recaptchaToken)
+        {
+            try
+            {
+                // Validate inputs
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new { message = "Please fill in all required fields correctly" });
+                }
+
+                // Validate reCAPTCHA v3
+                if (string.IsNullOrEmpty(recaptchaToken))
+                {
+                    return BadRequest(new { message = "reCAPTCHA verification is required" });
+                }
+
+                bool isValidCaptcha = await _reCaptchaService.VerifyV3TokenAsync(recaptchaToken, "contact_form");
+                if (!isValidCaptcha)
+                {
+                    return BadRequest(new { message = "reCAPTCHA verification failed" });
+                }
+
+                // Determine subject prefix based on service type
+                string subjectPrefix = serviceType switch
+                {
+                    "AuthorWebsite" => "[Author Website Inquiry]",
+                    "WildflowerRetreats" => "[Wildflower Retreats Inquiry]",
+                    "BookReviews" => "[Book Reviews Inquiry]",
+                    _ => "[Contact Inquiry]"
+                };
+
+                string emailSubject = $"{subjectPrefix} {model.Subject}";
+
+                // Build email body
+                string emailBody = $@"
+                    <h2>New Contact Form Submission</h2>
+                    <p><strong>Service Type:</strong> {serviceType}</p>
+                    <p><strong>Name:</strong> {model.Name}</p>
+                    <p><strong>Email:</strong> {model.Email}</p>
+                    {(string.IsNullOrEmpty(model.Phone) ? "" : $"<p><strong>Phone:</strong> {model.Phone}</p>")}
+                    {(string.IsNullOrEmpty(model.CurrentWebsite) ? "" : $"<p><strong>Current Website:</strong> {model.CurrentWebsite}</p>")}
+                    <p><strong>Subject:</strong> {model.Subject}</p>
+                    <p><strong>Message:</strong></p>
+                    <p>{model.Message.Replace("\n", "<br/>")}</p>
+                ";
+
+                // Send email
+                bool emailSent = await _emailService.SendEmailAsync(
+                    _emailSettings.Value.ToEmail,
+                    emailSubject,
+                    emailBody,
+                    model.Email
+                );
+
+                if (emailSent)
+                {
+                    return Ok(new { message = "Thank you for your inquiry! I'll get back to you soon." });
+                }
+                else
+                {
+                    _logger.LogError("Failed to send contact form email for {Email}", model.Email);
+                    return StatusCode(500, new { message = "There was an error sending your message. Please try again later." });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing contact inquiry from {Email}", model.Email);
+                return StatusCode(500, new { message = "An error occurred while processing your request" });
             }
         }
 

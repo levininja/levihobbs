@@ -59,6 +59,8 @@ src/levihobbs/react-apps/raven-unit-test-validation-tool/
 .env.test.local
 .env.production.local
 
-# User secrets
-appsettings.Production.json
+# Secrets files
+secrets.Development.json
+secrets.Production.json
+
 Directory.Build.props 
