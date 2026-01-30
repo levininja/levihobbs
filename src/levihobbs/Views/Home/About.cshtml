@@ -1,8 +1,37 @@
-﻿@{
+@{
     ViewData["Title"] = "About";
 }
 
-<div class="text-center">
-    <h1 class="display-4">About</h1>
-    <p>This is the about page of my website.</p>
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
+
+<div class="text-center about-page">
+    <h1 class="display-4">Writer. Developer. Host.</h1>
+
+    <h2>The Story So Far</h2>
+    <p>I've always lived at the intersection of logic and imagination. By day, I am a software developer with a focus on building clean, functional digital spaces. By night (and early morning), I am a writer of science fiction and fantasy, currently deep in the world of The Broken Universe.</p>
+    <p>After moving from Tennessee to a log cabin on 10 acres in Chattaroy, Washington, I realized that the best work happens when we have the space to breathe. That's why I founded The Wildflower Retreat—a place designed specifically for writers to escape the noise and find their flow.</p>
+
+    <h2>Why I Build for Authors</h2>
+    <p>As both a developer and an author, I know that a writer's website is more than just a digital business card; it's the gateway to your world. I specialize in creating author platforms that are:</p>
+    <ul>
+        <li><strong>Story-First:</strong> Designed to highlight your bibliography and brand.</li>
+        <li><strong>Technically Robust:</strong> Built with the same precision I use in professional AI training and software engineering.</li>
+        <li><strong>User-Friendly:</strong> Easy for you to manage so you can get back to writing.</li>
+    </ul>
+
+    <h2>Life Outside the Screen</h2>
+    <p>When I'm not coding or world-building, you'll usually find me:</p>
+    <ul>
+        <li>Exploring the Inland Northwest in my RV with my wife, Gretchen, and our two dogs, Champ and Sophie.</li>
+        <li>Tending to my garden or pressing flowers from the property.</li>
+        <li>At the table for a board game night (usually a roll-and-write or a round of Bananagrams).</li>
+        <li>Working on the next DIY project around the cabin.</li>
+    </ul>
+
+    <img src="@Url.Content("~/images/a1.jpeg")" alt="" />
+    <img src="@Url.Content("~/images/a2.jpeg")" alt="" />
+    <img src="@Url.Content("~/images/a3.jpeg")" alt="" />
+
 </div>

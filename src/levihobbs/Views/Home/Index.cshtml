@@ -12,9 +12,11 @@
 }
 
 <div class="marketing-page">
-    <div class="tile-backdrop" id="tileBackdrop" aria-hidden="true"></div>
+    <div class="services-grid-intro">
+        <h1>Welcome to LeviHobbs.com</h1>
+        <p>I'm a science fiction writer and author website developer. I'm also the leader of Wildflower Retreats, a writer's retreat space in Spokane, Washington. Click a tile to learn more.</p>
+    </div>
     <div class="services-grid" id="services-grid">
-    
         <!-- Tile 1: Author Website Development -->
         <div class="service-tile" data-service="AuthorWebsite">
             <div class="tile-front">
@@ -24,77 +26,6 @@
                     <h2>Author Website Development</h2>
                     <p>Professional websites tailored for authors</p>
                     <button class="learn-more-btn">Learn More</button>
-                </div>
-            </div>
-            <div class="tile-back">
-                <div class="expanded-content">
-                    <button class="close-btn" aria-label="Close">&times;</button>
-                    <div class="expanded-background" style="background-image: url('@Url.Content("~/images/portrait_serious.jpeg")');"></div>
-                    <div class="expanded-overlay"></div>
-                    <div class="expanded-inner">
-                        <div class="service-info">
-                            <h2>Author Website Development</h2>
-                            <p>Levi Hobbs has been building enterprise-level websites for small-to-medium-size businesses for 13 years. With skills ranging from front-end design work to back-end infrastructure management, he has single-handedly built scalable, robust websites that distill rich feature-sets into elegant user interfaces. As a software engineer, he acquired a unique blend of skills that overlaps with product development and digital marketing research.</p>
-                            <p>Levi is also a dedicated writer and leader of writer's groups and retreats. Now, his passion is to bring his skills together to develop websites for authors that wow readers and sell more books at an affordable cost.</p>
-                            <p>Services include:</p>
-                            <ul>
-                                <li>Product design, market research consultation, and A/B testing</li>
-                                <li>Speedy development of all core pages: Home, About Me, Contact, book pages, and more</li>
-                                <li>Modern styling and UI/UX design, templated or custom</li>
-                                <li>SEO optimization</li>
-                                <li>Mobile-first, responsive layouts</li>
-                                <li>eCommerce and direct-sale tooling</li>
-                                <li>Newsletter and lead magnet integration</li>
-                                <li>Platform community integration</li>
-                                <li>Custom email domain integration</li>
-                                <li>WordPress maintenance</li>
-                                <li>DNS and hosting management</li>
-                                <li>Spam management via ReCaptcha</li>
-                                <li>CMS migrations</li>
-                            </ul>   
-                            <p>Levi is skilled in CSS, SASS, HTML, Javascript, React, C#, Java, Ruby on Rails, SQL, SSMS, Postgres, Wordpress, and many other technologies.</p> 
-                            <p>If you're interested in building a beautiful, functional website that showcases your work and connects with your readers, just send a quick message for your free consultation.</p>
-                        </div>
-                        <div class="contact-form-container">
-                            <form class="contact-form" id="contactForm-AuthorWebsite">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="serviceType" value="AuthorWebsite" />
-                                <div class="form-group">
-                                    <label for="name-AuthorWebsite">Name *</label>
-                                    <input type="text" id="name-AuthorWebsite" name="name" required />
-                                </div>
-                                <div class="form-group">
-                                    <label for="email-AuthorWebsite">Email *</label>
-                                    <input type="email" id="email-AuthorWebsite" name="email" required />
-                                </div>
-                                <div class="form-group">
-                                    <input type="checkbox" id="phone-preference-AuthorWebsite" name="phone-preference" required />
-                                    <label for="phone-preference-AuthorWebsite">I prefer phone call to email</label>
-                                </div>
-                                <div class="form-group">
-                                    <label for="phone-AuthorWebsite">Phone</label>
-                                    <input type="tel" id="phone-AuthorWebsite" name="phone" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="website-AuthorWebsite">Current Website</label>
-                                    <input type="url" id="website-AuthorWebsite" name="currentWebsite" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="subject-AuthorWebsite">Subject *</label>
-                                    <input type="text" id="subject-AuthorWebsite" name="subject" required />
-                                </div>
-                                <div class="form-group">
-                                    <label for="message-AuthorWebsite">Message *</label>
-                                    <textarea id="message-AuthorWebsite" name="message" rows="5" required></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <div class="g-recaptcha" data-sitekey="@ViewBag.ReCaptchaSiteKey" data-size="invisible"></div>
-                                </div>
-                                <button type="submit" class="submit-btn">Send</button>
-                                <div class="form-message"></div>
-                            </form>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -110,20 +41,6 @@
                     <button class="learn-more-btn">Learn More</button>
                 </div>
             </div>
-            <div class="tile-back">
-                <div class="expanded-content">
-                    <button class="close-btn" aria-label="Close">&times;</button>
-                    <div class="expanded-background" style="background-image: url('@Url.Content("~/images/portrait_joyful.jpeg")');"></div>
-                    <div class="expanded-overlay"></div>
-                    <div class="expanded-inner newsletter-expanded">
-                        <div class="newsletter-container">
-                            <h2>Subscribe to The Book of Levi</h2>
-                            <p>Get weekly essays and stories delivered to your inbox</p>
-                            <iframe src="https://levihobbs.substack.com/embed" width="100%" height="320" style="border:1px solid #EEE; frameborder:0; scrolling:no; max-width: 600px;"></iframe>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Tile 3: Wildflower Retreats -->
@@ -137,55 +54,6 @@
                     <button class="learn-more-btn">Learn More</button>
                 </div>
             </div>
-            <div class="tile-back">
-                <div class="expanded-content">
-                    <button class="close-btn" aria-label="Close">&times;</button>
-                    <div class="expanded-background" style="background-image: url('@Url.Content("~/images/wildflower sunset.jpeg")');"></div>
-                    <div class="expanded-overlay"></div>
-                    <div class="expanded-inner">
-                        <div class="service-info">
-                            <h2>Wildflower Retreats</h2>
-                            <p>Join us for inspiring artist retreats and creative workshops in the beautiful Inland Northwest. Our retreat space offers a peaceful environment for writers, artists, and creators to focus on their craft.</p>
-                            <p>We're planning workshops, writing retreats, and collaborative spaces. Get in touch to learn more about upcoming events or to inquire about hosting your own retreat.</p>
-                        </div>
-                        <div class="contact-form-container">
-                            <form class="contact-form" id="contactForm-WildflowerRetreats">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="serviceType" value="WildflowerRetreats" />
-                                <div class="form-group">
-                                    <label for="name-WildflowerRetreats">Name *</label>
-                                    <input type="text" id="name-WildflowerRetreats" name="name" required />
-                                </div>
-                                <div class="form-group">
-                                    <label for="email-WildflowerRetreats">Email *</label>
-                                    <input type="email" id="email-WildflowerRetreats" name="email" required />
-                                </div>
-                                <div class="form-group">
-                                    <label for="phone-WildflowerRetreats">Phone</label>
-                                    <input type="tel" id="phone-WildflowerRetreats" name="phone" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="website-WildflowerRetreats">Current Website</label>
-                                    <input type="url" id="website-WildflowerRetreats" name="currentWebsite" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="subject-WildflowerRetreats">Subject *</label>
-                                    <input type="text" id="subject-WildflowerRetreats" name="subject" required />
-                                </div>
-                                <div class="form-group">
-                                    <label for="message-WildflowerRetreats">Message *</label>
-                                    <textarea id="message-WildflowerRetreats" name="message" rows="5" required></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <div class="g-recaptcha" data-sitekey="@ViewBag.ReCaptchaSiteKey" data-size="invisible"></div>
-                                </div>
-                                <button type="submit" class="submit-btn">Send</button>
-                                <div class="form-message"></div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Tile 4: Book Reviews -->
@@ -196,59 +64,161 @@
                 <div class="tile-content">
                     <h2>Book Reviews</h2>
                     <p>Thoughtful reviews and recommendations</p>
-                    <button class="learn-more-btn">Learn More</button>
-                </div>
-            </div>
-            <div class="tile-back">
-                <div class="expanded-content">
-                    <button class="close-btn" aria-label="Close">&times;</button>
-                    <div class="expanded-background" style="background-image: url('@Url.Content("~/images/portrait_sideview.jpeg")');"></div>
-                    <div class="expanded-overlay"></div>
-                    <div class="expanded-inner">
-                        <div class="service-info">
-                            <h2>Book Reviews</h2>
-                            <p>I write in-depth book reviews that explore themes, writing craft, and the reading experience. Whether you're an author looking for reviews, a publisher seeking coverage, or a reader looking for recommendations, I'd love to hear from you.</p>
-                            <p>I review across genres including science fiction, fantasy, literary fiction, and non-fiction. Reviews are published on my site and shared through my newsletter.</p>
-                        </div>
-                        <div class="contact-form-container">
-                            <form class="contact-form" id="contactForm-BookReviews">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="serviceType" value="BookReviews" />
-                                <div class="form-group">
-                                    <label for="name-BookReviews">Name *</label>
-                                    <input type="text" id="name-BookReviews" name="name" required />
-                                </div>
-                                <div class="form-group">
-                                    <label for="email-BookReviews">Email *</label>
-                                    <input type="email" id="email-BookReviews" name="email" required />
-                                </div>
-                                <div class="form-group">
-                                    <label for="phone-BookReviews">Phone</label>
-                                    <input type="tel" id="phone-BookReviews" name="phone" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="website-BookReviews">Current Website</label>
-                                    <input type="url" id="website-BookReviews" name="currentWebsite" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="subject-BookReviews">Subject *</label>
-                                    <input type="text" id="subject-BookReviews" name="subject" required />
-                                </div>
-                                <div class="form-group">
-                                    <label for="message-BookReviews">Message *</label>
-                                    <textarea id="message-BookReviews" name="message" rows="5" required></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <div class="g-recaptcha" data-sitekey="@ViewBag.ReCaptchaSiteKey" data-size="invisible"></div>
-                                </div>
-                                <button type="submit" class="submit-btn">Send</button>
-                                <div class="form-message"></div>
-                            </form>
-                        </div>
-                    </div>
+                    <a href="https://www.goodreads.com/user/show/96423614" target="_blank" class="learn-more-btn">Learn More</a>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Native <dialog> modals: browser top layer, no custom overlay flicker -->
+    <div class="tile-overlays" id="tileOverlays">
+        <dialog class="tile-back" data-service="AuthorWebsite">
+            <div class="expanded-content">
+                <button class="close-btn" aria-label="Close">&times;</button>
+                <div class="expanded-background" style="background-image: url('@Url.Content("~/images/portrait_serious.jpeg")');"></div>
+                <div class="expanded-overlay"></div>
+                <div class="expanded-inner">
+                    <div class="service-info">
+                        <h2>Author Website Development</h2>
+                        <p>Levi Hobbs has been building enterprise-level websites for small- and medium-sized businesses for 13 years. With skills ranging from front-end design work to back-end infrastructure management, he has single-handedly built scalable, robust websites that distill rich feature-sets into elegant user interfaces. As a software engineer, he acquired a unique blend of skills that overlaps with product development and digital marketing research.</p>
+                        <p>Levi is also a dedicated writer and leader of writer's groups and retreats. Now, his passion is to bring his skills together to develop websites for authors that wow readers and sell more books at an affordable cost.</p>
+                        <p>Services include:</p>
+                        <ul>
+                            <li>Product design, market research consultation, and A/B testing</li>
+                            <li>Speedy development of all core pages: Home, About Me, Contact, book pages, and more</li>
+                            <li>Modern styling and UI/UX design, templated or custom</li>
+                            <li>SEO optimization</li>
+                            <li>Mobile-first, responsive layouts</li>
+                            <li>eCommerce and direct-sale tooling</li>
+                            <li>Newsletter and lead magnet integration</li>
+                            <li>Platform community integration</li>
+                            <li>Custom email domain integration</li>
+                            <li>WordPress maintenance</li>
+                            <li>DNS and hosting management</li>
+                            <li>Spam management via ReCaptcha</li>
+                            <li>CMS migrations</li>
+                        </ul>
+                        <p>Levi is skilled in CSS, SASS, HTML, Javascript, React, C#, Java, PHP, Ruby on Rails, SQL, SSMS, Postgres, Wordpress, and many other technologies.</p>
+                        <p>If you're interested in building a beautiful, functional website that showcases your work and connects with your readers, just send a quick message for your free consultation.</p>
+                    </div>
+                    <div class="contact-form-container">
+                        <form class="contact-form" id="contactForm-AuthorWebsite">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="serviceType" value="AuthorWebsite" />
+                            <div class="form-group">
+                                <label for="name-AuthorWebsite">Name *</label>
+                                <input type="text" id="name-AuthorWebsite" name="name" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="email-AuthorWebsite">Email *</label>
+                                <input type="email" id="email-AuthorWebsite" name="email" required />
+                            </div>
+                            <div class="form-group">
+                                <input type="checkbox" id="phone-preference-AuthorWebsite" name="phone-preference" required />
+                                <label for="phone-preference-AuthorWebsite">I prefer phone call to email</label>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone-AuthorWebsite">Phone</label>
+                                <input type="tel" id="phone-AuthorWebsite" name="phone" />
+                            </div>
+                            <div class="form-group">
+                                <label for="website-AuthorWebsite">Current Website</label>
+                                <input type="url" id="website-AuthorWebsite" name="currentWebsite" />
+                            </div>
+                            <div class="form-group">
+                                <label for="subject-AuthorWebsite">Subject *</label>
+                                <input type="text" id="subject-AuthorWebsite" name="subject" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="message-AuthorWebsite">Message *</label>
+                                <textarea id="message-AuthorWebsite" name="message" rows="5" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <div class="g-recaptcha" data-sitekey="@ViewBag.ReCaptchaSiteKey" data-size="invisible"></div>
+                            </div>
+                            <button type="submit" class="submit-btn">Send</button>
+                            <div class="form-message"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </dialog>
+
+        <dialog class="tile-back small" data-service="Newsletter">
+            <div class="expanded-content">
+                <button class="close-btn" aria-label="Close">&times;</button>
+                <div class="expanded-background" style="background-image: url('@Url.Content("~/images/portrait_joyful.jpeg")');"></div>
+                <div class="expanded-overlay"></div>
+                <div class="expanded-inner newsletter-expanded">
+                    <div class="newsletter-container">
+                        <h2>Subscribe to The Book of Levi</h2>
+                        <p>Get weekly essays and stories delivered to your inbox</p>
+                        <iframe src="https://levihobbs.substack.com/embed" width="100%" height="320" style="border:1px solid #EEE; frameborder:0; scrolling:no; max-width: 600px;"></iframe>
+                    </div>
+                </div>
+            </div>
+        </dialog>
+
+        <dialog class="tile-back" data-service="WildflowerRetreats">
+            <div class="expanded-content">
+                <button class="close-btn" aria-label="Close">&times;</button>
+                <div class="expanded-background" style="background-image: url('@Url.Content("~/images/wildflower sunset.jpeg")');"></div>
+                <div class="expanded-overlay"></div>
+                <div class="expanded-inner">
+                    <div class="service-info">
+                        <h2>Wildflower Retreats</h2>
+                        <p>Join us for inspiring artist retreats and creative workshops in the beautiful Inland Northwest. Our retreat space offers a peaceful environment for writers, artists, and creators to focus on their craft.</p>
+                        <p>We're planning workshops, writing retreats, and collaborative spaces. Get in touch to learn more about upcoming events or to inquire about hosting your own retreat.</p>
+                    </div>
+                    <div class="contact-form-container">
+                        <form class="contact-form" id="contactForm-WildflowerRetreats">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="serviceType" value="WildflowerRetreats" />
+                            <div class="form-group">
+                                <label for="name-WildflowerRetreats">Name *</label>
+                                <input type="text" id="name-WildflowerRetreats" name="name" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="email-WildflowerRetreats">Email *</label>
+                                <input type="email" id="email-WildflowerRetreats" name="email" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="phone-WildflowerRetreats">Phone</label>
+                                <input type="tel" id="phone-WildflowerRetreats" name="phone" />
+                            </div>
+                            <div class="form-group">
+                                <label for="genre-WildflowerRetreats">Genre You Write In</label>
+                                <select id="genre-WildflowerRetreats" name="genre">
+                                    <option value="">Select genre...</option>
+                                    <option value="sf">SF</option>
+                                    <option value="fantasy">Fantasy</option>
+                                    <option value="non-fiction">Non-fiction</option>
+                                    <option value="children's">Children's</option>
+                                    <option value="YA">YA</option>
+                                    <option value="romance">Romance</option>
+                                    <option value="contemporary fiction">Contemporary fiction</option>
+                                    <option value="songwriting/poetry">Songwriting/poetry</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="subject-WildflowerRetreats">Subject *</label>
+                                <input type="text" id="subject-WildflowerRetreats" name="subject" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="message-WildflowerRetreats">Message *</label>
+                                <textarea id="message-WildflowerRetreats" name="message" rows="5" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <div class="g-recaptcha" data-sitekey="@ViewBag.ReCaptchaSiteKey" data-size="invisible"></div>
+                            </div>
+                            <button type="submit" class="submit-btn">Send</button>
+                            <div class="form-message"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </dialog>
     </div>
 </div>
 

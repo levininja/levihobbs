@@ -1,17 +1,50 @@
-﻿@{
+@{
     ViewData["Title"] = "Contact";
 }
-<h2>@ViewData["Title"]</h2>
-<h3>@ViewData["Message"]</h3>
 
-<address>
-    One Microsoft Way<br />
-    Redmond, WA 98052-6399<br />
-    <abbr title="Phone">P:</abbr>
-    425.555.0100
-</address>
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
 
-<address>
-    <strong>Support:</strong> <a href="mailto:Support@example.com">Support@example.com</a><br />
-    <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
-</address>
+<div class="text-center contact-page">
+    <h1 class="display-4">Let’s Build Something New</h1>
+    <p class="contact-intro">Whether you’re looking for a technical partner to launch your author platform, interested in our next writer's retreat, or just want to talk about the far reaches of the galaxy, I’d love to hear from you.</p>
+
+    <div class="contact-form-container contact-page-form-container">
+        <form class="contact-form" id="contactPageForm" method="post" action="">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="subject" id="contactSubject" value="Website Development" />
+            <div class="form-group">
+                <label for="contact-name">Name *</label>
+                <input type="text" id="contact-name" name="name" required />
+            </div>
+            <div class="form-group">
+                <label for="contact-email">Email *</label>
+                <input type="email" id="contact-email" name="email" required />
+            </div>
+            <div class="form-group">
+                <label for="contact-inquiry-type">Inquiry Type *</label>
+                <select id="contact-inquiry-type" name="serviceType" required>
+                    <option value="AuthorWebsite">Website Development</option>
+                    <option value="WildflowerRetreats">Writer's Retreats</option>
+                    <option value="BookReviews">Writing &amp; Media</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="contact-message">Message *</label>
+                <textarea id="contact-message" name="message" rows="5" required></textarea>
+            </div>
+            <div class="form-group g-recaptcha-wrapper" aria-hidden="true">
+                <div class="g-recaptcha" data-sitekey="@ViewBag.ReCaptchaSiteKey" data-size="invisible"></div>
+            </div>
+            <button type="submit" class="submit-btn">Send</button>
+            <div class="form-message"></div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=@ViewBag.ReCaptchaSiteKey" async defer></script>
+    <script src="~/js/home.js" asp-append-version="true"></script>
+}

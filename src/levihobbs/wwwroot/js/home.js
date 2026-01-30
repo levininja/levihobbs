@@ -1,123 +1,80 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Get reCAPTCHA site key from the page
+    // Get reCAPTCHA site key from the page (Contact page or Index modals)
     const recaptchaSiteKey = document.querySelector('.g-recaptcha')?.dataset.sitekey;
+
+    // Contact page: sync subject hidden input with inquiry type dropdown label
+    const contactInquirySelect = document.getElementById('contact-inquiry-type');
+    const contactSubjectInput = document.getElementById('contactSubject');
+    if (contactInquirySelect && contactSubjectInput) {
+        function syncContactSubject() {
+            const option = contactInquirySelect.options[contactInquirySelect.selectedIndex];
+            contactSubjectInput.value = option ? option.text : '';
+        }
+        contactInquirySelect.addEventListener('change', syncContactSubject);
+        syncContactSubject();
+    }
+
+    // Contact page: standalone form submit (not inside tile overlays)
+    const contactPageForm = document.getElementById('contactPageForm');
+    if (contactPageForm && !contactPageForm.closest('#tileOverlays')) {
+        contactPageForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await handleFormSubmission(contactPageForm, contactPageForm.querySelector('[name="serviceType"]')?.value || 'Other');
+        });
+    }
     
-    // Handle tile clicks and flip animations
+    // Tile clicks open native <dialog> via showModal() – browser top layer, no custom overlay
     const serviceTiles = document.querySelectorAll('.service-tile');
-    const body = document.body;
+    const tileOverlays = document.getElementById('tileOverlays');
 
     serviceTiles.forEach(tile => {
         const learnMoreBtn = tile.querySelector('.learn-more-btn');
-        const closeBtn = tile.querySelector('.close-btn');
         const serviceType = tile.dataset.service;
 
-        // Handle Learn More button click
         if (learnMoreBtn)
             learnMoreBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
-                flipTile(tile);
+                openDialog(serviceType);
             });
 
-        // Handle tile click (for entire tile area)
         tile.addEventListener('click', function(e) {
-            // Don't flip if clicking on the back side or form elements
-            if (!tile.classList.contains('flipped') && !e.target.closest('.tile-back'))
-                flipTile(tile);
+            if (e.target.closest('.tile-back')) return;
+            e.preventDefault();
+            e.stopPropagation();
+            openDialog(serviceType);
+        });
+    });
+
+    if (tileOverlays) {
+        tileOverlays.querySelectorAll('.close-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const dialog = btn.closest('dialog.tile-back');
+                if (dialog) dialog.close();
+            });
         });
 
-        // Handle close button
-        if (closeBtn)
-            closeBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                closeTile(tile);
-            });
+        tileOverlays.addEventListener('submit', async function(e) {
+            const form = e.target.closest('.contact-form');
+            if (!form) return;
+            e.preventDefault();
+            const dialog = form.closest('dialog.tile-back');
+            const serviceType = dialog ? dialog.dataset.service : (form.querySelector('input[name="serviceType"]')?.value || '');
+            await handleFormSubmission(form, serviceType);
+        });
 
-        // Handle form submission for contact forms
-        if (serviceType !== 'Newsletter') {
-            const form = tile.querySelector('.contact-form');
-            if (form)
-                form.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    await handleFormSubmission(form, serviceType);
-                });
-        }
-    });
-
-    // Handle clicks outside expanded tile to close (backdrop, overlay, or expanded content)
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('expanded-content') ||
-            e.target.classList.contains('expanded-overlay') ||
-            e.target.id === 'tileBackdrop') {
-            const activeTile = document.querySelector('.service-tile.flipped');
-            if (activeTile)
-                closeTile(activeTile);
-        }
-    });
-
-    // Handle escape key to close
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            const activeTile = document.querySelector('.service-tile.flipped');
-            if (activeTile)
-                closeTile(activeTile);
-        }
-    });
-
-    function flipTile(tile) {
-        const rect = tile.getBoundingClientRect();
-        const backdrop = document.getElementById('tileBackdrop');
-        const servicesGrid = document.getElementById('services-grid');
-
-        // Store original position/size for close animation
-        tile._expandRect = {
-            top: rect.top,
-            left: rect.left,
-            width: rect.width,
-            height: rect.height
-        };
-
-        backdrop.classList.add('visible');
-        tile.classList.add('flipped');
-        body.classList.add('no-scroll');
-        servicesGrid.classList.add('expanded');
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-
-        // Expand to full size on next frame so transition runs
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                tile.classList.add('expanded');
+        // Close on backdrop click and Escape is built into <dialog>
+        tileOverlays.querySelectorAll('dialog.tile-back').forEach(dialog => {
+            dialog.addEventListener('click', function(e) {
+                if (e.target === dialog) dialog.close(); // click on dialog = backdrop
             });
         });
     }
 
-    function closeTile(tile) {
-        const backdrop = document.getElementById('tileBackdrop');
-        const rect = tile._expandRect;
-
-        if (!rect) {
-            // Fallback if opened before we stored rect
-            tile.classList.remove('flipped', 'expanded');
-            body.classList.remove('no-scroll');
-            backdrop.classList.remove('visible');
-            servicesGrid.classList.add('expanded');
-            tile.removeAttribute('style');
-            return;
-        }
-
-        tile.classList.remove('expanded');
-
-        const onExpandDone = function(e) {
-            if (e.target !== tile || (e.propertyName !== 'width' && e.propertyName !== 'height')) return;
-            tile.removeEventListener('transitionend', onExpandDone);
-            tile.classList.remove('flipped');
-            body.classList.remove('no-scroll');
-            backdrop.classList.remove('visible');
-            tile.removeAttribute('style');
-            delete tile._expandRect;
-        };
-
-        tile.addEventListener('transitionend', onExpandDone);
+    function openDialog(serviceType) {
+        const dialog = tileOverlays?.querySelector(`dialog.tile-back[data-service="${serviceType}"]`);
+        if (!dialog) return;
+        dialog.showModal();
     }
 
     async function handleFormSubmission(form, serviceType) {
@@ -183,9 +140,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Auto-close after 3 seconds
                 setTimeout(() => {
-                    const tile = form.closest('.service-tile');
-                    if (tile)
-                        closeTile(tile);
+                    const dialog = form.closest('dialog.tile-back');
+                    if (dialog) dialog.close();
                 }, 3000);
             } else {
                 showFormMessage(messageDiv, result.message || 'An error occurred. Please try again.', 'error');

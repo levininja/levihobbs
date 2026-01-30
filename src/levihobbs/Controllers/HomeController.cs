@@ -56,8 +56,7 @@ namespace levihobbs.Controllers
 
         public IActionResult Contact()
         {
-            ViewData["Message"] = "Your contact page.";
-
+            ViewBag.ReCaptchaSiteKey = _reCaptchaSettings.Value.SiteKey;
             return View();
         }
 

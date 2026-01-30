@@ -489,84 +489,52 @@ p {
   gap: 2rem;
   max-width: 1400px;
   margin: 0 auto;
-  perspective: 1000px;
-
-  &.expanded{
-    z-index: 1060;
-    position: fixed;
-    width: 90%;
-    height: 90%;
-    margin: 0 5%;
-    max-width: initial;
-    transform: translateX(-30px);
-  }
 }
 
-/* Dark backdrop when a tile is expanded */
-.tile-backdrop {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.65);
-  z-index: $z-index-modal-backdrop;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity $transition-slow ease;
-
-  &.visible {
-    opacity: 1;
-    pointer-events: auto;
-  }
-}
-
-/* Service Tile */
+/* Service Tile (front only; backs are native <dialog> in .tile-overlays) */
 .service-tile {
   position: relative;
   height: 400px;
-  transform-style: preserve-3d;
-  transition: transform $transition-slow;
   cursor: pointer;
-
-  &.flipped {
-    transform: rotateY(180deg);
-    position: fixed;
-    z-index: $z-index-modal;
-    transition:
-      transform $transition-slow,
-      top 0.4s ease,
-      left 0.4s ease,
-      width 0.4s ease,
-      height 0.4s ease;
-    height: 100%;
-    width: 100%;
-
-    .tile-front {
-      display: none;
-    }
-    .tile-back {
-      display: inline-block;
-      overflow: scroll;
-    }
-  }
 }
 
-.tile-front,
-.tile-back {
+.tile-front {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden;
   border-radius: $radius-lg;
   overflow: hidden;
   @include shadow-lg;
 }
 
-.tile-front {
-  display: inline-block;
+/* Native <dialog> modals: browser top layer, no opacity/visibility toggling = no flicker */
+.tile-overlays {
+  display: contents; /* dialogs are top-layer, container is just for JS querySelector */
 }
 
-.tile-back {
-  display: none;
-  transform: rotateY(180deg);
+.tile-overlays dialog.tile-back {
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  background: transparent;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.65);
+  }
+}
+.tile-back.small {
+  .expanded-inner {
+    max-width: 800px;
+  }
 }
 
 .tile-background {
@@ -635,12 +603,12 @@ p {
   }
 }
 
-/* Expanded Content */
+/* Expanded Content (relative so it grows with content and scrolls inside .tile-back) */
 .expanded-content {
-  position: fixed;
-  z-index: 1050;
+  position: relative;
   z-index: $z-index-modal;
   width: 100%;
+  min-height: 100%;
 }
 
 .expanded-background {
@@ -702,13 +670,13 @@ p {
   @include shadow-lg;
 
   h2 {
-    font-size: $size-3xl;
+    font-size: 4rem;
     color: $color-brand-primary;
     margin: 0 0 1rem;
   }
 
   p {
-    font-size: $size-base;
+    font-size: 2rem;
     line-height: 1.8;
     color: $color-text-primary;
     margin: 0 0 1rem;
@@ -717,6 +685,9 @@ p {
       margin-bottom: 0;
     }
   }
+}
+li, label, p, button, input, textarea, a, select{
+  font-size: 2rem !important;
 }
 
 .contact-form-container {
@@ -830,6 +801,7 @@ p {
     border-radius: $radius-lg;
     text-align: center;
     @include shadow-lg;
+    width: 100%;
 
     h2 {
       font-size: $size-3xl;
@@ -897,13 +869,59 @@ p {
   }
 }
 
-/* Prevent body scroll when expanded */
+/* Prevent body scroll when modal is open; padding compensates for scrollbar so layout doesn’t shift */
 body.no-scroll {
   overflow: hidden;
+  /* padding-right is set in JS to match scrollbar width and prevent flicker */
 }
 
 #phone-preference-AuthorWebsite {
   width: initial;
   float: left;
   margin-right: .5rem;
+}
+
+.services-grid-intro {
+  text-align: center;
+  max-width: 1100px;
+  margin: 0 auto;
+  perspective: 1000px;
+  padding: 0 0 2rem 0;
+
+  h1 {
+    padding-bottom: 1rem;
+  }
+}
+li {
+  list-style-type: disc;
+}
+
+/* About page */
+.about-page {
+  h1,
+  h2 {
+    margin: 2rem 0;
+  }
+
+  p {
+    margin-bottom: 1rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  img {
+    max-width: min(40rem, 100%);
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 1rem auto;
+  }
+  li{
+    font-size: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    list-style-type: none;
+    max-width: 800px;
+  }
 }
