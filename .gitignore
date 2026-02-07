@@ -64,3 +64,4 @@ secrets.Development.json
 secrets.Production.json
 
 Directory.Build.props 
+.specstory/
