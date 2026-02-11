@@ -2,6 +2,34 @@ document.addEventListener('DOMContentLoaded', function() {
     // Get reCAPTCHA site key from the page (Contact page or Index modals)
     const recaptchaSiteKey = document.querySelector('.g-recaptcha')?.dataset.sitekey;
 
+    // reCAPTCHA Enterprise (enterprise.js) exposes v3 API on grecaptcha.enterprise; standard (api.js) uses grecaptcha
+    function getRecaptchaV3Api() {
+        if (typeof grecaptcha === 'undefined') return null;
+        if (grecaptcha.enterprise && typeof grecaptcha.enterprise.execute === 'function')
+            return grecaptcha.enterprise;
+        if (typeof grecaptcha.execute === 'function')
+            return grecaptcha;
+        return null;
+    }
+
+    // ready() takes a callback (docs: "use grecaptcha.enterprise.ready()" with a callback). It does not return a Promise.
+    function recaptchaReadyThenExecute(recaptchaV3, siteKey, action) {
+        return new Promise((resolve, reject) => {
+            if (!recaptchaV3.ready) {
+                recaptchaV3.execute(siteKey, { action: action }).then(resolve).catch(reject);
+                return;
+            }
+            recaptchaV3.ready(async () => {
+                try {
+                    const token = await recaptchaV3.execute(siteKey, { action: action });
+                    resolve(token);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
+    }
+
     // Contact page: sync subject hidden input with inquiry type dropdown label
     const contactInquirySelect = document.getElementById('contact-inquiry-type');
     const contactSubjectInput = document.getElementById('contactSubject');
@@ -90,11 +118,12 @@ document.addEventListener('DOMContentLoaded', function() {
         messageDiv.style.display = 'none';
 
         try {
-            // Get reCAPTCHA v3 token
+            // Get reCAPTCHA v3 token (Enterprise uses grecaptcha.enterprise, standard uses grecaptcha)
             let recaptchaToken = '';
-            if (recaptchaSiteKey && typeof grecaptcha !== 'undefined') {
+            const recaptchaV3 = getRecaptchaV3Api();
+            if (recaptchaSiteKey && recaptchaV3) {
                 try {
-                    recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'contact_form' });
+                    recaptchaToken = await recaptchaReadyThenExecute(recaptchaV3, recaptchaSiteKey, 'contact_form');
                 } catch (recaptchaError) {
                     console.error('reCAPTCHA error:', recaptchaError);
                     showFormMessage(messageDiv, 'reCAPTCHA verification failed. Please refresh the page and try again.', 'error');
@@ -115,21 +144,34 @@ document.addEventListener('DOMContentLoaded', function() {
             requestBody.append('serviceType', serviceType);
             requestBody.append('recaptchaToken', recaptchaToken);
 
-            // Get anti-forgery token
-            const antiForgeryToken = form.querySelector('input[name="__RequestVerificationToken"]');
+            // Get anti-forgery token (body and header for compatibility with ValidateAntiForgeryToken)
+            const antiForgeryInput = form.querySelector('input[name="__RequestVerificationToken"]');
+            const antiForgeryToken = antiForgeryInput ? antiForgeryInput.value : '';
             if (antiForgeryToken)
-                requestBody.append('__RequestVerificationToken', antiForgeryToken.value);
+                requestBody.append('__RequestVerificationToken', antiForgeryToken);
+
+            const fetchHeaders = {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            };
+            if (antiForgeryToken)
+                fetchHeaders['RequestVerificationToken'] = antiForgeryToken;
 
             // Send request
             const response = await fetch('/Home/ContactInquiry', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
+                headers: fetchHeaders,
                 body: requestBody.toString()
             });
 
-            const result = await response.json();
+            let result = { message: '' };
+            const responseText = await response.text();
+            if (responseText) {
+                try {
+                    result = JSON.parse(responseText);
+                } catch (_) {
+                    result.message = response.ok ? '' : 'The server returned an error. Please try again.';
+                }
+            }
 
             if (response.ok) {
                 // Show success message with animation
@@ -184,13 +226,15 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Validate reCAPTCHA
             if (!recaptchaResponse && recaptchaSiteKey) {
-                // Try v3 if v2 not available
-                try {
-                    recaptchaResponse = await grecaptcha.execute(recaptchaSiteKey, { action: 'newsletter_subscribe' });
-                } catch (recaptchaError) {
-                    messageContainer.textContent = 'Please complete the reCAPTCHA verification';
-                    messageContainer.className = 'newsletter-message newsletter-message-error';
-                    return false;
+                const recaptchaV3 = getRecaptchaV3Api();
+                if (recaptchaV3) {
+                    try {
+                        recaptchaResponse = await recaptchaReadyThenExecute(recaptchaV3, recaptchaSiteKey, 'newsletter_subscribe');
+                    } catch (recaptchaError) {
+                        messageContainer.textContent = 'Please complete the reCAPTCHA verification';
+                        messageContainer.className = 'newsletter-message newsletter-message-error';
+                        return false;
+                    }
                 }
             }
             

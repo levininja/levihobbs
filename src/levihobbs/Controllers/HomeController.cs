@@ -146,7 +146,8 @@ namespace levihobbs.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ContactInquiry([FromForm] ContactFormModel model, [FromForm] string serviceType, [FromForm] string recaptchaToken)
+        public async Task<IActionResult> ContactInquiry([FromForm] ContactFormModel model, [FromForm] string serviceType, 
+            [FromForm] string recaptchaToken, [FromForm] bool phonePreference = false)
         {
             try
             {
