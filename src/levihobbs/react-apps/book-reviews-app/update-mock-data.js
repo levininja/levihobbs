@@ -9,6 +9,17 @@ const lines = sourceData.split('\n').filter(line => line.trim());
 const headerLine = lines[0];
 const dataLines = lines.slice(1);
 
+// ************************************************************************************************
+// ************************************************************************************************
+// ************************************************************************************************
+// DANGER: running this file will override the mood/tone tags in mockData.ts.
+  // TODO: probably remove this file but maybe not. It was used to generate mockData.ts.
+  // but now that file has mood/tone tags in it that aren't in the txt file, so running
+  // this file would override those if it was run right now.
+// ************************************************************************************************
+// ************************************************************************************************
+// ************************************************************************************************
+
 // Parse the data into structured format, skip lines with less than 13 fields
 const reviews = dataLines
   .map(line => line.split('|').map(field => field.trim()))
