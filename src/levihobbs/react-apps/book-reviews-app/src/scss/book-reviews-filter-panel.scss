@@ -28,16 +28,21 @@
       color: $color-text-secondary;
       cursor: pointer;
       transition: all 0.2s ease;
-      
+
       &:hover {
         background: $color-ui-medium;
         color: $color-text-primary;
       }
-      
+
       &.selected {
         background: $color-brand-primary;
         border-color: $color-brand-primary;
         color: white;
+      }
+
+      .expand-toggle {
+        cursor: pointer;
+        font-size: $size-xs;
       }
     }
   }
@@ -71,6 +76,10 @@
     .filter-section {
       flex: 1;
       margin-bottom: 0;
+
+      &:last-child {
+        flex: 2;
+      }
     }
     
     .clear-filters-button {

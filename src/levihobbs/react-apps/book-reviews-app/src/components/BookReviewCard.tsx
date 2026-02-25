@@ -1,7 +1,7 @@
 
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import type { BookReview } from '../types/BookReviewTypes';
-import { bookCoverApi } from '../services/api';
+import { bookCoverApi } from '../services/bookCoverApi';
 import storyIcon from '../assets/story icon.png';
 
 interface BookReviewCardProps {
@@ -80,20 +80,16 @@ export const BookReviewCard: React.FC<BookReviewCardProps> = React.memo(({ bookR
     ));
   }, [bookReview.bookshelves]);
 
-  // Memoize tone tags with descriptions to prevent unnecessary re-renders
+  // Memoize tone tags to prevent unnecessary re-renders
   const toneTagElements = useMemo(() => {
-    if (!bookReview.tones || !Array.isArray(bookReview.tones) || bookReview.tones.length === 0)
+    if (!bookReview.toneTags || !Array.isArray(bookReview.toneTags) || bookReview.toneTags.length === 0)
       return null;
-    return bookReview.tones.map(tone => (
-      <span 
-        key={tone.id} 
-        className="tag tone"
-        title={tone.description || ''}
-      >
-        {tone.name}
+    return bookReview.toneTags.map((tag, index) => (
+      <span key={index} className="tag tone">
+        {tag}
       </span>
     ));
-  }, [bookReview.tones]);
+  }, [bookReview.toneTags]);
 
   return (
     <div 

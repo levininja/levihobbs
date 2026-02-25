@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { bookReviewApi } from '../../src/services/api';
+import { browseApi } from '../../src/services/browseApi';
+import { searchApi } from '../../src/services/searchApi';
 
 // Mock the global window object for testing
 const mockWindow = {
@@ -15,7 +16,7 @@ describe('BookReviewApi - Simplified Test Suite', () => {
   beforeEach(() => {
     // Reset mocks
     vi.clearAllMocks();
-    
+
     // Mock window object
     Object.defineProperty(window, 'bookReviewsConfig', {
       value: mockWindow.bookReviewsConfig,
@@ -27,20 +28,20 @@ describe('BookReviewApi - Simplified Test Suite', () => {
   describe('searchBookReviews', () => {
     describe('should return matching results', () => {
       it('should find bookreviews for books by author first name "George"', async () => {
-        const result = await bookReviewApi.searchBookReviews('George');
+        const result = await searchApi.searchBookReviews('George');
         expect(result.bookReviews.length).toBe(2);
         expect(result.bookReviews.some(bookReview => bookReview.title === '1984')).toBe(true);
         expect(result.bookReviews.some(bookReview => bookReview.title === 'Tenth of December')).toBe(true);
       });
 
       it('should find bookreviews for books by author last name "Orwell"', async () => {
-        const result = await bookReviewApi.searchBookReviews('Orwell');
+        const result = await searchApi.searchBookReviews('Orwell');
         expect(result.bookReviews.length).toBe(1);
         expect(result.bookReviews[0].title).toBe('1984');
       });
 
       it('should find bookreviews for books by title "1984"', async () => {
-        const result = await bookReviewApi.searchBookReviews('1984');
+        const result = await searchApi.searchBookReviews('1984');
         expect(result.bookReviews.length).toBe(1);
         expect(result.bookReviews[0].title).toBe('1984');
       });
@@ -48,24 +49,24 @@ describe('BookReviewApi - Simplified Test Suite', () => {
 
     describe('should handle minimum length requirement', () => {
       it('should return no results for search term with 1 character', async () => {
-        const result = await bookReviewApi.searchBookReviews('a');
+        const result = await searchApi.searchBookReviews('a');
         expect(result.bookReviews.length).toBe(0);
       });
 
       it('should return results for search term with 2 characters', async () => {
-        const result = await bookReviewApi.searchBookReviews('Ho');
+        const result = await searchApi.searchBookReviews('Ho');
         expect(result.bookReviews.length).toBeGreaterThan(0);
       });
     });
 
     describe('should return empty results for no matches', () => {
       it('should return empty array for non-matching search term', async () => {
-        const result = await bookReviewApi.searchBookReviews('asfd98yads');
+        const result = await searchApi.searchBookReviews('asfd98yads');
         expect(result.bookReviews.length).toBe(0);
       });
 
       it('should return empty array for empty search term', async () => {
-        const result = await bookReviewApi.searchBookReviews('');
+        const result = await searchApi.searchBookReviews('');
         expect(result.bookReviews.length).toBe(0);
       });
     });
@@ -75,14 +76,14 @@ describe('BookReviewApi - Simplified Test Suite', () => {
   describe('browseBookReviews', () => {
     describe('should return all bookreviews by default', () => {
       it('should return all bookreviews when no filters applied', async () => {
-        const result = await bookReviewApi.browseBookReviews();
+        const result = await browseApi.browseBookReviews();
         expect(result.bookReviews.length).toBeGreaterThan(0);
       });
     });
 
     describe('should filter by bookshelf', () => {
       it('should return bookreviews from "Favorites" shelf', async () => {
-        const result = await bookReviewApi.browseBookReviews(undefined, 'Favorites');
+        const result = await browseApi.browseBookReviews(undefined, 'Favorites');
         expect(result.selectedShelf).toBe('Favorites');
         expect(result.bookReviews.length).toBeGreaterThan(0);
         result.bookReviews.forEach(bookReview => {
@@ -92,7 +93,7 @@ describe('BookReviewApi - Simplified Test Suite', () => {
       });
 
       it('should return empty results for non-existent shelf', async () => {
-        const result = await bookReviewApi.browseBookReviews(undefined, 'non-existent-shelf');
+        const result = await browseApi.browseBookReviews(undefined, 'non-existent-shelf');
         expect(result.selectedShelf).toBe('non-existent-shelf');
         expect(result.bookReviews.length).toBe(0);
       });
@@ -100,7 +101,7 @@ describe('BookReviewApi - Simplified Test Suite', () => {
 
     describe('should filter by bookshelf grouping', () => {
       it('should return bookreviews from "Science Fiction" grouping', async () => {
-        const result = await bookReviewApi.browseBookReviews('Science Fiction');
+        const result = await browseApi.browseBookReviews('Science Fiction');
         expect(result.selectedGrouping).toBe('Science Fiction');
         expect(result.bookReviews.length).toBeGreaterThan(0);
         const sfBookshelves = ['SF Classics', 'Space Opera', 'Epic SF', 'Science Fiction Comps', 'Cyberpunk', '2024 Science Fiction'];
@@ -111,7 +112,7 @@ describe('BookReviewApi - Simplified Test Suite', () => {
       });
 
       it('should return empty results for non-existent grouping', async () => {
-        const result = await bookReviewApi.browseBookReviews('NonExistentGrouping');
+        const result = await browseApi.browseBookReviews('NonExistentGrouping');
         expect(result.selectedGrouping).toBe('NonExistentGrouping');
         expect(result.bookReviews.length).toBe(0);
       });

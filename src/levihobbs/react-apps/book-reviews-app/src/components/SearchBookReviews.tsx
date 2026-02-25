@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { SearchBar } from './SearchBar';
-import { bookReviewApi } from '../services/api';
+import { searchApi } from '../services/searchApi';
 import type { BookReview } from '../types/BookReviewTypes';
 
 interface SearchBookReviewsProps {
@@ -27,7 +27,7 @@ export const SearchBookReviews: React.FC<SearchBookReviewsProps> = ({
 
     try {
       onLoading(true);
-      const results = await bookReviewApi.searchBookReviews(term);
+      const results = await searchApi.searchBookReviews(term);
       onResults(results.bookReviews || []);
     } catch (err) {
       onError(err instanceof Error ? err.message : 'Failed to search book reviews');

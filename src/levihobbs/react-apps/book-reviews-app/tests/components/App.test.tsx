@@ -1,14 +1,20 @@
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import App from '../../src/App';
-import { bookReviewApi } from '../../src/services/api';
+import { browseApi } from '../../src/services/browseApi';
+import { searchApi } from '../../src/services/searchApi';
 import type { BookReview, BookReviewsViewModel } from '../../src/types/BookReviewTypes';
 import { mockBookReviews } from '../../src/services/mockData';
 
-// Mock the API module
-vi.mock('../../src/services/api', () => ({
-  bookReviewApi: {
-    browseBookReviews: vi.fn(),
+// Mock the API modules
+vi.mock('../../src/services/browseApi', () => ({
+  browseApi: {
+    browseBookReviews: vi.fn()
+  }
+}));
+
+vi.mock('../../src/services/searchApi', () => ({
+  searchApi: {
     searchBookReviews: vi.fn()
   }
 }));
@@ -62,7 +68,7 @@ describe('App', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Mock the API to return favorites by default
-    vi.mocked(bookReviewApi.browseBookReviews).mockResolvedValue(mockViewModel);
+    vi.mocked(browseApi.browseBookReviews).mockResolvedValue(mockViewModel);
   });
 
   afterEach(() => {
@@ -74,12 +80,12 @@ describe('App', () => {
   describe('Welcome Screen', () => {
     it('shows welcome screen initially', async () => {
       render(<App />);
-      
+
       // Wait for any initial async operations to complete
       await waitFor(() => {
         expect(screen.getByTestId('welcome-screen')).toBeInTheDocument();
       });
-      
+
       expect(screen.getByText('Welcome to Levi\'s suppository of book reviews')).toBeInTheDocument();
       expect(screen.getByText('What would you like to do?')).toBeInTheDocument();
       expect(screen.getByTestId('find-book-review-button')).toBeInTheDocument();
@@ -88,12 +94,12 @@ describe('App', () => {
 
     it('navigates to search mode when "Find a particular book review" is clicked', async () => {
       render(<App />);
-      
+
       // Wait for initial render to complete
       await waitFor(() => {
         expect(screen.getByTestId('welcome-screen')).toBeInTheDocument();
       });
-      
+
       const searchButton = screen.getByTestId('find-book-review-button');
       fireEvent.click(searchButton);
 
@@ -105,12 +111,12 @@ describe('App', () => {
 
     it('navigates to browse mode when "Browse book reviews" is clicked', async () => {
       render(<App />);
-      
+
       // Wait for initial render to complete
       await waitFor(() => {
         expect(screen.getByTestId('welcome-screen')).toBeInTheDocument();
       });
-      
+
       const browseButton = screen.getByTestId('browse-book-reviews-button');
       fireEvent.click(browseButton);
 
@@ -124,12 +130,12 @@ describe('App', () => {
   describe('Search Mode', () => {
     beforeEach(async () => {
       render(<App />);
-      
+
       // Wait for initial render to complete
       await waitFor(() => {
         expect(screen.getByTestId('welcome-screen')).toBeInTheDocument();
       });
-      
+
       const searchButton = screen.getByTestId('find-book-review-button');
       fireEvent.click(searchButton);
       await waitFor(() => {
@@ -146,30 +152,30 @@ describe('App', () => {
 
     it('calls searchBookReviews when user types in SearchBar', async () => {
       // Mock the search results
-      vi.mocked(bookReviewApi.searchBookReviews).mockResolvedValue({
+      vi.mocked(searchApi.searchBookReviews).mockResolvedValue({
         ...mockViewModel,
         bookReviews: mockSearchResults
       });
 
       const searchInput = screen.getByTestId('search-input');
-      
+
       // Type "search" into the search bar
       fireEvent.change(searchInput, { target: { value: 'search' } });
 
       await waitFor(() => {
-        expect(bookReviewApi.searchBookReviews).toHaveBeenCalledWith('search');
+        expect(searchApi.searchBookReviews).toHaveBeenCalledWith('search');
       });
     });
 
     it('shows search results when search is performed', async () => {
       // Mock the search results
-      vi.mocked(bookReviewApi.searchBookReviews).mockResolvedValue({
+      vi.mocked(searchApi.searchBookReviews).mockResolvedValue({
         ...mockViewModel,
         bookReviews: mockSearchResults
       });
 
       const searchInput = screen.getByTestId('search-input');
-      
+
       // Type "search" into the search bar
       fireEvent.change(searchInput, { target: { value: 'search' } });
 
@@ -184,7 +190,7 @@ describe('App', () => {
 
     it('shows loading state while searching', async () => {
       // Mock a delayed search response
-      vi.mocked(bookReviewApi.searchBookReviews).mockImplementation(
+      vi.mocked(searchApi.searchBookReviews).mockImplementation(
         () => new Promise(resolve => setTimeout(() => resolve({
           ...mockViewModel,
           bookReviews: mockSearchResults
@@ -202,12 +208,12 @@ describe('App', () => {
   describe('Browse Mode', () => {
     beforeEach(async () => {
       render(<App />);
-      
+
       // Wait for initial render to complete
       await waitFor(() => {
         expect(screen.getByTestId('welcome-screen')).toBeInTheDocument();
       });
-      
+
       const browseButton = screen.getByTestId('browse-book-reviews-button');
       fireEvent.click(browseButton);
       await waitFor(() => {
@@ -224,7 +230,7 @@ describe('App', () => {
 
     it('shows loading state while browsing', async () => {
       // Mock a delayed browse response
-      vi.mocked(bookReviewApi.browseBookReviews).mockImplementation(
+      vi.mocked(browseApi.browseBookReviews).mockImplementation(
         () => new Promise(resolve => setTimeout(() => resolve(mockViewModel), 100))
       );
 
@@ -242,12 +248,12 @@ describe('App', () => {
   describe('Tab Navigation', () => {
     beforeEach(async () => {
       render(<App />);
-      
+
       // Wait for initial render to complete
       await waitFor(() => {
         expect(screen.getByTestId('welcome-screen')).toBeInTheDocument();
       });
-      
+
       const searchButton = screen.getByTestId('find-book-review-button');
       fireEvent.click(searchButton);
       await waitFor(() => {
@@ -282,41 +288,41 @@ describe('App', () => {
 
   describe('Loading and Error States', () => {
     it('shows loading state when API call is in progress', async () => {
-      vi.mocked(bookReviewApi.browseBookReviews).mockImplementation(
+      vi.mocked(browseApi.browseBookReviews).mockImplementation(
         () => new Promise(() => {}) // Never resolves
       );
-      
+
       render(<App />);
-      
+
       // Wait for initial render to complete
       await waitFor(() => {
         expect(screen.getByTestId('welcome-screen')).toBeInTheDocument();
       });
-      
+
       const browseButton = screen.getByTestId('browse-book-reviews-button');
       fireEvent.click(browseButton);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Loading...')).toBeInTheDocument();
       });
     });
 
     it('shows error state when API call fails', async () => {
-      vi.mocked(bookReviewApi.browseBookReviews).mockRejectedValue(new Error('API Error'));
-      
+      vi.mocked(browseApi.browseBookReviews).mockRejectedValue(new Error('API Error'));
+
       render(<App />);
-      
+
       // Wait for initial render to complete
       await waitFor(() => {
         expect(screen.getByTestId('welcome-screen')).toBeInTheDocument();
       });
-      
+
       const browseButton = screen.getByTestId('browse-book-reviews-button');
       fireEvent.click(browseButton);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Error: API Error')).toBeInTheDocument();
       });
     });
   });
-}); 
+});

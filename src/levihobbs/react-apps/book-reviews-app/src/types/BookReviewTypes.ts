@@ -62,4 +62,5 @@ export interface Tone {
   id: number;
   name: string;
   description?: string;
+  subtones?: Tone[];
 }

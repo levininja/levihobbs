@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { bookReviewApi } from './services/api';
+import { browseApi } from './services/browseApi';
 import type { BookReview, BookReviewsViewModel } from './types/BookReviewTypes';
 import { BookReviewCard } from './components/BookReviewCard';
 import { BookReviewReader } from './components/BookReviewReader';
@@ -37,7 +37,7 @@ function App() {
       const fetchData = async () => {
         try {
           setLoading(true);
-          const result = await bookReviewApi.browseBookReviews();
+          const result = await browseApi.browseBookReviews();
           setViewModel(result);
         } catch (err) {
           setError(err instanceof Error ? err.message : 'Failed to fetch book reviews');
