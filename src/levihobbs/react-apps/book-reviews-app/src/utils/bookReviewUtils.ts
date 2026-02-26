@@ -3,7 +3,7 @@ import type { Bookshelf, BookshelfGrouping } from '../types/BookReviewTypes';
 // Helper function to calculate reading time
 export const calculateReadingTime = (review: string): number => {
   const words = review.split(/\s+/).length;
-  return Math.round(words / 250);
+  return Math.max(1, Math.round(words / 250));
 };
 
 // Helper function to generate preview text

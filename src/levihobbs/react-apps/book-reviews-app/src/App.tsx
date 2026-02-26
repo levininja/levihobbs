@@ -121,7 +121,7 @@ function App() {
     return (
       <div className="app welcome-screen" data-testid="welcome-screen">
         <div className="welcome-content">
-          <h1>Welcome to Levi's suppository of book reviews</h1>
+          <h1>Welcome to Levi's archive of book reviews</h1>
           <p>What would you like to do?</p>
           <div className="welcome-options">
             <button 

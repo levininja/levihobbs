@@ -52,7 +52,7 @@ const reviews = dataLines
 // Helper function to calculate reading time
 const calculateReadingTime = (review) => {
   const words = review.split(/\s+/).length;
-  return Math.round(words / 250);
+  return Math.max(1, Math.round(words / 250));
 };
 
 // Helper function to generate preview text
