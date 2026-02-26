@@ -6,6 +6,7 @@ import './scss/common.scss'
 import './scss/book-review-card.scss'
 import './scss/book-review-reader.scss'
 import './scss/search-bar.scss'
+import './scss/recommendation.scss'
 
 createRoot(document.getElementById('book-reviews-app')!).render(
   <StrictMode>

@@ -8,6 +8,7 @@ export interface BookReview {
   averageRating: number;
   numberOfPages: number;
   originalPublicationYear: number | null;
+  publisher?: string;
   dateRead: string;
   myReview: string;
   searchableString?: string;

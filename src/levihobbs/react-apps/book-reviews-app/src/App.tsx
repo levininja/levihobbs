@@ -5,12 +5,13 @@ import { BookReviewCard } from './components/BookReviewCard';
 import { BookReviewReader } from './components/BookReviewReader';
 import { SearchBookReviews } from './components/SearchBookReviews';
 import { BrowseBookReviews } from './components/BrowseBookReviews';
+import { RecommendBookReviews } from './components/RecommendBookReviews';
 import { specialtyShelves } from './services/mockData';
 import { convertLowerCaseKebabToUpperCaseKebab } from './utils/caseConverter';
 import { getTags } from './utils/appFunctions';
 import './App.scss';
 
-type AppMode = 'welcome' | 'search' | 'browse';
+type AppMode = 'welcome' | 'search' | 'browse' | 'recommend';
 
 function App() {
   // Check for startMode configuration from C# web app
@@ -130,12 +131,19 @@ function App() {
             >
               Find a particular book review
             </button>
-            <button 
+            <button
               className="welcome-button"
               onClick={() => setMode('browse')}
               data-testid="browse-book-reviews-button"
             >
               Browse book reviews
+            </button>
+            <button
+              className="recommend-button"
+              onClick={() => setMode('recommend')}
+              data-testid="recommend-book-button"
+            >
+              Recommend me a book
             </button>
           </div>
         </div>
@@ -154,12 +162,19 @@ function App() {
             >
               Search
             </button>
-            <button 
+            <button
               className={`tab-button ${mode === 'browse' ? 'active' : ''}`}
               onClick={() => setMode('browse')}
               data-testid="browse-tab"
             >
               Browse
+            </button>
+            <button
+              className={`tab-button ${mode === 'recommend' ? 'active' : ''}`}
+              onClick={() => setMode('recommend')}
+              data-testid="recommend-tab"
+            >
+              Recommend
             </button>
           </div>
           
@@ -183,10 +198,12 @@ function App() {
         
         <main className="app-main">
           {selectedBookReview ? (
-            <BookReviewReader 
-              bookReview={selectedBookReview} 
+            <BookReviewReader
+              bookReview={selectedBookReview}
               onClose={handleCloseReader}
             />
+          ) : mode === 'recommend' ? (
+            <RecommendBookReviews onBookClick={handleBookReviewClick} />
           ) : (
             <>
               {isLoading && (

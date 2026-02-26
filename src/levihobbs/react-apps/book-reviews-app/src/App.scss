@@ -99,9 +99,74 @@
   text-align: center;
   padding: $spacing-2xl;
   color: $color-text-muted;
-  
+
   p {
     font-size: $size-lg;
     margin: 0;
+  }
+}
+
+// Welcome screen
+.welcome-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.welcome-content {
+  text-align: center;
+
+  h1 {
+    font-family: $font-title;
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    color: $color-text-secondary;
+    margin-bottom: $spacing-xl;
+    font-size: $size-lg;
+  }
+}
+
+.welcome-options {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  align-items: center;
+}
+
+.welcome-button {
+  padding: $spacing-md $spacing-xl;
+  border: 1px solid $color-ui-medium;
+  border-radius: $radius-md;
+  background: $color-ui-light;
+  color: $color-text-primary;
+  font-size: $size-base;
+  font-weight: $weight-medium;
+  cursor: pointer;
+  transition: all $transition-fast;
+  min-width: 280px;
+
+  &:hover {
+    background: $color-ui-medium;
+  }
+}
+
+.recommend-button {
+  padding: $spacing-md $spacing-xl;
+  border: 1px solid $color-brand-primary;
+  border-radius: $radius-md;
+  background: $color-ui-light;
+  color: $color-text-primary;
+  font-size: $size-base;
+  font-weight: $weight-medium;
+  cursor: pointer;
+  transition: all $transition-fast;
+  min-width: 280px;
+
+  &:hover {
+    background: $color-brand-primary;
+    color: $color-text-light;
   }
 }

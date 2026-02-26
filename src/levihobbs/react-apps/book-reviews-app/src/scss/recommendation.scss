@@ -1,0 +1,236 @@
+@use './variables' as *;
+@use 'sass:color';
+
+// --- Wizard styles ---
+.recommendation-wizard {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+
+  h2 {
+    margin-bottom: $spacing-lg;
+    color: $color-text-primary;
+    font-family: $font-title;
+  }
+
+  .wizard-step-indicator {
+    margin-bottom: $spacing-lg;
+    color: $color-text-muted;
+    font-size: $size-sm;
+  }
+
+  .wizard-selections {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    justify-content: center;
+    margin-bottom: $spacing-xl;
+  }
+
+  .wizard-button {
+    background: $color-ui-light;
+    border: 1px solid $color-ui-medium;
+    border-radius: $radius-md;
+    padding: $spacing-sm $spacing-md;
+    font-size: $size-sm;
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    &:hover {
+      background: $color-ui-medium;
+      color: $color-text-primary;
+    }
+
+    &.selected {
+      background: $color-brand-primary;
+      border-color: $color-brand-primary;
+      color: white;
+    }
+
+    &.parent-tone {
+      font-weight: $weight-semibold;
+    }
+  }
+
+  .wizard-nav {
+    display: flex;
+    justify-content: center;
+    gap: $spacing-md;
+    margin-top: $spacing-xl;
+
+    button {
+      padding: $spacing-sm $spacing-xl;
+      border-radius: $radius-md;
+      font-weight: $weight-medium;
+      cursor: pointer;
+      transition: all $transition-fast;
+      border: 1px solid transparent;
+
+      &.wizard-next {
+        background: $color-brand-primary;
+        color: white;
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        &:not(:disabled):hover {
+          background: color.adjust($color-brand-primary, $lightness: -10%);
+        }
+      }
+
+      &.wizard-back {
+        background: $color-ui-light;
+        border-color: $color-ui-medium;
+        color: $color-text-secondary;
+
+        &:hover {
+          background: $color-ui-medium;
+        }
+      }
+    }
+  }
+}
+
+// --- Recommendation results header ---
+.recommendation-header {
+  text-align: center;
+  margin-bottom: $spacing-xl;
+
+  h2 {
+    color: $color-text-primary;
+    font-family: $font-title;
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    color: $color-text-muted;
+    font-size: $size-sm;
+  }
+}
+
+// --- Recommendation results grid: 2-wide desktop, 1-wide mobile ---
+.recommendation-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-xl;
+
+  @media (min-width: $breakpoint-md) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// --- Recommendation card ---
+// Reuses .book-header-section, .book-cover, .book-metadata, .book-publication-year,
+// .book-perfect-for, .book-author, .book-rating, .tag-cloud, .tag, .review-preview,
+// .read-more, .gold-stars from book-review-reader.scss, book-review-card.scss, and common.scss.
+// Only adds the card wrapper, dark header, score badge, and contextual overrides.
+.recommendation-card {
+  position: relative;
+  border: 1px solid $color-ui-medium;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background: $color-text-light;
+  transition: box-shadow $transition-fast;
+
+  &:hover {
+    @include shadow-md;
+  }
+
+  // Override: smaller cover images for cards vs the full reader
+  .book-cover img {
+    width: 120px;
+  }
+
+  // Override: tighter spacing for card context
+  .book-header-section {
+    margin-bottom: 0;
+    padding: $spacing-md;
+    gap: $spacing-md;
+  }
+
+  // Override: compact spacing for metadata items
+  .book-publication-year,
+  .book-rating {
+    margin-bottom: $spacing-xs;
+    font-size: $size-sm;
+  }
+
+  .tag-cloud {
+    margin-bottom: $spacing-xs;
+  }
+}
+
+// Footer section below image: perfect-for + review preview
+.recommendation-card-footer {
+  padding: 0 $spacing-md $spacing-md;
+
+  .book-perfect-for {
+    margin-bottom: $spacing-xs;
+    font-size: $size-sm;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .review-preview {
+    border-top: none;
+    margin-top: $spacing-xs;
+    padding-top: 0;
+  }
+}
+
+// Dark header with title and author
+.recommendation-card-header {
+  background: $color-header-dark;
+  padding: $spacing-md $spacing-lg;
+  padding-right: $spacing-2xl; // Space for score badge
+
+  .book-review-title {
+    color: $color-text-light;
+    font-size: $size-xl;
+    font-family: $font-title;
+    margin: 0 0 $spacing-xs 0;
+  }
+
+  .book-review-author {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+  }
+}
+
+// Score badge in upper right of card
+.recommendation-score {
+  position: absolute;
+  top: $spacing-sm;
+  right: $spacing-sm;
+  background: $color-brand-secondary;
+  color: $color-text-light;
+  font-size: $size-xs;
+  font-weight: $weight-bold;
+  padding: 2px $spacing-sm;
+  border-radius: $radius-full;
+  z-index: 1;
+}
+
+// Reset preferences button
+.reset-prefs-button {
+  display: block;
+  margin: $spacing-xl auto 0;
+  background: $color-ui-light;
+  border: 1px solid $color-ui-medium;
+  border-radius: $radius-md;
+  padding: $spacing-sm $spacing-md;
+  font-size: $size-sm;
+  color: $color-text-secondary;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: $color-ui-medium;
+    color: $color-text-primary;
+  }
+}

@@ -44,7 +44,7 @@ describe('BookReviewCard', () => {
   it('displays bookshelf tags', () => {
     render(<BookReviewCard bookReview={mockBookReview} />);
     
-    expect(screen.getByText('test')).toBeInTheDocument();
+    expect(screen.getByText('Test')).toBeInTheDocument();
   });
 
   it('displays reading time when review content exists', () => {

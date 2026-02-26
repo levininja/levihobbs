@@ -1,12 +1,19 @@
 @use './variables' as *;
 
+// Container for placing bookshelf and tone tag clouds side by side
+.tag-clouds-row {
+  display: flex;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+  margin-bottom: $spacing-sm;
+}
+
 // Common tag cloud styling (used in both book-review-card and book-review-reader)
 .tag-cloud {
   display: flex;
   flex-wrap: wrap;
   gap: $spacing-sm;
   text-align: left;
-  margin-bottom: $spacing-sm;
 
   strong {
     display: block;

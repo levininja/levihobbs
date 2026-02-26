@@ -1,5 +1,6 @@
 @use './variables' as *;
 @use './common' as *;
+@use 'sass:color';
 
 .book-review-card {
   border: 1px solid $color-ui-medium;
@@ -71,6 +72,10 @@
     font-size: $size-sm;
     color: $color-text-secondary;
     line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .read-more {
@@ -84,7 +89,7 @@
     transition: color $transition-fast;
 
     &:hover {
-      color: darken($color-brand-primary, 10%);
+      color: color.adjust($color-brand-primary, $lightness: -10%);
     }
   }
 }
