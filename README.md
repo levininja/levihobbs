@@ -1,6 +1,8 @@
 # Levi Hobbs Website
 
-This is a personal author website built using ASP.NET Core MVC with PostgreSQL as the database.
+This is a website built using ASP.NET Core MVC with PostgreSQL as the database. The shell of the site is a generic author website, but with two notable deviations that are more complex:
+1. The book reviews React app, which hosts over 200 reviews, categorized in several ways, which users can browse/filter by, and a book recommendation engine powered by this data.
+2. A book tone assignment admin page, driven by suggestions from the AI-powered book tone API.
 
 ## Prerequisites
 
@@ -15,7 +17,7 @@ Before you begin, ensure you have the following installed:
 This application has a **one-way dependency** on the **book-data-api** service, which should be running on `http://localhost:5020`. 
 
 - **book-data-api**: Handles all book review data, bookshelves, and tone management (runs on port 5020)
-- **levihobbs.com**: This main website (runs on port 5000/5001) - **depends on book-data-api**
+- **levihobbs.com**: This main website (runs on port 7000/7001) - **depends on book-data-api**
 - **book-tones-api**: An AI-powered service that suggests tones for books based on their content and characteristics (runs on port 5010)
 
 ### Important: Project Dependencies
@@ -30,7 +32,7 @@ This application has a **one-way dependency** on the **book-data-api** service, 
 **Required folder structure:**
 ```
 develop/
-├── levihobbs/                                  # This project
+├── levihobbs.com/                              # This project
 └── book-data-api/                              # Must be adjacent to this project
 └── BookDataApi.Shared.Dtos.BookReviewDto/      # Must be adjacent to this project
 ```
@@ -73,7 +75,7 @@ develop/
 
 6. **Install Node.js Dependencies** (for SCSS compilation)
    ```bash
-   npm install
+   cd src/levihobbs && npm install
    ```
 
 7. **Apply Database Migrations**
@@ -83,20 +85,18 @@ develop/
 
 8. **Compile SCSS to CSS**
    ```bash
-   npm run build
+   cd src/levihobbs && npm run build
    ```
    or
    ```bash
-   npm run scss:watch
+   cd src/levihobbs && npm run scss:watch
    ```
 
 9. **Run the Application**
-   > **Note:** When running `dotnet run` from the root directory, you need to specify the project path: `dotnet run --project src/levihobbs/levihobbs.csproj`. Alternatively, you can `cd` into the `src/levihobbs` directory first and then run the commands.
-   
    ```bash
-   dotnet run --project src/levihobbs/levihobbs.csproj
+   cd src/levihobbs && dotnet run
    ```
-   The application should now be running at `https://localhost:5001` or `http://localhost:5000`
+   The application should now be running at `https://localhost:7001` or `http://localhost:7000`
 
    **Important**: The application will check for the book-data-api on startup and display an error message if it's not available.
 
@@ -130,6 +130,7 @@ develop/
 - Compiled files: `wwwroot/css/` (don't edit these directly)
 
 ### Available Commands
+Run these from the `src/levihobbs/` directory:
 - **Build once:** `npm run build`
 - **Watch mode:** `npm start` (automatically recompiles when files change)
 
@@ -181,7 +182,7 @@ If you encounter any issues:
 
 6. **Running the Application**
    - If you get port conflicts, you can modify the ports in `Properties/launchSettings.json`
-   - Make sure no other application is using ports 5000 or 5001
+   - Make sure no other application is using ports 7000 or 7001
 
 7. **API Connection Issues**
    - If you see "Cannot connect to book-data-api" errors, ensure the book-data-api service is running on port 5020

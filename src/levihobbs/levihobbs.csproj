@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../../BookDataApi.Shared/BookDataApi.Shared.csproj" />
+    <ProjectReference Include="../../../BookDataApi.Shared/BookDataApi.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
