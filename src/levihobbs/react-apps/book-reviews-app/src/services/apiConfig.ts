@@ -22,21 +22,29 @@ export const getApiConfig = (): ApiConfig => {
     return memoizedConfig;
   }
 
-  // Check if we're in the C# website context
+  const envUseMock = import.meta.env.VITE_USE_MOCK;
+
+  // VITE_USE_MOCK=true: force mock regardless of window config
+  if (envUseMock === 'true') {
+    memoizedConfig = { useMock: true, baseUrl: '' };
+    return memoizedConfig;
+  }
+
+  // VITE_USE_MOCK=false: explicit opt-in to real API, overrides window config
+  if (envUseMock === 'false') {
+    memoizedConfig = { useMock: false, baseUrl: import.meta.env.VITE_API_BASE_URL };
+    return memoizedConfig;
+  }
+
+  // VITE_USE_MOCK not set: defer to window config (set by C# view)
   if (typeof window !== 'undefined' && window.bookReviewsConfig) {
     const config = window.bookReviewsConfig;
-    memoizedConfig = {
-      useMock: config.standaloneMode, // standaloneMode: true = use mock, false = use real API
-      baseUrl: config.standaloneMode ? '' : '' // Use same domain when not in standalone mode
-    };
-  } else {
-    // Fallback to environment variables for standalone mode
-    // Default to standalone mode (true) if no configuration is provided
-    memoizedConfig = {
-      useMock: import.meta.env.VITE_USE_MOCK !== 'false',
-      baseUrl: import.meta.env.VITE_API_BASE_URL
-    };
+    memoizedConfig = { useMock: config.standaloneMode, baseUrl: '' };
+    return memoizedConfig;
   }
+
+  // No configuration at all: default to mock
+  memoizedConfig = { useMock: true, baseUrl: '' };
 
   return memoizedConfig;
 };
