@@ -1,0 +1,128 @@
+services:
+  levihobbs-db:
+    image: postgres:16-alpine
+    container_name: levihobbs-db
+    environment:
+      POSTGRES_DB: levihobbs
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - levihobbs_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d levihobbs"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  book-data-db:
+    image: postgres:16-alpine
+    container_name: book-data-db
+    environment:
+      POSTGRES_DB: book_data_api
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - book_data_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d book_data_api"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  book-tone-db:
+    image: postgres:16-alpine
+    container_name: book-tone-db
+    environment:
+      POSTGRES_DB: booktone_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - book_tone_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d booktone_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  book-data-api:
+    build:
+      context: .
+      dockerfile: src/book-data-api/Dockerfile
+    container_name: book-data-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      EnableHttpsRedirection: "false"
+      ConnectionStrings__DefaultConnection: Host=book-data-db;Database=book_data_api;Username=postgres;Password=postgres
+    depends_on:
+      book-data-db:
+        condition: service_healthy
+    ports:
+      - "5020:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  book-tone-api:
+    build:
+      context: .
+      dockerfile: src/book-tone-api/Dockerfile
+    container_name: book-tone-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      EnableHttpsRedirection: "false"
+      ConnectionStrings__DefaultConnection: Host=book-tone-db;Database=booktone_db;Username=postgres;Password=postgres
+      BookDataApi__BaseUrl: http://book-data-api:8080
+    depends_on:
+      book-tone-db:
+        condition: service_healthy
+      book-data-api:
+        condition: service_healthy
+    ports:
+      - "5010:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  levihobbs-web:
+    build:
+      context: .
+      dockerfile: src/levihobbs/Dockerfile
+    container_name: levihobbs-web
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      EnableHttpsRedirection: "false"
+      ConnectionStrings__DefaultConnection: Host=levihobbs-db;Database=levihobbs;Username=postgres;Password=postgres
+      BookDataApi__BaseUrl: http://book-data-api:8080
+      BookToneApi__BaseUrl: http://book-tone-api:8080
+    depends_on:
+      levihobbs-db:
+        condition: service_healthy
+      book-data-api:
+        condition: service_healthy
+      book-tone-api:
+        condition: service_healthy
+    ports:
+      - "7001:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  levihobbs_db_data:
+  book_data_db_data:
+  book_tone_db_data:

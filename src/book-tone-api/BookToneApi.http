@@ -1,0 +1,23 @@
+@BookToneApi_HostAddress = http://localhost:5010
+
+### Get book tone recommendation
+GET {{BookToneApi_HostAddress}}/api/BookToneRecommendations?BookTitle=The Great Gatsby&BookAuthor=F. Scott Fitzgerald&Genres=Fiction&Genres=Classic&Genres=Drama
+Accept: application/json
+
+### Get book tone recommendation for a technical book
+GET {{BookToneApi_HostAddress}}/api/BookToneRecommendations?BookTitle=Clean Code&BookAuthor=Robert C. Martin&Genres=Technology&Genres=Programming&Genres=Education
+Accept: application/json
+
+### Get book tone recommendation for a mystery book
+GET {{BookToneApi_HostAddress}}/api/BookToneRecommendations?BookTitle=The Da Vinci Code&BookAuthor=Dan Brown&Genres=Mystery&Genres=Thriller&Genres=Fiction
+Accept: application/json
+
+### Update book tone recommendation feedback
+PUT {{BookToneApi_HostAddress}}/api/BookToneRecommendations/1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "feedback": 1,
+  "tone": "Formal"
+}

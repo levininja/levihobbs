@@ -14,6 +14,7 @@ namespace levihobbs
         public static void Main(string[] args)
         {
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+            bool enableHttpsRedirection = builder.Configuration.GetValue("EnableHttpsRedirection", true);
 
             // Load secrets files (loaded last so they override appsettings)
             string environment = builder.Environment.EnvironmentName;
@@ -81,6 +82,19 @@ namespace levihobbs
             var logger = app.Services.GetRequiredService<ILogger<Program>>();
             logger.LogInformation("Current environment: {Environment}", app.Environment.EnvironmentName);
 
+            try
+            {
+                using IServiceScope scope = app.Services.CreateScope();
+                ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                dbContext.Database.Migrate();
+                logger.LogInformation("Applied database migrations for levihobbs.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to apply database migrations for levihobbs.");
+                throw;
+            }
+
             // Log the book-data-api configuration
             var baseUrl = builder.Configuration["BookDataApi:BaseUrl"] ?? "http://localhost:5020";
             logger.LogInformation("Book-data-api configured to use: {BaseUrl}", baseUrl);
@@ -106,7 +120,10 @@ namespace levihobbs
                 });
             }
 
-            app.UseHttpsRedirection();
+            if (enableHttpsRedirection)
+            {
+                app.UseHttpsRedirection();
+            }
             app.UseStaticFiles(); // Always use static files middleware
 
             app.UseRouting();
@@ -118,6 +135,7 @@ namespace levihobbs
 
             // Map API controllers (for attribute routing)
             app.MapControllers();
+            app.MapGet("/health", () => Results.Ok("healthy"));
 
             // Specific route for book reviews React app
             app.MapControllerRoute(

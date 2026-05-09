@@ -1,0 +1,11 @@
+.git
+.gitignore
+.vscode
+.specstory
+.claude
+**/bin
+**/obj
+**/node_modules
+**/.DS_Store
+**/*.user
+**/*.suo

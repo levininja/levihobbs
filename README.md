@@ -1,217 +1,138 @@
-# Levi Hobbs Website
+# Levi Hobbs Monorepo
 
-This is a website built using ASP.NET Core MVC with PostgreSQL as the database. The shell of the site is a generic author website, but with two notable deviations that are more complex:
-1. The book reviews React app, which hosts over 200 reviews, categorized in several ways, which users can browse/filter by, and a book recommendation engine powered by this data.
-2. A book tone assignment admin page, driven by suggestions from the AI-powered book tone API.
+This repository contains the main `levihobbs.com` site plus two supporting APIs and one shared DTO library.
+
+## Projects
+
+- `src/levihobbs` - ASP.NET Core MVC site (default ports 7000/7001)
+- `src/levihobbs.Tests` - unit tests for the MVC site
+- `src/book-data-api` - ASP.NET Core Web API for books/reviews/bookshelves/tones (port 5020)
+- `src/book-tone-api` - ASP.NET Core Web API for AI tone recommendations (port 5010)
+- `src/BookDataApi.Shared` - shared DTO/model class library consumed by the other projects
+
+## Architecture Boundary (Important)
+
+This monorepo keeps service boundaries intact:
+
+- `levihobbs` uses its own database.
+- `book-data-api` uses its own database.
+- `book-tone-api` uses its own database.
+- APIs communicate with each other over HTTP where needed; they do not share a DbContext or directly query each other's databases.
+
+This preserves the ability to split services back into separate repositories later.
 
 ## Prerequisites
 
-Before you begin, ensure you have the following installed:
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [PostgreSQL](https://www.postgresql.org/download/)
-- [Node.js and npm](https://nodejs.org/) (for SCSS compilation)
-- An IDE (like Visual Studio, VS Code, or Rider)
+- .NET 8 SDK
+- PostgreSQL
+- Node.js and npm
+- (Optional) Ollama for `book-tone-api`
+- Docker + Docker Compose (for one-command local stack)
 
-## Dependencies
+## Docker Quick Start (Recommended)
 
-This application has a **one-way dependency** on the **book-data-api** service, which should be running on `http://localhost:5020`. 
+From repo root:
 
-- **book-data-api**: Handles all book review data, bookshelves, and tone management (runs on port 5020)
-- **levihobbs.com**: This main website (runs on port 7000/7001) - **depends on book-data-api**
-- **book-tones-api**: An AI-powered service that suggests tones for books based on their content and characteristics (runs on port 5010)
-
-### Important: Project Dependencies
-
-**levihobbs.com** has a direct project reference to **book-data-api** as its API for all book related data, and they both reference the project BookDataApi.Shared.Dtos.BookReviewDto to share DTO classes. This means:
-
-- **book-data-api** can run independently without levihobbs.com
-- **levihobbs.com** requires book-data-api to be available during build time
-- Both codebases must be installed in adjacent folders in your development environment
-- The DTO classes are defined in BookDataApi.Shared.Dtos.BookReviewDto and consumed by book-data-api and levihobbs.com
-
-**Required folder structure:**
+```bash
+docker compose up --build
 ```
-develop/
-├── levihobbs.com/                              # This project
-└── book-data-api/                              # Must be adjacent to this project
-└── BookDataApi.Shared.Dtos.BookReviewDto/      # Must be adjacent to this project
+
+This starts:
+
+- 3 separate PostgreSQL databases (`levihobbs`, `book_data_api`, `booktone_db`)
+- `book-data-api` on `http://localhost:5020`
+- `book-tone-api` on `http://localhost:5010`
+- `levihobbs` on `http://localhost:7001`
+
+The compose stack also:
+
+- Builds the React book reviews app during `levihobbs` image build
+- Applies EF migrations automatically at startup for each service's own database
+- Keeps DB boundaries isolated per service
+
+## Databases
+
+Create three PostgreSQL databases:
+
+```sql
+CREATE DATABASE levihobbs;
+CREATE DATABASE book_data_api;
+CREATE DATABASE booktone_db;
 ```
+
+Then configure credentials in each project's appsettings/secrets as needed:
+
+- `src/levihobbs` -> `ConnectionStrings:DefaultConnection`
+- `src/book-data-api` -> `ConnectionStrings:DefaultConnection`
+- `src/book-tone-api` -> `ConnectionStrings:DefaultConnection`
 
 ## Getting Started
 
-1. **Extract the Project**
-   - Extract the contents of the zip file to a location of your choice
-   - Open the extracted folder in your preferred IDE
+1. Restore and build everything from repo root:
 
-2. **Start Required Services**
-   - **book-data-api**: Must be running on `http://localhost:5020`
-   - **book-tones-api**: Must be running on `http://localhost:5010` (if using tone analysis features)
-   
-   The application will show clear error messages in the console and UI if these services are not available.
+```bash
+dotnet restore
+dotnet build levihobbs.sln
+```
 
-3. **Database Setup**
-   - Install PostgreSQL if you haven't already
-   - Create a new database named `levihobbs`
-   - During PostgreSQL installation, you would have set up a superuser (usually named 'postgres')
-   - Update the connection string in `appsettings.json` with your PostgreSQL credentials:
-     ```json
-     "ConnectionStrings": {
-       "DefaultConnection": "Host=localhost;Database=levihobbs;Username=postgres;Password=your_postgres_password"
-     }
-     ```
-     Replace `your_postgres_password` with the password you set during PostgreSQL installation. If you're using a different username than 'postgres', update that as well.
+2. Install frontend dependencies where needed:
 
-4. **Development Credentials**
-   - Copy `appsettings.Development.template.json` to `appsettings.Development.json`
-   - Contact another developer to get the necessary credentials for:
-     - Google Custom Search API key and Search Engine ID
-     - ReCaptcha site key
-   - These credentials are required for features like book cover image search and form validation
+```bash
+npm --prefix src/levihobbs install
+npm --prefix src/book-data-api install
+npm --prefix src/levihobbs/react-apps/book-reviews-app install
+```
 
-5. **Install .NET Dependencies**
-   ```bash
-   dotnet restore
-   ```
+3. Apply EF migrations (run once per DB-backed project):
 
-6. **Install Node.js Dependencies** (for SCSS compilation)
-   ```bash
-   cd src/levihobbs && npm install
-   ```
+```bash
+dotnet ef database update --project src/levihobbs/levihobbs.csproj
+dotnet ef database update --project src/book-data-api/book-data-api.csproj
+dotnet ef database update --project src/book-tone-api/BookToneApi.csproj
+```
 
-7. **Apply Database Migrations**
-   ```bash
-   dotnet ef database update
-   ```
+4. Run each service in its own terminal:
 
-8. **Compile SCSS to CSS**
-   ```bash
-   cd src/levihobbs && npm run build
-   ```
-   or
-   ```bash
-   cd src/levihobbs && npm run scss:watch
-   ```
+```bash
+# Terminal 1
+dotnet run --project src/book-data-api/book-data-api.csproj
 
-9. **Run the Application**
-   ```bash
-   cd src/levihobbs && dotnet run
-   ```
-   The application should now be running at `https://localhost:7001` or `http://localhost:7000`
+# Terminal 2
+dotnet run --project src/book-tone-api/BookToneApi.csproj
 
-   **Important**: The application will check for the book-data-api on startup and display an error message if it's not available.
+# Terminal 3
+dotnet run --project src/levihobbs/levihobbs.csproj
+```
 
-## Development
+5. Build SCSS/assets as needed:
 
-- The project uses Entity Framework Core for database operations
-- Frontend assets are managed through Bower (see `bower.json`)
-- The application follows the MVC (Model-View-Controller) pattern
-- SCSS is used for styling (see SCSS section below)
+```bash
+npm --prefix src/levihobbs run build
+npm --prefix src/book-data-api run scss:build
+npm --prefix src/levihobbs/react-apps/book-reviews-app run build
+```
 
-## Project Structure
+## Service URLs
 
-- `src/levihobbs/` - Contains the main project
-   - `Controllers/` - Contains the application's controllers
-   - `Models/` - Contains the data models
-   - `Views/` - Contains the Razor views
-   - `ViewComponents/` - Contains the Razor viewComponents
-   - `Data/` - Contains database context and configurations
-   - `Migrations/` - Contains database migration files
-   - `wwwroot/` - Contains static files (CSS, JavaScript, images)
-      - `wwwroot/scss/` - Contains SCSS source files
-      - `wwwroot/css/` - Contains compiled CSS files
-      - `wwwroot/react-apps/` - Contains React applications
-         - `book-reviews-app/` - [Book Reviews React App](src/levihobbs/react-apps/book-reviews-app/README.md) (standalone and integrated modes)
-- `src/levihobbs.Tests/` - Contains the unit test project
+- `levihobbs`: `https://localhost:7001` or `http://localhost:7000`
+- `book-data-api`: `http://localhost:5020`
+- `book-tone-api`: `http://localhost:5010`
 
-## SCSS Compilation
+## React Book Reviews App Mode
 
-### Directory Structure
-- Source files: `wwwroot/scss/`
-- Compiled files: `wwwroot/css/` (don't edit these directly)
+The integrated site now defaults to real API mode:
 
-### Available Commands
-Run these from the `src/levihobbs/` directory:
-- **Build once:** `npm run build`
-- **Watch mode:** `npm start` (automatically recompiles when files change)
+- `src/levihobbs/react-apps/book-reviews-app/env.development`: `VITE_USE_MOCK=false`
+- `src/levihobbs/Views/BookReviews/Index.cshtml`: `standaloneMode: false`
 
-### Working with SCSS
-- Add new SCSS files to the `wwwroot/scss/` directory
-- Use `variables.scss` for design tokens and consistent styling
-- Keep styles modular and follow existing naming conventions
-- Use nesting appropriately to maintain readability
+Use mock mode only for isolated UI development.
 
 ## Troubleshooting
 
-If you encounter any issues:
-1. **.NET SDK Version**
-   - Make sure you have .NET 8.0 SDK installed
-   - You can check your version by running `dotnet --version`
-   - If you have an older version, you'll need to upgrade to .NET 8.0
-
-2. **Entity Framework Core Tools**
-   - If you get errors about `dotnet-ef` not being found, install the EF Core tools:
-     ```bash
-     dotnet tool install --global dotnet-ef
-     ```
-   - If you already have it installed but it's outdated, update it:
-     ```bash
-     dotnet tool update --global dotnet-ef
-     ```
-
-3. **Database Connection**
-   - Ensure PostgreSQL is running
-   - Verify your PostgreSQL connection string in `appsettings.json`
-   - Make sure the database `levihobbs` exists
-   - Check that your PostgreSQL user has the correct permissions
-
-4. **SCSS Compilation Issues**
-   - Make sure Node.js and npm are installed 
-   - Verify that all dependencies are installed with `npm install`
-   - Check for errors in the SCSS files
-
-5. **Build Issues**
-   - Try cleaning and rebuilding the solution:
-     ```bash
-     dotnet clean
-     dotnet build
-     ```
-   - If you get package restore errors, try:
-     ```bash
-     dotnet restore --force
-     ```
-
-6. **Running the Application**
-   - If you get port conflicts, you can modify the ports in `Properties/launchSettings.json`
-   - Make sure no other application is using ports 7000 or 7001
-
-7. **API Connection Issues**
-   - If you see "Cannot connect to book-data-api" errors, ensure the book-data-api service is running on port 5020
-   - If you see "Cannot connect to book-tones-api" errors, ensure the book-tones-api service is running on port 5010
-   - Check that the services are accessible by visiting their health endpoints:
-     - `http://localhost:5020/health` (book-data-api)
-     - `http://localhost:5010/health` (book-tones-api)
-   - Verify that your firewall isn't blocking these ports
+- If `dotnet ef` is missing: `dotnet tool install --global dotnet-ef`
+- If API calls fail, verify all three services are running and ports match config.
+- If Postgres auth fails, update each project's connection string credentials.
 
 ## License
 
 MIT License
-
-Copyright (c) 2026 Levi Hobbs
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE. 
